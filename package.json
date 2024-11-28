@@ -1,0 +1,15 @@
+{
+  "name": "vax",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "typescript"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
