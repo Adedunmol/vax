@@ -5,11 +5,13 @@ import { ZodError, z } from 'zod'
 const stringBoolean = z.coerce.string().transform(val => val === 'true').default('false')
 
 const EnvSchema = z.object({
+    DB_URL: z.string(),
     DB_PASSWORD: z.string(),
     DB_USER: z.string(),
     DB_NAME: z.string(),
     DB_PORT: z.coerce.number(),
-    DB_MIGRATING: stringBoolean
+    DB_MIGRATING: stringBoolean,
+    DB_SEEDING: stringBoolean
 })
 
 export type EnvSchema = z.infer<typeof EnvSchema>
@@ -32,3 +34,5 @@ try {
 
     console.error(error)
 }
+
+export default EnvSchema.parse(process.env)
