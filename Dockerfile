@@ -22,6 +22,4 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build /build/dist ./dist
 
-EXPOSE 5000
-
 CMD [ "node", "dist/index.js" ]

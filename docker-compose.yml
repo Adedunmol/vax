@@ -1,6 +1,37 @@
 services:
-  db:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vax-app
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - PORT=${PORT}
+    ports:
+      - ${PORT}:3000
+    env_file:
+      - ./.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vax
+  
+  postgres:
     image: postgres:16.2
+    restart: always
+    container_name: vax-db
+    healthcheck:
+      test: [CMD_SHELL, "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    env_file:
+      - ./.env
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
@@ -9,3 +40,11 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
+    networks:
+      - vax
+
+volumes:
+  db-data:
+
+networks:
+  vax:
