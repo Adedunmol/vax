@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+    container_name: vax-app
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - PORT=${PORT}
+    ports:
+      - ${PORT}:3000
+    env_file:
+      - ./.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vax
+    command: node src/index.js
+  
+  postgres:
+    extends:
+      file: docker-compose.base.yml
+      service: postgres

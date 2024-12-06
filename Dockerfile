@@ -1,25 +1,23 @@
-# Build stage
-FROM node:alpine AS build
+# Base image
+FROM node:alpine AS base
 
-WORKDIR /build
+WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci && npm cache clean --force
+
+# Development stage
+FROM base AS development
 
 COPY . .
+
+# Build stage
+FROM development AS build
 
 RUN npm run build
 
 # Production stage
-FROM node:alpine AS production
+FROM base AS production
 
-WORKDIR /build
-
-COPY package*.json ./
-
-RUN npm ci --omit=dev && npm cache clean --force
-
-COPY --from=build /build/dist ./dist
-
-CMD [ "node", "dist/index.js" ]
+COPY --from=build /app/dist /app
