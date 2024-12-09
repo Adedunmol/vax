@@ -17,8 +17,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - vax
+    # networks:
+    #   - vax
     command: npm run dev
     volumes:
       - .:/app
