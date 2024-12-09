@@ -2,7 +2,10 @@
   "name": "vax",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "cross-env DB_MIGRATING=true src/db/migrate.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "tsc": "typescript"
@@ -13,6 +16,7 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "cross-env": "^7.0.3",
     "drizzle-kit": "^0.28.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.2"
