@@ -1,17 +1,12 @@
 import buildServer from './app'
 
 const server = buildServer({
-    logger: {
-        level: 'info',
-        transport: {
-            target: 'pino-pretty'
-        }
-    }
+    logger: true
 })
 
 async function main() {
 
-    await server.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
+    server.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
         if (err) {
             server.log.error(err)
             process.exit(1)
