@@ -19,5 +19,3 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
-    # networks:
-    #   - vax

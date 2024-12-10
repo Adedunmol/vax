@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "cross-env DB_MIGRATING=true tsc src/db/migrate.ts",
+    "db:migrate": "cross-env DB_MIGRATING=true tsx src/db/migrate.ts",
     "dev": "npx tsx --watch src/index.ts",
     "build": "tsc",
     "tsc": "typescript"

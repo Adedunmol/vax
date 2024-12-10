@@ -10,6 +10,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_HOST=${DB_HOST}
       - PORT=${PORT}
+      - DB_URL=${DB_URL}
     ports:
       - ${PORT}:3000
     env_file:
