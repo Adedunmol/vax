@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@fastify/jwt": "^9.0.1",
+    "@fastify/redis": "^7.0.1",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^12.0.1",
     "drizzle-kit": "^0.30.0",

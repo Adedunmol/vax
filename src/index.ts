@@ -1,4 +1,5 @@
 import fastifyJwt from '@fastify/jwt'
+import fastifyRedis from '@fastify/redis'
 import buildServer from './app'
 import env from './env'
 import { errorSchemas } from './modules/errors/schema-base'
@@ -11,6 +12,7 @@ export const server = buildServer({
 })
 
 server.register(fastifyJwt, { secret: env.JWT_SECRET })
+server.register(fastifyRedis, { host: env.REDIS_HOST, port: env.REDIS_PORT, password: env.REDIS_PASSWORD })
 
 server.decorate('authenticate', async (request: FastifyRequest, reply :FastifyReply) => {
     try {

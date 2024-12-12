@@ -13,7 +13,10 @@ const EnvSchema = z.object({
     DB_MIGRATING: stringBoolean,
     DB_SEEDING: stringBoolean,
     PORT: z.coerce.number(),
-    JWT_SECRET: z.string()
+    JWT_SECRET: z.string(),
+    REDIS_PORT: z.coerce.number(),
+    REDIS_HOST: z.string(),
+    REDIS_PASSWORD: z.string().default('')
 })
 
 export type EnvSchema = z.infer<typeof EnvSchema>
