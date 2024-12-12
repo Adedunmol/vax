@@ -6,7 +6,7 @@ import userRoutes from './modules/user/user.route'
 import { userSchemas } from './modules/user/user.schema'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-const server = buildServer({
+export const server = buildServer({
     logger: true
 })
 
