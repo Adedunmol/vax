@@ -1,9 +1,8 @@
-import fastify, { FastifyHttp2SecureOptions } from 'fastify'
+import Fastify from 'fastify'
 
 const buildServer = (opts={}) => {
 
-  const app = fastify(opts)
-
+  const app = Fastify(opts)
 
   return app
 }

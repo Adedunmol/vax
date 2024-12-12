@@ -11,7 +11,9 @@ const EnvSchema = z.object({
     DB_NAME: z.string(),
     DB_PORT: z.coerce.number(),
     DB_MIGRATING: stringBoolean,
-    DB_SEEDING: stringBoolean
+    DB_SEEDING: stringBoolean,
+    PORT: z.coerce.number(),
+    JWT_SECRET: z.string()
 })
 
 export type EnvSchema = z.infer<typeof EnvSchema>
