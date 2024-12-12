@@ -22,6 +22,8 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@bull-board/api": "^6.5.3",
+    "@bull-board/fastify": "^6.5.3",
     "@fastify/jwt": "^9.0.1",
     "@fastify/redis": "^7.0.1",
     "bullmq": "^5.34.0",
