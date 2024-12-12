@@ -18,6 +18,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
     # networks:
     #   - vax
     command: npm run dev
@@ -29,3 +31,8 @@ services:
     extends:
       file: docker-compose.base.yml
       service: postgres
+  
+  redis:
+    extends:
+      file: docker-compose.base.yml
+      service: redis
