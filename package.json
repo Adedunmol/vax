@@ -4,10 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "cross-env DB_MIGRATING=true tsx src/db/migrate.ts",
     "dev": "npx tsx --watch src/index.ts",
-    "build": "tsc",
+    "test": "node --test --watch",
     "tsc": "typescript"
   },
   "keywords": [],
