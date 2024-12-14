@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq'
-import { server } from '../..'
+import { server } from '../../index'
 
 const emailWorker = new Worker('emails', async job => {
     try {

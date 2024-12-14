@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { createUser } from "./user.service";
 import { CreateUserInput, LoginUserInput } from "./user.schema";
+import { server } from "../..";
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const body = request.body
@@ -14,7 +15,7 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
 
         return reply.code(201).send(user)
     } catch (err) {
-        console.error(err)
+        server.log.error(err)
 
         // check source of error
         return reply.code(500).send(err)
@@ -40,7 +41,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         // { accessToken: server.jwt.sign(user) }
 
     } catch (err) {
-        console.error(err)
+        server.log.error(err)
 
         // check source of error
         return reply.code(500).send(err)

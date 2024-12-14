@@ -5,7 +5,6 @@ export const server = buildServer({
     logger: true
 })
 
-
 async function main() {
 
     try {
@@ -13,6 +12,7 @@ async function main() {
 
         server.log.info(`Server ready at http://localhost:${env.PORT}`)
     } catch (err) {
+        server.log.error('error starting server')
         server.log.error(err)
         process.exit(1)
     }

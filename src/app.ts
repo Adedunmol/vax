@@ -1,10 +1,8 @@
-import Fastify from 'fastify'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import Fastify, { FastifyReply, FastifyRequest } from 'fastify'
+import { registerPlugins } from './utils/register-plugins'
 import { errorSchemas } from './modules/errors/schema-base'
 import userRoutes from './modules/user/user.route'
 import { userSchemas } from './modules/user/user.schema'
-import { registerPlugins } from './utils/register-plugins'
-
 
 const buildServer = (opts={}) => {
 
