@@ -13,10 +13,10 @@ ALTER TABLE "profiles" ADD CONSTRAINT "profiles_user_id_users_id_fk" FOREIGN KEY
 CREATE OR REPLACE FUNCTION create_user_profile()
 	RETURNS TRIGGER
 	LANGUAGE PLPGSQL
-AS
+AS 
 $$
 BEGIN
-	INSERT INTO "profiles" (user_id) VALUES (NEW.id)
+	INSERT INTO "profiles" (user_id) VALUES (NEW.id);
 END;
 $$;
 
