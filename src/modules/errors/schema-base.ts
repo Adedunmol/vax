@@ -8,5 +8,5 @@ export const errorSchema = z.object({
 })
 
 export const { schemas: errorSchemas, $ref: $errorRef } = buildJsonSchemas({
-    errorSchema,
-})
+    errorSchema
+}, { '$id': 'ErrorSchema' })

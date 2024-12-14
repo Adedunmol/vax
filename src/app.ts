@@ -22,7 +22,7 @@ const buildServer = (opts={}) => {
 
     return { status: 'OK' }
   });
-
+  
   [...userSchemas, ...errorSchemas].forEach(schema => {
     server.addSchema(schema)
   })
