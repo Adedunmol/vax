@@ -1,5 +1,14 @@
 import { server } from '..'
+import env from '../env';
 import { emailQueue } from './email/producer'
+import { Redis } from 'ioredis'
+
+const redis = new Redis({
+  host: env.REDIS_HOST,
+  port: env.REDIS_PORT,
+  password: env.REDIS_PASSWORD,
+  maxRetriesPerRequest: null
+})
 
 type queueName = 'emails' | 'invoices'
 
@@ -12,3 +21,5 @@ export const sendToQueue = async (queue: queueName, data: any) => {
             break
     }
 }
+
+export default redis

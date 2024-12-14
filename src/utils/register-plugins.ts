@@ -10,6 +10,7 @@ import { FastifyAdapter } from '@bull-board/fastify'
 import { emailQueue } from '../queues/email/producer'
 import env from '../env'
 import { version } from '../../package.json'
+import redis from '../queues'
 
 
 export async function registerPlugins(server: FastifyInstance) {
@@ -23,7 +24,7 @@ export async function registerPlugins(server: FastifyInstance) {
   
 
   server.register(fastifyJwt, { secret: env.JWT_SECRET })
-  server.register(fastifyRedis, { host: env.REDIS_HOST, port: env.REDIS_PORT, password: env.REDIS_PASSWORD })
+  server.register(fastifyRedis, { client: redis, closeClient: true })
   server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '/bull-board' })
   
   server.register(
