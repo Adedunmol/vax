@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import bcrypt from 'bcrypt'
-import { createUser, findUserByEmail, generateOTP } from './user.service'
+import { createUser, findUserByEmail, generateOTP, updateUserprofile } from './user.service'
 import { CreateUserInput, LoginUserInput } from './user.schema'
 import { server } from '../..'
 import { sendToQueue } from '../../queues'
@@ -47,9 +47,10 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         if (!match) return reply.code(401).send('invalid credentials')
 
         // update user's last login
+        await updateUserprofile({ userId: user.id, lastLogin: new Date() })
 
         // generate access token
-        // { accessToken: server.jwt.sign(user) }
+        return { accessToken: server.jwt.sign({ id: user.id, email: user.email }) }
 
     } catch (err) {
         server.log.error(err)

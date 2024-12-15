@@ -1,9 +1,14 @@
 import { eq } from 'drizzle-orm'
 import db from '../../db'
-import { users } from '../../db/schema'
+import { profiles, users } from '../../db/schema'
 import { CreateUserInput } from './user.schema'
 import bcrypt from 'bcrypt'
-import { sendToQueue } from '../../queues'
+
+interface Profile {
+    userId: number
+    currency?: string
+    lastLogin?: Date
+}
 
 export async function createUser(input: CreateUserInput) {
     const password = await bcrypt.hash(input.password, 10)
@@ -15,9 +20,20 @@ export async function createUser(input: CreateUserInput) {
 
 export async function findUserByEmail(email: string) {
     // find and return user by email
-    const user = await db.select().from(users).where(eq(users.email, email))
+    // const user = await db.select().from(users).where(eq(users.email, email))
+    const user = db.query.users.findFirst({
+        where: eq(users.email, email),
+        with: {
+            profiles: true
+        }
+    })
 
-    return user[0]
+    return user
+}
+
+export async function updateUserprofile(updateObj: Profile) {
+    const { userId, ...rest } = updateObj
+    const profile = await db.update(profiles).set(rest).where(eq(profiles.userId, userId)).returning()
 }
 
 const OTP_EXPIRATION = 3600000
