@@ -3,12 +3,7 @@ import db from '../../db'
 import { profiles, users } from '../../db/schema'
 import { CreateUserInput } from './user.schema'
 import bcrypt from 'bcrypt'
-
-interface Profile {
-    userId: number
-    currency?: string
-    lastLogin?: Date
-}
+import { Profile } from '../../types/user'
 
 export async function createUser(input: CreateUserInput) {
     const password = await bcrypt.hash(input.password, 10)
