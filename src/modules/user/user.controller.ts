@@ -1,7 +1,9 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { createUser } from "./user.service";
-import { CreateUserInput, LoginUserInput } from "./user.schema";
-import { server } from "../..";
+import { FastifyReply, FastifyRequest } from 'fastify'
+import bcrypt from 'bcrypt'
+import { createUser, findUserByEmail, generateOTP } from './user.service'
+import { CreateUserInput, LoginUserInput } from './user.schema'
+import { server } from '../..'
+import { sendToQueue } from '../../queues'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const body = request.body
@@ -9,9 +11,15 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
     try {
         const user = await createUser(body)
 
-        // add user mail details to queue
+        const otp = await generateOTP(user.id, user.email)
 
-        // send mail to user
+        const emailData = {
+            template: 'verification',
+            locals: { firstName: user.firstName, otp },
+            to: user.email
+        }
+    
+        await sendToQueue('emails', emailData)
 
         return reply.code(201).send(user)
     } catch (err) {
@@ -26,14 +34,17 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
     const body = request.body
 
     try {
-
         // find user by email
+        const user = await findUserByEmail(body.email)
 
         // return error if no user is found
+        if (!user) return reply.code(401).send('invalid credentials')
 
         // verify password
+        const match = await bcrypt.compare(body.password, user.password)
 
         // return error if password is incorrect
+        if (!match) return reply.code(401).send('invalid credentials')
 
         // update user's last login
 
