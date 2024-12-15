@@ -15,6 +15,13 @@
       "when": 1733761754380,
       "tag": "0001_sloppy_raider",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1734288801794,
+      "tag": "0002_futuristic_outlaw_kid",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,7 @@ const profiles = pgTable('profiles', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').references(() => users.id).unique(),
     currency: varchar('currency'),
+    lastLogin: timestamp().defaultNow(),
     ...timestamps
 })
 
