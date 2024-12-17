@@ -10,7 +10,6 @@ async function main() {
     try {
         await server.listen({ port: env.PORT, host: '0.0.0.0' })
 
-        server.log.info(`Server ready at http://localhost:${env.PORT}`)
     } catch (err) {
         server.log.error('error starting server')
         server.log.error(err)

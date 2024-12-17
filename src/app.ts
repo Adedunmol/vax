@@ -18,7 +18,7 @@ const buildServer = (opts={}) => {
     }
   })
 
-  server.get('/healthcheck', async function() {
+  server.get('/healthcheck', async () => {
 
     return { status: 'OK' }
   });
