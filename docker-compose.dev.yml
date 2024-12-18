@@ -4,6 +4,8 @@ services:
       context: .
       target: development
     container_name: vax-app
+    ports:
+      - "${PORT}:3000"
     environment:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_USER=${DB_USER}
@@ -11,8 +13,6 @@ services:
       - DB_HOST=${DB_HOST}
       - PORT=${PORT}
       - DB_URL=${DB_URL}
-    ports:
-      - ${PORT}:3000
     env_file:
       - ./.env
     depends_on:
