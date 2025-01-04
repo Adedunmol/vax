@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import bcrypt from 'bcrypt'
-import { createUser, findUserByEmail, generateOTP, updateUserprofile } from './user.service'
+import UserService from './user.service'
 import { CreateUserInput, LoginUserInput } from './user.schema'
 import { server } from '../..'
 import { sendToQueue } from '../../queues'
@@ -9,9 +9,9 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
     const body = request.body
 
     try {
-        const user = await createUser(body)
+        const user = await UserService.createUser(body)
 
-        const otp = await generateOTP(user.id, user.email)
+        const otp = await UserService.generateOTP(user.id, user.email)
 
         const emailData = {
             template: 'verification',
@@ -35,7 +35,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
 
     try {
         // find user by email
-        const user = await findUserByEmail(body.email)
+        const user = await UserService.findUserByEmail(body.email)
 
         // return error if no user is found
         if (!user) return reply.code(401).send('invalid credentials')
@@ -47,7 +47,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         if (!match) return reply.code(401).send('invalid credentials')
 
         // update user's last login
-        await updateUserprofile({ userId: user.id, lastLogin: new Date() })
+        await UserService.updateUserprofile({ userId: user.id, lastLogin: new Date() })
 
         // generate access token
         return { accessToken: server.jwt.sign({ id: user.id, email: user.email }) }
