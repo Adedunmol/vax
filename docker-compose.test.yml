@@ -1,0 +1,55 @@
+services:
+  test-app:
+    build:
+      context: .
+      target: testing
+    container_name: test-app
+    ports:
+      - "${PORT}:3000"
+    environment:
+      - DB_PASSWORD=somerandompassword
+      - DB_USER=testuser
+      - DB_NAME=testdb
+      - DB_HOST=vax
+      - PORT=1234
+      - DB_URL=postgres://postgres:password@vax:5432/test-db
+      - NODE_ENV=testing
+      - POSTGRES_DB=test-db
+      - POSTGRES_USER=postgres
+      - JWT_SECRET=some_random_secret_key
+      - REDIS_PORT=6389
+      - REDIS_HOST=redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    # networks:
+    #   - vax
+    command: npm run test
+    volumes:
+      - .:/app
+      - /app/node_modules
+  
+  postgres:
+    image: postgres:16.2
+    restart: always
+    container_name: test-db
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    environment:
+      - POSTGRES_PASSWORD=test-password
+      - POSTGRES_USER=test-user
+      - POSTGRES_DB=test-db
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+  redis:
+    image: redis
+    ports:
+      - ${REDIS_PORT}:6379
