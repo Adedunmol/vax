@@ -3,6 +3,13 @@ import { registerPlugins } from './utils/register-plugins'
 import { errorSchemas } from './modules/errors/schema-base'
 import userRoutes from './modules/user/user.route'
 import { userSchemas } from './modules/user/user.schema'
+import { JWT } from '@fastify/jwt'
+
+declare module 'fastify' {
+  interface FastifyRequest {
+    jwt: JWT
+  }
+}
 
 const buildServer = (opts={}) => {
 
@@ -21,6 +28,11 @@ const buildServer = (opts={}) => {
   server.get('/healthcheck', async () => {
 
     return { status: 'OK' }
+  });
+
+  server.addHook("preHandler", (req, reply, next) => {
+    req.jwt = server.jwt
+    return next()
   });
   
   [...userSchemas, ...errorSchemas].forEach(schema => {

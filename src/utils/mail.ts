@@ -1,12 +1,11 @@
 import path from 'path'
 import Email from "email-templates"
-import { server } from ".."
 import env from '../env'
 
 
 export const sendMailWithTemplates = async (template: string, locals: any,  to: string, invoicePath?: string, invoiceId?: string) => {
     try {
-        server.log.info('from send mail with templates: ', invoicePath)
+        // server.log.info('from send mail with templates: ', invoicePath)
         const email = new Email({
             message: {
               from: env.EMAIL_FROM,
@@ -29,9 +28,9 @@ export const sendMailWithTemplates = async (template: string, locals: any,  to: 
             message: { to }, 
             locals,
         })
-        server.log.info(`email sent to ${to}`)
+        // server.log.info(`email sent to ${to}`)
     } catch (err: any) {
-        server.log.error(`unable send mail to: ${to}`)
-        server.log.error(err)
+        // server.log.error(`unable send mail to: ${to}`)
+        // server.log.error(err)
     }
 }

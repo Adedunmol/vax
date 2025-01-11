@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import bcrypt from 'bcrypt'
 import UserService from './user.service'
 import { CreateUserInput, LoginUserInput } from './user.schema'
-import { server } from '../..'
 import { sendToQueue } from '../../queues'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
@@ -23,7 +22,7 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
 
         return reply.code(201).send(user)
     } catch (err) {
-        server.log.error(err)
+        // server.log.error(err)
 
         // check source of error
         return reply.code(500).send(err)
@@ -50,10 +49,10 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         await UserService.updateUserprofile({ userId: user.id, lastLogin: new Date() })
 
         // generate access token
-        return { accessToken: server.jwt.sign({ id: user.id, email: user.email }) }
+        return { accessToken: request.jwt.sign({ id: user.id, email: user.email }) }
 
     } catch (err) {
-        server.log.error(err)
+        // server.log.error(err)
 
         // check source of error
         return reply.code(500).send(err)

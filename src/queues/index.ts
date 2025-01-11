@@ -1,4 +1,3 @@
-import { server } from '..'
 import env from '../env';
 import { emailQueue } from './email/producer'
 import { Redis } from 'ioredis'
@@ -16,7 +15,7 @@ export const sendToQueue = async (queue: queueName, data: any) => {
 
     switch (queue) {
         case 'emails':
-            server.log.info('mail added to queue')
+            // server.log.info('mail added to queue')
             await emailQueue.add('send-mail', data, { attempts: 3, backoff: { type: 'exponential', delay: 1000 } })
             break
     }

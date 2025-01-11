@@ -17,6 +17,7 @@ const EnvSchema = z.object({
     EMAIL_PASSWORD: z.string(),
     EMAIL_PORT: z.coerce.number(),
     EMAIL_USERNAME: z.string(),
+    NODE_ENV: z.string(),
     PORT: z.coerce.number(),
     JWT_SECRET: z.string(),
     REDIS_PORT: z.coerce.number(),

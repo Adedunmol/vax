@@ -21,7 +21,6 @@ export async function registerPlugins(server: FastifyInstance) {
     queues: [new BullMQAdapter(emailQueue)],
     serverAdapter
   })
-  
 
   server.register(fastifyJwt, { secret: env.JWT_SECRET })
   server.register(fastifyRedis, { client: redis, closeClient: true })

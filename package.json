@@ -8,7 +8,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "cross-env DB_MIGRATING=true tsx src/db/migrate.ts",
     "dev": "npx tsx --watch src/index.ts",
-    "test": "jest --config --colors --runInBand",
+    "test": "glob -c \"tsx --env-file .env --test --test-reporter spec \" \"./src/tests/**/*.test.ts\"",
     "tsc": "typescript"
   },
   "keywords": [],
