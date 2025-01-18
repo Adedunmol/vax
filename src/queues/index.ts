@@ -2,12 +2,14 @@ import env from '../env';
 import { emailQueue } from './email/producer'
 import { Redis } from 'ioredis'
 
-const redis = new Redis({
+const config = {
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
   password: env.REDIS_PASSWORD,
   maxRetriesPerRequest: null
-})
+}
+
+const redis = new Redis(config)
 
 type queueName = 'emails' | 'invoices'
 

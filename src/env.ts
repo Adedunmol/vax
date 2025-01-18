@@ -27,7 +27,10 @@ const EnvSchema = z.object({
 
 export type EnvSchema = z.infer<typeof EnvSchema>
 
-expand(config())
+const configPath = process.env.NODE_ENV?.trim() === 'test' ? '.env.test' : undefined
+
+expand(config({ path: configPath }))
+
 
 try {
     EnvSchema.parse(process.env)

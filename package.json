@@ -8,7 +8,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "cross-env DB_MIGRATING=true tsx src/db/migrate.ts",
     "dev": "npx tsx --watch src/index.ts",
-    "test": "glob -c \"tsx --test --test-reporter spec \" \"./src/tests/**/*.test.ts\"",
+    "test": "glob -c \"cross-env NODE_ENV=test tsx --test --test-reporter spec \" \"./src/tests/**/*.test.ts\"",
     "tsc": "typescript"
   },
   "keywords": [],

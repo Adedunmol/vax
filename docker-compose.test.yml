@@ -4,34 +4,36 @@ services:
       context: .
       target: testing
     container_name: test-app
+    depends_on:
+      test-postgres:
+        condition: service_healthy
+      test-redis:
+        condition: service_healthy
     ports:
       - "${PORT}:3000"
+    env_file:
+      - .env.test
     environment:
-      - DB_PASSWORD=somerandompassword
-      - DB_USER=testuser
-      - DB_NAME=testdb
-      - DB_HOST=vax
-      - PORT=1234
-      - DB_URL=postgres://postgres:password@vax:5432/test-db
-      - NODE_ENV=testing
-      - POSTGRES_DB=test-db
-      - POSTGRES_USER=postgres
-      - JWT_SECRET=some_random_secret_key
-      - REDIS_PORT=6389
-      - REDIS_HOST=redis
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    # networks:
-    #   - vax
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_USER=${POSTGRES_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - PORT=${PORT}
+      - DB_URL=${DB_URL}
+      - NODE_ENV=${NODE_ENV}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_HOST=${REDIS_HOST}
     command: npm run test
     volumes:
       - .:/app
       - /app/node_modules
+    networks:
+      - test-network
   
-  postgres:
+  test-postgres:
     image: postgres:16.2
     restart: always
     container_name: test-db
@@ -41,15 +43,35 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    env_file:
+      - .env.test
     environment:
-      - POSTGRES_PASSWORD=test-password
-      - POSTGRES_USER=test-user
-      - POSTGRES_DB=test-db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - ${DB_PORT}:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
-  redis:
+    networks:
+      - test-network
+
+  test-redis:
     image: redis
+    container_name: redis
+    env_file:
+      - .env.test
     ports:
-      - ${REDIS_PORT}:6379
+      - '6379:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
