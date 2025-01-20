@@ -17,12 +17,14 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_USER=${POSTGRES_USER}
       - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
       - DB_HOST=${DB_HOST}
       - PORT=${PORT}
       - DB_URL=${DB_URL}
       - NODE_ENV=${NODE_ENV}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_HOST=${REDIS_HOST}
@@ -30,13 +32,13 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    networks:
-      - test-network
+    # networks:
+    #   - test-network
   
   test-postgres:
     image: postgres:16.2
     restart: always
-    container_name: test-db
+    container_name: test-postgres
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
       interval: 10s
@@ -53,25 +55,26 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
-    networks:
-      - test-network
+    # networks:
+    #   - test-network
 
   test-redis:
     image: redis
-    container_name: redis
+    container_name: test-redis
+    ports:
+      - "${REDIS_PORT}:6379"
     env_file:
       - .env.test
-    ports:
-      - '6379:6379'
+    restart: always
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 30s
-    networks:
-      - test-network
+#     networks:
+#       - test-network
 
-networks:
-  test-network:
-    driver: bridge
+# networks:
+#   test-network:
+#     driver: bridge
