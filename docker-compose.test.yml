@@ -4,36 +4,25 @@ services:
       context: .
       target: testing
     container_name: test-app
+    ports:
+      - "${PORT}:3500"
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - PORT=${PORT}
+      - DB_URL=${DB_URL}
+    env_file:
+      - ./.env.test
     depends_on:
       test-postgres:
         condition: service_healthy
       test-redis:
-        condition: service_healthy
-    ports:
-      - "${PORT}:3000"
-    env_file:
-      - .env.test
-    environment:
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_USER=${POSTGRES_USER}
-      - DB_NAME=${DB_NAME}
-      - DB_PORT=${DB_PORT}
-      - DB_HOST=${DB_HOST}
-      - PORT=${PORT}
-      - DB_URL=${DB_URL}
-      - NODE_ENV=${NODE_ENV}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_HOST=${REDIS_HOST}
-    command: npm run test
-    volumes:
-      - .:/app
-      - /app/node_modules
+        condition: service_started
     # networks:
-    #   - test-network
+    #   - vax
+    command: npm run test
   
   test-postgres:
     image: postgres:16.2
@@ -46,35 +35,15 @@ services:
       retries: 5
       start_period: 30s
     env_file:
-      - .env.test
+      - ./.env
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
     ports:
-      - ${DB_PORT}:5432
-    volumes:
-      - ./db-data:/var/lib/postgresql/data
-    # networks:
-    #   - test-network
-
+      - ${DB_PORT}:5433
+  
   test-redis:
     image: redis
-    container_name: test-redis
     ports:
-      - "${REDIS_PORT}:6379"
-    env_file:
-      - .env.test
-    restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-#     networks:
-#       - test-network
-
-# networks:
-#   test-network:
-#     driver: bridge
+      - ${REDIS_PORT}:6380
