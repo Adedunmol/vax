@@ -35,7 +35,7 @@ services:
       retries: 5
       start_period: 30s
     env_file:
-      - ./.env
+      - ./.env.test
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
@@ -45,5 +45,7 @@ services:
   
   test-redis:
     image: redis
+    env_file:
+      - ./.env.test
     ports:
-      - ${REDIS_PORT}:6380
+      - ${REDIS_PORT}:6389

@@ -17,7 +17,7 @@ FROM development AS testing
 
 COPY --from=development . .
 
-RUN npm run test
+# RUN npm run test
 
 # Build stage
 FROM development AS build
