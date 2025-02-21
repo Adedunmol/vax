@@ -7,7 +7,7 @@ import { withRefResolver } from 'fastify-zod'
 import { createBullBoard } from '@bull-board/api'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { FastifyAdapter } from '@bull-board/fastify'
-import { emailQueue } from '../queues/email/producer'
+// import { emailQueue } from '../queues/email/producer'
 import env from '../env'
 import { version } from '../../package.json'
 // import redis from '../queues'
@@ -17,14 +17,17 @@ export async function registerPlugins(server: FastifyInstance) {
 
   const serverAdapter = new FastifyAdapter()
 
-  createBullBoard({
-    queues: [new BullMQAdapter(emailQueue)],
-    serverAdapter
-  })
-
   server.register(fastifyJwt, { secret: env.JWT_SECRET })
-  // server.register(fastifyRedis, { client: redis, closeClient: true })
-  server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '/bull-board' })
+
+  if (env.NODE_ENV !== 'test') {
+    createBullBoard({
+      queues: [new BullMQAdapter((await import('../queues/email/producer')).default)],
+      serverAdapter
+    })
+    server.register(fastifyRedis, { client: (await import('../queues/index')).default, closeClient: true })
+    server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '/bull-board' })
+  }
+
   
   server.register(
     swagger, 

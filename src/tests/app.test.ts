@@ -8,21 +8,12 @@ process.env.NODE_ENV = 'test';
 
 let app: any;
 
-// Mock emailQueue to avoid real Redis calls
-// import { emailQueue } from '../queues/email/producer';
-
-// emailQueue.add = async () => Promise.resolve({});
-
 // Setup Fastify before tests
 before(async () => {
   app = build();
   await app.ready();
 });
 
-// Cleanup after tests
-// after(async () => {
-//   await redis.quit();
-// });
 
 test('GET /healthcheck should return 200', async () => {
   const response = await app.inject({

@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq'
-import { redisClient } from '..'
+import redisClient from '..'
 
 const emailWorker = new Worker('emails', async job => {
     try {
