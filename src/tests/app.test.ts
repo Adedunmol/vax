@@ -1,7 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import build from '../app';
-// import redis from '../queues';
 
 // Ensure test mode
 process.env.NODE_ENV = 'test';
