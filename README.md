@@ -1,6 +1,12 @@
 ### Vax
 An invoicing API
 
+### Features
+- Client Management – Create and manage profiles for clients.
+- Automated Invoice & Reminder Emails – Send automated reminder emails and invoices to clients.
+- Due Date Notifications – Automatically notify clients when an invoice is due.
+- Sales Performance Analytics – Track earnings, trends, and overall performance.
+
 ### Installation
 
 #### Prerequisites:
