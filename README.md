@@ -7,6 +7,14 @@ An invoicing API
 - Due Date Notifications – Automatically notify clients when an invoice is due.
 - Sales Performance Analytics – Track earnings, trends, and overall performance.
 
+### Technologies used
+- [x] Typescript
+- [x] Fastify
+- [x] Drizzle ORM
+- [x] Docker
+- [x] Redis
+- [x] PostgreSQL
+
 ### Installation
 
 #### Prerequisites:

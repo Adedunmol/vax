@@ -15,7 +15,7 @@ class UserService {
     async createUser(input: CreateUserInput) {
         const password = await bcrypt.hash(input.password, 10)
     
-        const user = await db.insert(users).values({ ...input, password }).returning()
+        const user = await db.insert(users).values({ ...input, password }).returning({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, username: users.username })
     
         return user[0]
     }

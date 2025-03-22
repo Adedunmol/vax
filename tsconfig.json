@@ -9,6 +9,9 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./dist",
+    "paths": {
+      "@app/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": []

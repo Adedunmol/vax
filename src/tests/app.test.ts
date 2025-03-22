@@ -1,24 +1,16 @@
-import { test, before, after } from 'node:test';
-import assert from 'node:assert/strict';
+import { test } from 'tap';
 import build from '../app';
 
 // Ensure test mode
 process.env.NODE_ENV = 'test';
 
-let app: any;
+test('GET /healthcheck should return 200', async (t) => {
+  const app = build()
 
-// Setup Fastify before tests
-before(async () => {
-  app = build();
-  await app.ready();
-});
-
-
-test('GET /healthcheck should return 200', async () => {
   const response = await app.inject({
     method: 'GET',
     url: '/healthcheck',
   });
 
-  assert.strictEqual(response.statusCode, 200);
+  t.equal(response.statusCode, 200);
 });

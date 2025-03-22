@@ -8,6 +8,7 @@ const userCore = {
     }).email(),
     firstName: z.string(),
     lastName: z.string(),
+    username: z.string()
 }
 
 const createUserSchema = z.object({
@@ -15,7 +16,11 @@ const createUserSchema = z.object({
     password: z.string({
         required_error: 'password is required', 
         invalid_type_error: 'password must be a string'
-    })
+    }).min(6, 'password cannot be shorter than 6 characters'),
+    passwordConfirmation: z.string({ required_error: 'password confirmation is required' })
+}).refine(data => data.password === data.passwordConfirmation, {
+    message: 'passwords do not match',
+    path: ['passwordConfirmation']
 })
 
 const createUserResponseSchema = z.object({
