@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq'
-import redisClient from '..'
+import { getRedisClient } from '../redis'
 
 const emailWorker = new Worker('emails', async job => {
     try {
@@ -10,7 +10,7 @@ const emailWorker = new Worker('emails', async job => {
     } catch (err: any) {
         // server.log.error('error sending mail from email worker', err)
     }
-}, { connection: redisClient })
+}, { connection: getRedisClient() })
 
 emailWorker.on('completed', job => {
     // server.log.info(`${job.id} has completed`)

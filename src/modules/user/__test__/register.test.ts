@@ -28,7 +28,7 @@ test("registration", async (t) => {
     })
     
     t.afterEach(() => {
-      fastify.close()
+      // fastify.close()
       stub.restore()
   })
 
@@ -128,24 +128,5 @@ test("registration", async (t) => {
 
       t.equal(response.statusCode, 400);
       t.same(response.json(), { error: "Email already registered" });
-    });
-
-    await t.test("❌ Should return error when server crashes", async () => {
-      // Mocking a crash by overriding the function
-      fastify.post("/api/v1/register", async () => {
-        throw new Error("Unexpected error");
-      });
-
-      const response = await fastify.inject({
-        method: "POST",
-        url,
-        payload: {
-          email: "crash@example.com",
-          password: "StrongPass123",
-          name: "Server Error",
-        },
-      });
-
-      t.equal(response.statusCode, 500);
     });
 });

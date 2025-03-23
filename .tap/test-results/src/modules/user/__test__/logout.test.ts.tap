@@ -1,6 +1,6 @@
 TAP version 14
 # Subtest: logout
     1..0
-ok 1 - logout # time=9.968ms
+ok 1 - logout # time=12.315ms
 
 1..1

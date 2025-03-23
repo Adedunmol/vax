@@ -4,6 +4,7 @@ import build from '../app';
 // Ensure test mode
 process.env.NODE_ENV = 'test';
 
+
 test('GET /healthcheck should return 200', async (t) => {
   const app = build()
 

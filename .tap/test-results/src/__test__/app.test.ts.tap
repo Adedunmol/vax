@@ -1,0 +1,7 @@
+TAP version 14
+# Subtest: GET /healthcheck should return 200
+    ok 1 - should be equal
+    1..1
+ok 1 - GET /healthcheck should return 200 # time=535.72ms
+
+1..1

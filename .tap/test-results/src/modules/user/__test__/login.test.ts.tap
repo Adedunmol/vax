@@ -1,6 +1,6 @@
 TAP version 14
 # Subtest: login
     1..0
-ok 1 - login # time=6.226ms
+ok 1 - login # time=17.326ms
 
 1..1

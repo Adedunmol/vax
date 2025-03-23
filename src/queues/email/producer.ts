@@ -1,7 +1,7 @@
 import './worker'
 import { Queue } from 'bullmq'
-import redisClient from '..'
+import { getRedisClient } from '../redis'
 
-export const emailQueue = new Queue('emails', { connection: redisClient, defaultJobOptions: { attempts: 3, backoff: { type: 'exponential', delay: 1000 } } })
+export const emailQueue = new Queue('emails', { connection: getRedisClient(), defaultJobOptions: { attempts: 3, backoff: { type: 'exponential', delay: 1000 } } })
 
 export default emailQueue
