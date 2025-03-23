@@ -1,8 +1,8 @@
 {
-  "date": "2025-03-22T19:30:06.106Z",
+  "date": "2025-03-23T18:03:41.231Z",
   "argv": [
     "C:\\Program Files\\nodejs\\node.exe",
-    "C:\\Users\\USER\\vax\\src\\tests\\user\\refresh-token.test.ts"
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\__test__\\register.test.ts"
   ],
   "execArgv": [
     "--import=file:///C:/Users/USER/vax/node_modules/@tapjs/typescript/dist/esm/import.mjs",
@@ -13,12 +13,12 @@
   ],
   "NODE_OPTIONS": "\"--import=file:///C:/Users/USER/vax/node_modules/@tapjs/processinfo/dist/esm/import.mjs\"",
   "cwd": "C:\\Users\\USER\\vax",
-  "pid": 5432,
-  "ppid": 8820,
+  "pid": 14476,
+  "ppid": 1756,
   "parent": null,
-  "uuid": "1549e34a-877d-4266-9511-ce444b5ed226",
+  "uuid": "c4174135-bb0f-4176-b30f-c5c65a0f1e61",
   "files": [
-    "C:\\Users\\USER\\vax\\src\\tests\\user\\refresh-token.test.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\__test__\\register.test.ts",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\typescript\\dist\\esm\\import.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@isaacs\\ts-node-temp-fork-for-pr-2009\\import.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@isaacs\\ts-node-temp-fork-for-pr-2009\\import-loader.mjs",
@@ -33,6 +33,7 @@
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\service-key.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\call-site-like.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\require-resolve.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\is-windows.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditional-values.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditions.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-unique-condition-sets.js",
@@ -40,24 +41,23 @@
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-all-local-imports.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-conditional-value.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-import.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\is-windows.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\errors.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\file-exists.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-dependency-export.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-package-import.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-path.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-file-url.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-dep-package.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-pkg.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\star-glob.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\parse.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-conditional-values-list.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\errors.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-named-exports-list.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-pkg.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-export.js",
-    "C:\\Users\\USER\\vax\\node_modules\\walk-up-path\\dist\\esm\\index.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-star-match.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\star-glob.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-path.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\file-exists.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-dep-package.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-file-url.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-dependency-export.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-package-import.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-json.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-star-match.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\index.js",
+    "C:\\Users\\USER\\vax\\node_modules\\walk-up-path\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\glob.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\has-magic.js",
@@ -69,13 +69,19 @@
     "C:\\Users\\USER\\vax\\node_modules\\path-scurry\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\pattern.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\walker.js",
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js",
     "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\minipass\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\processor.js",
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\loader.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\hooks.mjs",
-    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\mock-service-client.js"
+    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\mock-service-client.js",
+    "C:\\Users\\USER\\vax\\src\\app.ts",
+    "C:\\Users\\USER\\vax\\src\\utils\\register-plugins.ts",
+    "C:\\Users\\USER\\vax\\src\\env.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\index.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\email\\producer.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\email\\worker.ts"
   ],
   "sources": {
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\typescript\\dist\\esm\\import.mjs": [
@@ -114,6 +120,9 @@
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\require-resolve.js": [
       "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\src\\require-resolve.ts"
     ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\is-windows.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\is-windows.ts"
+    ],
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditional-values.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-all-conditional-values.ts"
     ],
@@ -135,14 +144,38 @@
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-import.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\resolve-import.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\is-windows.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\is-windows.ts"
+    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\parse.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\src\\parse.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-conditional-values-list.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-conditional-values-list.ts"
     ],
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\errors.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\errors.ts"
     ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-named-exports-list.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-named-exports-list.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-pkg.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\read-pkg.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-export.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\resolve-export.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\star-glob.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\star-glob.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-path.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\to-path.ts"
+    ],
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\file-exists.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\file-exists.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-dep-package.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\find-dep-package.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-file-url.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\to-file-url.ts"
     ],
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-dependency-export.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\resolve-dependency-export.ts"
@@ -150,44 +183,17 @@
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-package-import.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\resolve-package-import.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-path.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\to-path.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\to-file-url.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\to-file-url.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-dep-package.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\find-dep-package.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-pkg.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\read-pkg.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\star-glob.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\star-glob.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\parse.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\src\\parse.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-conditional-values-list.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-conditional-values-list.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-named-exports-list.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-named-exports-list.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-export.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\resolve-export.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\walk-up-path\\dist\\esm\\index.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\walk-up-path\\src\\index.ts"
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-json.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\read-json.ts"
     ],
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\find-star-match.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\find-star-match.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\read-json.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\read-json.ts"
-    ],
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\index.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\index.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\walk-up-path\\dist\\esm\\index.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\walk-up-path\\src\\index.ts"
     ],
     "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\index.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\index.ts"
@@ -222,6 +228,9 @@
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\walker.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\walker.ts"
     ],
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\brace-expressions.ts"
+    ],
     "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js": [
       "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\src\\index.ts"
     ],
@@ -230,14 +239,45 @@
     ],
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\processor.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\processor.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\brace-expressions.ts"
     ]
   },
-  "root": "1549e34a-877d-4266-9511-ce444b5ed226",
-  "externalID": "src/tests/user/refresh-token.test.ts",
+  "root": "c4174135-bb0f-4176-b30f-c5c65a0f1e61",
+  "externalID": "src/modules/user/__test__/register.test.ts",
   "code": 1,
   "signal": null,
-  "runtime": 2959.6262
+  "runtime": 3972.8159,
+  "globalsAdded": [
+    "__extends",
+    "__assign",
+    "__rest",
+    "__decorate",
+    "__param",
+    "__esDecorate",
+    "__runInitializers",
+    "__propKey",
+    "__setFunctionName",
+    "__metadata",
+    "__awaiter",
+    "__generator",
+    "__exportStar",
+    "__createBinding",
+    "__values",
+    "__read",
+    "__spread",
+    "__spreadArrays",
+    "__spreadArray",
+    "__await",
+    "__asyncGenerator",
+    "__asyncDelegator",
+    "__asyncValues",
+    "__makeTemplateObject",
+    "__importStar",
+    "__importDefault",
+    "__classPrivateFieldGet",
+    "__classPrivateFieldSet",
+    "__classPrivateFieldIn",
+    "__addDisposableResource",
+    "__disposeResources",
+    "__rewriteRelativeImportExtension"
+  ]
 }

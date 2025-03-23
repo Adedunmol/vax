@@ -1,9 +1,8 @@
 import { test } from 'tap';
-import assert from 'node:assert/strict';
-import build from '../../app';
-import { faker } from '@faker-js/faker/.';
+import build from '../../../app';
+import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
-import userService from '../../modules/user/user.service';
+import userService from '../user.service';
 
 // Ensure test mode
 process.env.NODE_ENV = 'test';

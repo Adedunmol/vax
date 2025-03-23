@@ -1,8 +1,8 @@
 {
-  "date": "2025-03-22T19:30:10.485Z",
+  "date": "2025-03-23T18:03:41.108Z",
   "argv": [
     "C:\\Program Files\\nodejs\\node.exe",
-    "C:\\Users\\USER\\vax\\src\\tests\\user\\reset-password.test.ts"
+    "C:\\Users\\USER\\vax\\src\\__test__\\app.test.ts"
   ],
   "execArgv": [
     "--import=file:///C:/Users/USER/vax/node_modules/@tapjs/typescript/dist/esm/import.mjs",
@@ -13,12 +13,12 @@
   ],
   "NODE_OPTIONS": "\"--import=file:///C:/Users/USER/vax/node_modules/@tapjs/processinfo/dist/esm/import.mjs\"",
   "cwd": "C:\\Users\\USER\\vax",
-  "pid": 15612,
-  "ppid": 8820,
+  "pid": 2488,
+  "ppid": 1756,
   "parent": null,
-  "uuid": "30d93087-97d0-4145-81c1-9c38334763ff",
+  "uuid": "af87410d-eee8-4f6f-bfde-d7346ce1fc5c",
   "files": [
-    "C:\\Users\\USER\\vax\\src\\tests\\user\\reset-password.test.ts",
+    "C:\\Users\\USER\\vax\\src\\__test__\\app.test.ts",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\typescript\\dist\\esm\\import.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@isaacs\\ts-node-temp-fork-for-pr-2009\\import.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@isaacs\\ts-node-temp-fork-for-pr-2009\\import-loader.mjs",
@@ -69,13 +69,19 @@
     "C:\\Users\\USER\\vax\\node_modules\\path-scurry\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\pattern.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\walker.js",
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js",
     "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\minipass\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\processor.js",
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\loader.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\hooks.mjs",
-    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\mock-service-client.js"
+    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\mock-service-client.js",
+    "C:\\Users\\USER\\vax\\src\\app.ts",
+    "C:\\Users\\USER\\vax\\src\\utils\\register-plugins.ts",
+    "C:\\Users\\USER\\vax\\src\\env.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\index.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\email\\producer.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\email\\worker.ts"
   ],
   "sources": {
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\typescript\\dist\\esm\\import.mjs": [
@@ -222,6 +228,9 @@
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\walker.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\walker.ts"
     ],
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\brace-expressions.ts"
+    ],
     "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js": [
       "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\src\\index.ts"
     ],
@@ -230,14 +239,45 @@
     ],
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\processor.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\processor.ts"
-    ],
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\brace-expressions.ts"
     ]
   },
-  "root": "30d93087-97d0-4145-81c1-9c38334763ff",
-  "externalID": "src/tests/user/reset-password.test.ts",
+  "root": "af87410d-eee8-4f6f-bfde-d7346ce1fc5c",
+  "externalID": "src/__test__/app.test.ts",
   "code": 1,
   "signal": null,
-  "runtime": 2037.6931
+  "runtime": 4016.2327,
+  "globalsAdded": [
+    "__extends",
+    "__assign",
+    "__rest",
+    "__decorate",
+    "__param",
+    "__esDecorate",
+    "__runInitializers",
+    "__propKey",
+    "__setFunctionName",
+    "__metadata",
+    "__awaiter",
+    "__generator",
+    "__exportStar",
+    "__createBinding",
+    "__values",
+    "__read",
+    "__spread",
+    "__spreadArrays",
+    "__spreadArray",
+    "__await",
+    "__asyncGenerator",
+    "__asyncDelegator",
+    "__asyncValues",
+    "__makeTemplateObject",
+    "__importStar",
+    "__importDefault",
+    "__classPrivateFieldGet",
+    "__classPrivateFieldSet",
+    "__classPrivateFieldIn",
+    "__addDisposableResource",
+    "__disposeResources",
+    "__rewriteRelativeImportExtension"
+  ]
 }
