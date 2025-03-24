@@ -1,7 +1,41 @@
+Initializing Redis Client...
 TAP version 14
+connected to redis
 # Subtest: GET /healthcheck should return 200
     ok 1 - should be equal
     1..1
-ok 1 - GET /healthcheck should return 200 # time=535.72ms
+ok 1 - GET /healthcheck should return 200 # time=725.876ms
 
-1..1
+not ok 2 - timeout!
+  ---
+  signal: null
+  handles:
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
+  expired: TAP
+  test: TAP
+  ...
+
+1..2

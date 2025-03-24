@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import bcrypt from 'bcrypt'
 import UserService from './user.service'
 import { CreateUserInput, LoginUserInput } from './user.schema'
-// import { sendToQueue } from '../../queues'
+import { sendToQueue } from '../../queues'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const body = request.body
@@ -18,7 +18,7 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
             to: user.email
         }
     
-        // await sendToQueue('emails', emailData)
+        await sendToQueue('emails', emailData)
 
         return reply.code(201).send(user)
     } catch (err) {

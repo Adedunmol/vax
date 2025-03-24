@@ -1,25 +1,73 @@
+Initializing Redis Client...
 TAP version 14
 # Subtest: registration
+connected to redis
     # Subtest: ✅ Should register a user successfully
         1..0
-    ok 1 - ✅ Should register a user successfully # time=527.157ms
+    ok 1 - ✅ Should register a user successfully # time=508.349ms
     
     not ok 2 - should be equal
       ---
       compare: ===
       at:
         fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 55
+        lineNumber: 90
         columnNumber: 11
         isToplevel: true
         generated:
           fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 65
+          lineNumber: 108
           columnNumber: 11
       stack: |
-        src/modules/user/__test__/register.test.ts:55:11
+        src/modules/user/__test__/register.test.ts:90:11
         Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
+        fulfilled (src/modules/user/__test__/register.test.ts:38:58)
+      source: "    await t.test(\"❌ Should return error for weak password\", async ()
+        => {\r
+      
+        \      const response = await fastify.inject({\r
+      
+        \        method: \"POST\",\r
+      
+        ----------^
+      
+        \        url,\r
+      
+        \        payload: {\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -201
+        +400
+      ...
+    
+    not ok 3 - should be equivalent
+      ---
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,3 +1,6 @@
+         Object {
+        -  "message": "User registered successfully",
+        +  "statusCode": 400,
+        +  "code": "FST_ERR_VALIDATION",
+        +  "error": "Bad Request",
+        +  "message": "body must have required property 'username'",
+         }
+      at:
+        fileName: src\modules\user\__test__\register.test.ts
+        lineNumber: 91
+        columnNumber: 11
+        isToplevel: true
+        generated:
+          fileName: src/modules/user/__test__/register.test.ts
+          lineNumber: 109
+          columnNumber: 11
+      stack: |
+        src/modules/user/__test__/register.test.ts:91:11
+        Generator.next
+        fulfilled (src/modules/user/__test__/register.test.ts:38:58)
       source: "      const response = await fastify.inject({\r
       
         \        method: \"POST\",\r
@@ -31,76 +79,85 @@ TAP version 14
         \        payload: {\r
       
         \          email,\n"
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,1 +1,1 @@
-        -201
-        +404
-      ...
-    
-    not ok 3 - should be equivalent
-      ---
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,3 +1,5 @@
-         Object {
-        -  "message": "User registered successfully",
-        +  "message": "Route POST:/api/v1/register not found",
-        +  "error": "Not Found",
-        +  "statusCode": 404,
-         }
-      at:
-        fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 56
-        columnNumber: 11
-        isToplevel: true
-        generated:
-          fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 66
-          columnNumber: 11
-      stack: |
-        src/modules/user/__test__/register.test.ts:56:11
-        Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "        method: \"POST\",\r
-      
-        \        url,\r
-      
-        \        payload: {\r
-      
-        ----------^
-      
-        \          email,\r
-      
-        \          password,\n"
       ...
     
     # Subtest: ❌ Should return error when required fields are missing
         1..0
-    ok 4 - ❌ Should return error when required fields are missing # time=9.37ms
+    ok 4 - ❌ Should return error when required fields are missing # time=6.796ms
     
-    not ok 5 - should be equal
+    ok 5 - should be equal
+    not ok 6 - should be equivalent
       ---
-      compare: ===
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,2 +1,6 @@
+         Object {
+        +  "statusCode": 400,
+        +  "code": "FST_ERR_VALIDATION",
+        +  "error": "Bad Request",
+        +  "message": "body must have required property 'username'",
+         }
       at:
         fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 69
+        lineNumber: 105
         columnNumber: 11
         isToplevel: true
         generated:
           fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 79
+          lineNumber: 123
           columnNumber: 11
       stack: |
-        src/modules/user/__test__/register.test.ts:69:11
+        src/modules/user/__test__/register.test.ts:105:11
         Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
+        fulfilled (src/modules/user/__test__/register.test.ts:38:58)
+      source: "    });\r
+      
+        \r
+      
+        \    await t.test(\"❌ Should return error when registering with an existing
+        email\", async () => {\r
+      
+        ----------^
+      
+        \      // First registration\r
+      
+        \      await fastify.inject({\n"
+      ...
+    
+    # Subtest: ❌ Should return error for invalid email format
+        1..0
+    ok 7 - ❌ Should return error for invalid email format # time=6.092ms
+    
+    ok 8 - should be equal
+    not ok 9 - should be equivalent
+      ---
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,2 +1,6 @@
+         Object {
+        +  "statusCode": 400,
+        +  "code": "FST_ERR_VALIDATION",
+        +  "error": "Bad Request",
+        +  "message": "body must have required property 'username'",
+         }
+      at:
+        fileName: src\modules\user\__test__\register.test.ts
+        lineNumber: 120
+        columnNumber: 11
+        isToplevel: true
+        generated:
+          fileName: src/modules/user/__test__/register.test.ts
+          lineNumber: 138
+          columnNumber: 11
+      stack: |
+        src/modules/user/__test__/register.test.ts:120:11
+        Generator.next
+        fulfilled (src/modules/user/__test__/register.test.ts:38:58)
       source: "\r
       
-        \    await t.test(\"❌ Should return error for invalid email format\", async ()
-        => {\r
+        \      // Second registration with same email\r
       
         \      const response = await fastify.inject({\r
       
@@ -109,295 +166,135 @@ TAP version 14
         \        method: \"POST\",\r
       
         \        url,\n"
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,1 +1,1 @@
-        -400
-        +404
-      ...
-    
-    not ok 6 - should be equivalent
-      ---
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,2 +1,5 @@
-         Object {
-        +  "message": "Route POST:/api/v1/register not found",
-        +  "error": "Not Found",
-        +  "statusCode": 404,
-         }
-      at:
-        fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 70
-        columnNumber: 11
-        isToplevel: true
-        generated:
-          fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 80
-          columnNumber: 11
-      stack: |
-        src/modules/user/__test__/register.test.ts:70:11
-        Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "    await t.test(\"❌ Should return error for invalid email format\",
-        async () => {\r
-      
-        \      const response = await fastify.inject({\r
-      
-        \        method: \"POST\",\r
-      
-        ----------^
-      
-        \        url,\r
-      
-        \        payload: {\n"
-      ...
-    
-    # Subtest: ❌ Should return error for invalid email format
-        1..0
-    ok 7 - ❌ Should return error for invalid email format # time=10.511ms
-    
-    not ok 8 - should be equal
-      ---
-      compare: ===
-      at:
-        fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 84
-        columnNumber: 11
-        isToplevel: true
-        generated:
-          fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 94
-          columnNumber: 11
-      stack: |
-        src/modules/user/__test__/register.test.ts:84:11
-        Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "      t.same(response.json(), /Invalid request/);\r
-      
-        \    });\r
-      
-        \r
-      
-        \    await t.test(\"❌ Should return error for weak password\", async () => {\r
-      
-        \      const response = await fastify.inject({\n"
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,1 +1,1 @@
-        -400
-        +404
-      ...
-    
-    not ok 9 - should be equivalent
-      ---
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,2 +1,5 @@
-         Object {
-        +  "message": "Route POST:/api/v1/register not found",
-        +  "error": "Not Found",
-        +  "statusCode": 404,
-         }
-      at:
-        fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 85
-        columnNumber: 11
-        isToplevel: true
-        generated:
-          fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 95
-          columnNumber: 11
-      stack: |
-        src/modules/user/__test__/register.test.ts:85:11
-        Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "    });\r
-      
-        \r
-      
-        \    await t.test(\"❌ Should return error for weak password\", async () => {\r
-      
-        ----------^
-      
-        \      const response = await fastify.inject({\r
-      
-        \        method: \"POST\",\n"
       ...
     
     # Subtest: ❌ Should return error for weak password
         1..0
-    ok 10 - ❌ Should return error for weak password # time=17.43ms
+    ok 10 - ❌ Should return error for weak password # time=5.014ms
     
-    not ok 11 - should be equal
-      ---
-      compare: ===
-      at:
-        fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 99
-        columnNumber: 11
-        isToplevel: true
-        generated:
-          fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 109
-          columnNumber: 11
-      stack: |
-        src/modules/user/__test__/register.test.ts:99:11
-        Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "\r
-      
-        \      t.equal(response.statusCode, 400);\r
-      
-        \      t.same(response.json(), /Invalid request/);\r
-      
-        ----------^
-      
-        \    });\n"
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,1 +1,1 @@
-        -400
-        +404
-      ...
-    
+    ok 11 - should be equal
     not ok 12 - should be equivalent
       ---
       diff: |
         --- expected
         +++ actual
-        @@ -1,2 +1,5 @@
+        @@ -1,2 +1,6 @@
          Object {
-        +  "message": "Route POST:/api/v1/register not found",
-        +  "error": "Not Found",
-        +  "statusCode": 404,
+        +  "statusCode": 400,
+        +  "code": "FST_ERR_VALIDATION",
+        +  "error": "Bad Request",
+        +  "message": "body must have required property 'username'",
          }
       at:
         fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 100
+        lineNumber: 135
         columnNumber: 11
         isToplevel: true
         generated:
           fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 110
+          lineNumber: 153
           columnNumber: 11
       stack: |
-        src/modules/user/__test__/register.test.ts:100:11
+        src/modules/user/__test__/register.test.ts:135:11
         Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "      t.equal(response.statusCode, 400);\r
-      
-        \      t.same(response.json(), /Invalid request/);\r
+        fulfilled (src/modules/user/__test__/register.test.ts:38:58)
+      source: "      t.same(response.json(), { error: \"Email already registered\"
+        });\r
       
         \    });\r
       
-        \r
-      
-        \    await t.test(\"❌ Should return error when registering with an existing
-        email\", async () => {\n"
+        });\n"
       ...
     
     # Subtest: ❌ Should return error when registering with an existing email
         1..0
-    ok 13 - ❌ Should return error when registering with an existing email # time=21.825ms
+    ok 13 - ❌ Should return error when registering with an existing email # time=6.829ms
     
-    not ok 14 - should be equal
-      ---
-      compare: ===
-      at:
-        fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 127
-        columnNumber: 11
-        isToplevel: true
-        generated:
-          fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 137
-          columnNumber: 11
-      stack: |
-        src/modules/user/__test__/register.test.ts:127:11
-        Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "          lastName\r
-      
-        \        },\r
-      
-        \      });\r
-      
-        \r
-      
-        \      t.equal(response.statusCode, 400);\n"
-      diff: |
-        --- expected
-        +++ actual
-        @@ -1,1 +1,1 @@
-        -400
-        +404
-      ...
-    
+    ok 14 - should be equal
     not ok 15 - should be equivalent
       ---
       diff: |
         --- expected
         +++ actual
-        @@ -1,3 +1,5 @@
+        @@ -1,3 +1,6 @@
          Object {
         -  "error": "Email already registered",
-        +  "message": "Route POST:/api/v1/register not found",
-        +  "error": "Not Found",
-        +  "statusCode": 404,
+        +  "statusCode": 400,
+        +  "code": "FST_ERR_VALIDATION",
+        +  "error": "Bad Request",
+        +  "message": "body must have required property 'username'",
          }
       at:
         fileName: src\modules\user\__test__\register.test.ts
-        lineNumber: 128
+        lineNumber: 163
         columnNumber: 11
         isToplevel: true
         generated:
           fileName: src/modules/user/__test__/register.test.ts
-          lineNumber: 138
+          lineNumber: 181
           columnNumber: 11
       stack: |
-        src/modules/user/__test__/register.test.ts:128:11
+        src/modules/user/__test__/register.test.ts:163:11
         Generator.next
-        fulfilled (src/modules/user/__test__/register.test.ts:5:58)
-      source: "        },\r
-      
-        \      });\r
-      
-        \r
-      
-        \      t.equal(response.statusCode, 400);\r
-      
-        \      t.same(response.json(), { error: \"Email already registered\" });\n"
+        fulfilled (src/modules/user/__test__/register.test.ts:38:58)
       ...
     
     1..15
-not ok 1 - registration # time=873.575ms
+not ok 1 - registration # time=668.49ms
   ---
   at:
     fileName: src\modules\user\__test__\register.test.ts
-    lineNumber: 23
+    lineNumber: 56
     columnNumber: 16
     typeName: Object
     generated:
       fileName: src/modules/user/__test__/register.test.ts
-      lineNumber: 33
+      lineNumber: 74
       columnNumber: 16
   source: "\r
   
-    \    const stub = ImportMock.mockFunction(userService, 'createUser', {\r
+    \    await t.test(\"❌ Should return error when required fields are missing\",
+    async () => {\r
   
-    \      firstName,\r
+    \      const response = await fastify.inject({\r
   
     ---------------^
   
-    \      lastName,\r
+    \        method: \"POST\",\r
   
-    \      email,\n"
+    \        url,\n"
   ...
 
-1..1
+not ok 2 - timeout!
+  ---
+  signal: null
+  handles:
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
+  expired: TAP
+  test: TAP
+  ...
+
+1..2

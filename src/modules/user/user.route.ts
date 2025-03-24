@@ -6,7 +6,7 @@ import { $errorRef } from '../errors/schema-base'
 async function userRoutes(server: FastifyInstance) {
     
     server.post(
-        '/',
+        '/register',
         { 
             schema: { 
                 body: $ref('createUserSchema'), 

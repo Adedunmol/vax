@@ -1,6 +1,6 @@
 TAP version 14
 # Subtest: Refresh Token
     1..0
-ok 1 - Refresh Token # time=10.755ms
+ok 1 - Refresh Token # time=16.876ms
 
 1..1

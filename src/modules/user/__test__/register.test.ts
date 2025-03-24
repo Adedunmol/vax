@@ -3,10 +3,9 @@ import build from '../../../app';
 import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
 import userService from '../user.service';
+import * as queue from '../../../queues';
 
-// Ensure test mode
-process.env.NODE_ENV = 'test';
-const url = '/api/v1/register'
+const url = '/api/v1/users/register'
 
 test("registration", async (t) => {
     const fastify = build()
@@ -19,17 +18,20 @@ test("registration", async (t) => {
     const passwordConfirmation = password
     const id = Math.floor(Math.random() * 1000)
 
-    const stub = ImportMock.mockFunction(userService, 'createUser', {
+    const createUserStub = ImportMock.mockFunction(userService, 'createUser', {
       firstName,
       lastName,
       email,
       username,
       id
     })
+
+    const sendToQueueStub = ImportMock.mockFunction(queue, 'sendToQueue', {})
     
     t.afterEach(() => {
       // fastify.close()
-      stub.restore()
+      createUserStub.restore()
+      sendToQueueStub.restore()
   })
 
     await t.test("✅ Should register a user successfully", async () => {
