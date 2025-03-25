@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm'
 import db from '../../db'
-import { users } from '../../db/schema'
 import settings from '../../db/schema/settings'
 
 class SettingsService {
