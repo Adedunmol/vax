@@ -11,6 +11,8 @@ import env from '../env'
 import { version } from '../../package.json'
 import { getRedisClient } from '../queues/redis'
 import emailQueue from '../queues/email/producer'
+import fastifyCookie from '@fastify/cookie'
+
 
 export async function registerPlugins(server: FastifyInstance) {
 
@@ -41,5 +43,10 @@ export async function registerPlugins(server: FastifyInstance) {
   await server.register(swaggerUI, {
     routePrefix: '/docs',
     staticCSP: true
+  })
+
+  await server.register(fastifyCookie, {
+    secret: 'your-secret-key',
+    hook: 'onRequest',
   })
 }

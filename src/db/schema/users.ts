@@ -16,6 +16,7 @@ const users = pgTable('users', {
     email: varchar('email', { length: 64 }).notNull().unique(),
     verified: boolean('verified').default(false),
     password: varchar('password', { length: 255 }).notNull(),
+    refreshToken: varchar('refresh_token', { length: 255 }),
     ...timestamps
 })
 

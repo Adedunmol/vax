@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { loginUserHandler, registerUserHandler } from './user.controller'
 import { $ref } from './user.schema'
-import { $errorRef } from '../errors/schema-base'
+import { $errorRef } from '../../errors/schema-base'
 
 async function userRoutes(server: FastifyInstance) {
     

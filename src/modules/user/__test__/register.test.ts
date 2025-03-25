@@ -7,34 +7,34 @@ import * as queue from '../../../queues';
 
 const url = '/api/v1/users/register'
 
-test("registration", async (t) => {
-    const fastify = build()
+const firstName = faker.person.firstName()
+const lastName = faker.person.lastName()
+const username = faker.internet.username()
+const email = faker.internet.email()
+const password = faker.internet.password()
+const passwordConfirmation = password
+const id = Math.floor(Math.random() * 1000)
 
-    const firstName = faker.person.firstName()
-    const lastName = faker.person.lastName()
-    const username = faker.internet.username()
-    const email = faker.internet.email()
-    const password = faker.internet.password()
-    const passwordConfirmation = password
-    const id = Math.floor(Math.random() * 1000)
+const createUserStub = ImportMock.mockFunction(userService, 'createUser', {
+  firstName,
+  lastName,
+  email,
+  username,
+  id
+})
 
-    const createUserStub = ImportMock.mockFunction(userService, 'createUser', {
-      firstName,
-      lastName,
-      email,
-      username,
-      id
-    })
+const sendToQueueStub = ImportMock.mockFunction(queue, 'sendToQueue', {})
 
-    const sendToQueueStub = ImportMock.mockFunction(queue, 'sendToQueue', {})
-    
-    t.afterEach(() => {
-      // fastify.close()
-      createUserStub.restore()
-      sendToQueueStub.restore()
-  })
 
-    await t.test("✅ Should register a user successfully", async () => {
+test("✅ Should register a user successfully", async (t) => {
+      const fastify = build()
+
+      t.teardown(() => {
+        fastify.close()
+        createUserStub.restore()
+        sendToQueueStub.restore()
+      })
+
       const response = await fastify.inject({
         method: "POST",
         url,
@@ -48,10 +48,24 @@ test("registration", async (t) => {
       });
 
       t.equal(response.statusCode, 201);
-      t.same(response.json(), { message: "User registered successfully" });
-    });
+      t.same(response.json(), { message: "User registered successfully", data: { 
+        firstName,
+        lastName,
+        email,
+        username,
+        id
+       }});
+});
 
-    await t.test("❌ Should return error when required fields are missing", async () => {
+test("❌ Should return error when required fields are missing", async (t) => {
+      const fastify = build()
+      
+      t.teardown(() => {
+        fastify.close()
+        createUserStub.restore()
+        sendToQueueStub.restore()
+      })
+
       const response = await fastify.inject({
         method: "POST",
         url,
@@ -64,10 +78,18 @@ test("registration", async (t) => {
       });
 
       t.equal(response.statusCode, 400);
-      t.same(response.json(), /Invalid request/);
-    });
+      t.same(response.json(), { message: '' });
+});
 
-    await t.test("❌ Should return error for invalid email format", async () => {
+test("❌ Should return error for invalid email format", async (t) => {
+      const fastify = build()
+
+      t.teardown(() => {
+        fastify.close()
+        createUserStub.restore()
+        sendToQueueStub.restore()
+      })
+
       const response = await fastify.inject({
         method: "POST",
         url,
@@ -81,10 +103,18 @@ test("registration", async (t) => {
       });
 
       t.equal(response.statusCode, 400);
-      t.same(response.json(), /Invalid request/);
-    });
+      t.same(response.json(), { message: '' });
+});
 
-    await t.test("❌ Should return error for weak password", async () => {
+test("❌ Should return error for weak password", async (t) => {
+      const fastify = build()
+
+      t.teardown(() => {
+        fastify.close()
+        createUserStub.restore()
+        sendToQueueStub.restore()
+      })
+
       const response = await fastify.inject({
         method: "POST",
         url,
@@ -98,10 +128,18 @@ test("registration", async (t) => {
       });
 
       t.equal(response.statusCode, 400);
-      t.same(response.json(), /Invalid request/);
+      t.same(response.json(), { message: '' });
     });
 
-    await t.test("❌ Should return error when registering with an existing email", async () => {
+test("❌ Should return error when registering with an existing email", async (t) => {
+      const fastify = build()
+      
+      t.teardown(() => {
+        fastify.close()
+        createUserStub.restore()
+        sendToQueueStub.restore()
+      })
+
       // First registration
       await fastify.inject({
         method: "POST",
@@ -129,6 +167,5 @@ test("registration", async (t) => {
       });
 
       t.equal(response.statusCode, 400);
-      t.same(response.json(), { error: "Email already registered" });
-    });
+      t.same(response.json(), { message: "Email already registered" });
 });

@@ -1,6 +1,6 @@
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify'
 import { registerPlugins } from './utils/register-plugins'
-import { errorSchemas } from './modules/errors/schema-base'
+import { errorSchemas } from './errors/schema-base'
 import userRoutes from './modules/user/user.route'
 import { userSchemas } from './modules/user/user.schema'
 import { JWT } from '@fastify/jwt'

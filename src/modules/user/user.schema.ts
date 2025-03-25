@@ -41,12 +41,44 @@ const loginResponseSchema = z.object({
     expiresIn: z.number()
 })
 
+const verifyOTPSchema = z.object({
+    userId: z.number({ required_error: 'userId is required' }),
+    otp: z.string({ required_error: 'otp is required' })
+})
+
+const resendOTPSchema = z.object({
+    userId: z.number({ required_error: "userId is required" }),
+    email: z.string({ required_error: "email is required" })
+})
+
+const resetPasswordRequestSchema = z.object({
+    email: z.string({ required_error: "email is required" })
+})
+
+const resetPasswordSchema = z.object({
+        email: z.string({ required_error: "email is required" }),
+        otp: z.string({ required_error: "otp is required" }),
+        password: z.string({ required_error: "password is required" }).min(6, "Password too short - should be 6 chars minimum"),
+        passwordConfirmation: z.string({ required_error: "passwordConfirmation is required" }),
+    }).refine((data) => data.password === data.passwordConfirmation, {
+        message: "Passwords do not match",
+        path: ["passwordConfirmation"]
+})
+
 export type CreateUserInput = z.infer<typeof createUserSchema>
 export type LoginUserInput = z.infer<typeof loginSchema>
+export type VerifyOTPInput = z.infer<typeof verifyOTPSchema>
+export type ResendOTPInput = z.infer<typeof resendOTPSchema>
+export type ResetPasswordRequestInput = z.infer<typeof resetPasswordRequestSchema>
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
 
 export const { schemas: userSchemas, $ref } = buildJsonSchemas({
     createUserSchema,
     createUserResponseSchema,
     loginSchema,
-    loginResponseSchema
-}, { '$id': 'UserSchema' },)
+    loginResponseSchema,
+    verifyOTPSchema,
+    resendOTPSchema,
+    resetPasswordRequestSchema,
+    resetPasswordSchema
+}, { '$id': 'UserSchema' })
