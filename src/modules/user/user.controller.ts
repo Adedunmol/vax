@@ -22,7 +22,6 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
 
         return reply.code(201).send(user)
     } catch (err: any) {
-        // check source of error
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)
             const column = match ? match[1] : 'Field'
@@ -268,9 +267,19 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
 }
 
 export async function updateUserHandler(request: FastifyRequest<{ Body: UpdateUserInput }>, reply: FastifyReply) {
-    const userId = request.user.id
+    try {
+        const userId = request.user.id
 
-    const user = await UserService.updateUser(userId, request.body)
+        const user = await UserService.updateUser(userId, request.body)
 
-    return reply.code(200).send({ message: "User updated successfully", data: { ...user } })
+        return reply.code(200).send({ message: "User updated successfully", data: { ...user } })
+    } catch (err: any) {
+        if (err.code === '23505' && err.detail) {
+            const match = err.detail.match(/\((.*?)\)=/)
+            const column = match ? match[1] : 'Field'
+            return reply.status(409).send({ error: `${column} already exists` })
+        }
+    
+        return reply.code(500).send(err)
+    }
 }
