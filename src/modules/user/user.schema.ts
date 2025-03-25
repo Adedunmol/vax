@@ -65,12 +65,19 @@ const resetPasswordSchema = z.object({
         path: ["passwordConfirmation"]
 })
 
+export const updateUserSchema = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    username: z.string(),
+})
+
 export type CreateUserInput = z.infer<typeof createUserSchema>
 export type LoginUserInput = z.infer<typeof loginSchema>
 export type VerifyOTPInput = z.infer<typeof verifyOTPSchema>
 export type ResendOTPInput = z.infer<typeof resendOTPSchema>
 export type ResetPasswordRequestInput = z.infer<typeof resetPasswordRequestSchema>
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+export type UpdateUserInput = z.infer<typeof updateUserSchema>
 
 export const { schemas: userSchemas, $ref } = buildJsonSchemas({
     createUserSchema,

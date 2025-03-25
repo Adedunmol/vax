@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import bcrypt from 'bcrypt'
 import UserService from './user.service'
-import { CreateUserInput, LoginUserInput, ResendOTPInput, ResetPasswordInput, ResetPasswordRequestInput, VerifyOTPInput } from './user.schema'
+import { CreateUserInput, LoginUserInput, ResendOTPInput, ResetPasswordInput, ResetPasswordRequestInput, UpdateUserInput, VerifyOTPInput } from './user.schema'
 import { sendToQueue } from '../../queues'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
@@ -50,7 +50,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
 
         const refreshToken = request.jwt.sign({ id: user.id, email: user.email })
 
-        await UserService.updateUser({ refreshToken })
+        await UserService.updateUser(user.id, { refreshToken })
 
         reply.setCookie('jwt', refreshToken, { httpOnly: true, maxAge: 15 * 60 * 1000, sameSite: 'none' })
         return { accessToken: request.jwt.sign({ id: user.id, email: user.email }) }
@@ -74,7 +74,7 @@ export async function logoutHandler(request: FastifyRequest, reply: FastifyReply
             return reply.code(204)
         }
 
-        await UserService.updateUser({ userId: foundUser.id, refreshToken: '' })
+        await UserService.updateUser(foundUser.id, { refreshToken: '' })
 
         reply.clearCookie('jwt', {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
@@ -108,7 +108,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
                     const user = await UserService.findUserByEmail(data?.email)
                 
                     if (user) {
-                        await UserService.updateUser({ userId: data?.id, refreshToken: '' })
+                        await UserService.updateUser(data.id, { refreshToken: '' })
                     }
                 }
             )
@@ -120,7 +120,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
             refreshToken,
             async (err, data) => {
                 if (err) {
-                    await UserService.updateUser({ userId: data?.id, refreshToken: '' })
+                    await UserService.updateUser(data.id, { refreshToken: '' })
                 }
                 if (err || data?.email !== user.email) {
                     return reply.code(403).send({ message: 'bad token' })
@@ -130,7 +130,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
 
                 const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email })
             
-                await UserService.updateUser({ userId: data?.id, refreshToken: '' })
+                await UserService.updateUser(data.id, { refreshToken: '' })
 
                 reply.cookie('jwt', newRefreshToken, {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
@@ -165,7 +165,7 @@ export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTP
             return reply.code(400).send({ message: 'Invalid code passed. Check your inbox.' })
         }
     
-        const user = await UserService.updateUser({ userId: request.body.userId, verfied: true })
+        const user = await UserService.updateUser(request.body.userId, { verfied: true })
     
         await UserService.deleteUserOtp(request.body.userId)
         
@@ -228,7 +228,7 @@ export async function resetPasswordRequestHandler(request: FastifyRequest<{ Body
     }
 }
 
-export async function resetPasswordController(request: FastifyRequest<{ Body: ResetPasswordInput }>, reply: FastifyReply) {
+export async function resetPasswordHandler(request: FastifyRequest<{ Body: ResetPasswordInput }>, reply: FastifyReply) {
     try {
         const user = await UserService.findUserByEmail(request.body.email.trim())
 
@@ -257,7 +257,7 @@ export async function resetPasswordController(request: FastifyRequest<{ Body: Re
     
         const hashedPassword = await UserService.hashPassword(request.body.password.trim())
     
-        await UserService.updateUser({ userId: user.id, password: hashedPassword })
+        await UserService.updateUser(user.id,{ password: hashedPassword })
     
         await UserService.deleteUserOtp(user.id)
     
@@ -265,4 +265,12 @@ export async function resetPasswordController(request: FastifyRequest<{ Body: Re
     } catch (err) {
         return reply.code(500).send(err)
     }
+}
+
+export async function updateUserHandler(request: FastifyRequest<{ Body: UpdateUserInput }>, reply: FastifyReply) {
+    const userId = request.user.id
+
+    const user = await UserService.updateUser(userId, request.body)
+
+    return reply.code(200).send({ message: "User updated successfully", data: { ...user } })
 }

@@ -46,10 +46,9 @@ class UserService {
         return user
     }
 
-    async updateUser(updateUserObj: any) {
-        const { userId, ...rest } = updateUserObj
+    async updateUser(userId: number, updateUserObj: any) {
 
-        const user = await db.update(users).set(rest).where(eq(users.id, userId)).returning()
+        const user = await db.update(users).set(updateUserObj).where(eq(users.id, userId)).returning()
 
         return user[0]
     }
