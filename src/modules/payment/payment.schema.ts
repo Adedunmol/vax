@@ -18,7 +18,7 @@ const updatePaymentSchema = z.object({
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>
 export type UpdatePaymentInput = z.infer<typeof updatePaymentSchema>
 
-export const { schemas: settingsSchemas, $ref } = buildJsonSchemas({
+export const { schemas: paymentSchemas, $ref } = buildJsonSchemas({
     createPaymentSchema,
     updatePaymentSchema
-}, { '$id': 'SettingsSchema' })
+}, { '$id': 'PaymentSchema' })
