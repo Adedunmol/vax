@@ -6,8 +6,8 @@ const userCore = {
         required_error: 'email is required', 
         invalid_type_error: 'email must be a string' 
     }).email(),
-    firstName: z.string(),
-    lastName: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
     username: z.string()
 }
 
@@ -17,8 +17,8 @@ const createUserSchema = z.object({
         required_error: 'password is required', 
         invalid_type_error: 'password must be a string'
     }).min(6, 'password cannot be shorter than 6 characters'),
-    passwordConfirmation: z.string({ required_error: 'password confirmation is required' })
-}).refine(data => data.password === data.passwordConfirmation, {
+    password_confirmation: z.string({ required_error: 'password_confirmation is required' })
+}).refine(data => data.password === data.password_confirmation, {
     message: 'passwords do not match',
     path: ['passwordConfirmation']
 })
@@ -37,8 +37,8 @@ const loginSchema = z.object({
 })
 
 const loginResponseSchema = z.object({
-    accessToken: z.string(),
-    expiresIn: z.number()
+    access_token: z.string(),
+    expires_in: z.number()
 })
 
 const verifyOTPSchema = z.object({
@@ -59,16 +59,16 @@ const resetPasswordSchema = z.object({
         email: z.string({ required_error: "email is required" }),
         otp: z.string({ required_error: "otp is required" }),
         password: z.string({ required_error: "password is required" }).min(6, "Password too short - should be 6 chars minimum"),
-        passwordConfirmation: z.string({ required_error: "passwordConfirmation is required" }),
-    }).refine((data) => data.password === data.passwordConfirmation, {
+        password_confirmation: z.string({ required_error: "passwordConfirmation is required" }),
+    }).refine((data) => data.password === data.password_confirmation, {
         message: "Passwords do not match",
         path: ["passwordConfirmation"]
 })
 
 export const updateUserSchema = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    username: z.string(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
+    username: z.string().optional(),
 })
 
 export type CreateUserInput = z.infer<typeof createUserSchema>
