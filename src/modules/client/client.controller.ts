@@ -27,7 +27,7 @@ export async function getClientHandler(request: FastifyRequest<{ Params: { clien
 
         const client = await ClientService.get(request.params.clientId, userId)
 
-        if (!client) return reply.code(404).send({ message: 'No client  found with the id' })
+        if (!client) return reply.code(404).send({ message: 'No client found with the id' })
 
         return reply.code(200).send({ message: "Client retrieved successfully", data: { ...client } })
     } catch (err: any) {
@@ -39,11 +39,9 @@ export async function getAllClientsHandler(request: FastifyRequest, reply: Fasti
     try {
         const userId = request.user.id
 
-        const client = await ClientService.getClients(userId)
+        const clients = await ClientService.getAll(userId)
 
-        if (!client) return reply.code(404).send({ message: 'No client  found with the id' })
-
-        return reply.code(200).send({ message: "Client retrieved successfully", data: { ...client } })
+        return reply.code(200).send({ message: "Clients retrieved successfully", data: { clients } })
     } catch (err: any) {
         return reply.code(500).send(err)
     }

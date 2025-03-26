@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreateExpenseInput, UpdateExpenseInput } from './expenses.schema'
 import expenses from '../../db/schema/expenses'
@@ -22,7 +22,7 @@ class ExpensesService {
     }
 
     async getAll(userId: number) {
-        const expensesData = db.query.expenses.findMany({ where: eq(expenses.userId, userId) })
+        const expensesData = db.query.expenses.findMany({ where: and(eq(expenses.userId, userId), isNull(expenses.deleted_at)) })
     
         return expensesData
     }
@@ -34,7 +34,7 @@ class ExpensesService {
     }
 
     async delete(expenseId: number, userId: number) {
-        const expense = db.delete(expenses).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
+        const expense = db.update(expenses).set({ deleted_at: new Date() }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
     
         return expense
     }

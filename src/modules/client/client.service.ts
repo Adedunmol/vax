@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreateClientInput, UpdateClientInput } from './client.schema'
 import clients from '../../db/schema/clients'
@@ -39,14 +39,14 @@ class ClientService {
         return client
     }
 
-    async getClients(createdBy: number) {
-        const client = db.query.clients.findMany({ where: eq(clients.createdBy, createdBy) })
+    async getAll(createdBy: number) {
+        const client = db.query.clients.findMany({ where: and(eq(clients.createdBy, createdBy), isNull(clients.deleted_at)) })
     
         return client
     }
 
     async delete(clientId: number, createdBy: number) {
-        const client = db.delete(clients).where(and(eq(clients.id, clientId), eq(clients.createdBy, createdBy))).returning()
+        const client = db.update(clients).set({ deleted_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, createdBy))).returning()
     
         return client
     }
