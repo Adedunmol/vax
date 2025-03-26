@@ -12,7 +12,7 @@ class UserService {
         this.OTP_EXPIRATION = 3600000
     }
 
-    async createUser(input: Omit<CreateUserInput, 'password_confirmation'>) {
+    async create(input: Omit<CreateUserInput, 'password_confirmation'>) {
         const password = await this.hashPassword(input.password)
         const { first_name: firstName, last_name: lastName } = input
 
@@ -21,7 +21,7 @@ class UserService {
         return user[0]
     }
 
-    async findUserByEmail(email: string) {
+    async findByEmail(email: string) {
         // find and return user by email
         // const user = await db.select().from(users).where(eq(users.email, email))
         const user = db.query.users.findFirst({
@@ -34,7 +34,7 @@ class UserService {
         return user
     }
 
-    async findUserById(id: number) {
+    async findById(id: number) {
         // find and return user by email
         // const user = await db.select().from(users).where(eq(users.email, email))
         const user = db.query.users.findFirst({
@@ -47,14 +47,14 @@ class UserService {
         return user
     }
 
-    async updateUser(userId: number, updateUserObj: any) {
+    async update(userId: number, updateUserObj: any) {
 
         const user = await db.update(users).set(updateUserObj).where(eq(users.id, userId)).returning()
 
         return user[0]
     }
 
-    async updateUserprofile(updateObj: Profile) {
+    async updateProfile(updateObj: Profile) {
         const { userId, ...rest } = updateObj
         const profile = await db.update(profiles).set(rest).where(eq(profiles.userId, userId)).returning()
     }

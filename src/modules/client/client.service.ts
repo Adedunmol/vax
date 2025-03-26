@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import db from '../../db'
-import { CreateClientInput } from './client.schema'
+import { CreateClientInput, UpdateClientInput } from './client.schema'
 import clients from '../../db/schema/clients'
 
 class ClientService {
@@ -20,7 +20,7 @@ class ClientService {
         return client[0]
     }
 
-    async update(clientId: number, userId: number, updateObj: any) {
+    async update(clientId: number, userId: number, updateObj: UpdateClientInput) {
         const updatedData = {
             firstName: updateObj.first_name,
             lastName: updateObj.last_name,

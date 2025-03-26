@@ -3,6 +3,7 @@ import { relations } from 'drizzle-orm'
 import profiles from './profiles'
 import settings from './settings'
 import clients from './clients'
+import expenses from './expenses'
 
 const timestamps = {
     updated_at: timestamp(),
@@ -25,7 +26,8 @@ const users = pgTable('users', {
 export const usersRelations = relations(users, ({ one, many }) => ({
     profile: one(profiles),
     settings: one(settings),
-    clients: many(clients)
+    clients: many(clients),
+    expenses: many(expenses)
 }))
 
 export default users

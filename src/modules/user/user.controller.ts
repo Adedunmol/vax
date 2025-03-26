@@ -8,7 +8,7 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
     const body = request.body
 
     try {
-        const user = await UserService.createUser(body)
+        const user = await UserService.create(body)
 
         const otp = await UserService.generateOTP(user.id, user.email)
 
@@ -36,7 +36,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
     const body = request.body
 
     try {
-        const user = await UserService.findUserByEmail(body.email)
+        const user = await UserService.findByEmail(body.email)
 
         if (!user) return reply.code(401).send('invalid credentials')
 
@@ -45,11 +45,11 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         if (!match) return reply.code(401).send('invalid credentials')
 
         // update user's last login
-        await UserService.updateUserprofile({ userId: user.id, lastLogin: new Date() })
+        await UserService.updateProfile({ userId: user.id, lastLogin: new Date() })
 
         const refreshToken = request.jwt.sign({ id: user.id, email: user.email })
 
-        await UserService.updateUser(user.id, { refreshToken })
+        await UserService.update(user.id, { refreshToken })
 
         reply.setCookie('jwt', refreshToken, { httpOnly: true, maxAge: 15 * 60 * 1000, sameSite: 'none' })
         return { accessToken: request.jwt.sign({ id: user.id, email: user.email }) }
@@ -73,7 +73,7 @@ export async function logoutHandler(request: FastifyRequest, reply: FastifyReply
             return reply.code(204)
         }
 
-        await UserService.updateUser(foundUser.id, { refreshToken: '' })
+        await UserService.update(foundUser.id, { refreshToken: '' })
 
         reply.clearCookie('jwt', {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
@@ -104,10 +104,10 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
                     if (err) {
                         return reply.code(403).send({ message: 'bad token for reuse' })
                     }
-                    const user = await UserService.findUserByEmail(data?.email)
+                    const user = await UserService.findByEmail(data?.email)
                 
                     if (user) {
-                        await UserService.updateUser(data.id, { refreshToken: '' })
+                        await UserService.update(data.id, { refreshToken: '' })
                     }
                 }
             )
@@ -119,7 +119,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
             refreshToken,
             async (err, data) => {
                 if (err) {
-                    await UserService.updateUser(data.id, { refreshToken: '' })
+                    await UserService.update(data.id, { refreshToken: '' })
                 }
                 if (err || data?.email !== user.email) {
                     return reply.code(403).send({ message: 'bad token' })
@@ -129,7 +129,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
 
                 const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email })
             
-                await UserService.updateUser(data.id, { refreshToken: '' })
+                await UserService.update(data.id, { refreshToken: '' })
 
                 reply.cookie('jwt', newRefreshToken, {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
@@ -164,7 +164,7 @@ export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTP
             return reply.code(400).send({ message: 'Invalid code passed. Check your inbox.' })
         }
     
-        const user = await UserService.updateUser(request.body.userId, { verfied: true })
+        const user = await UserService.update(request.body.userId, { verfied: true })
     
         await UserService.deleteUserOtp(request.body.userId)
         
@@ -178,7 +178,7 @@ export async function resendOTPHandler(request: FastifyRequest<{ Body: ResendOTP
     try {
         await UserService.deleteUserOtp(request.body.userId)
 
-        const user = await UserService.findUserById(request.body.userId)
+        const user = await UserService.findById(request.body.userId)
     
         if (!user) return reply.code(404).send({ message: 'No user found with this id' })
     
@@ -199,7 +199,7 @@ export async function resendOTPHandler(request: FastifyRequest<{ Body: ResendOTP
 
 export async function resetPasswordRequestHandler(request: FastifyRequest<{ Body: ResetPasswordRequestInput }>, reply: FastifyReply) {
     try {
-        const user = await UserService.findUserByEmail(request.body.email.trim())
+        const user = await UserService.findByEmail(request.body.email.trim())
 
         if (!user) return reply.code(404).send({ message: 'No user found with this email' })
     
@@ -229,7 +229,7 @@ export async function resetPasswordRequestHandler(request: FastifyRequest<{ Body
 
 export async function resetPasswordHandler(request: FastifyRequest<{ Body: ResetPasswordInput }>, reply: FastifyReply) {
     try {
-        const user = await UserService.findUserByEmail(request.body.email.trim())
+        const user = await UserService.findByEmail(request.body.email.trim())
 
         if (!user) return reply.code(404).send({ message: 'No user found with this email' })
     
@@ -256,7 +256,7 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
     
         const hashedPassword = await UserService.hashPassword(request.body.password.trim())
     
-        await UserService.updateUser(user.id,{ password: hashedPassword })
+        await UserService.update(user.id,{ password: hashedPassword })
     
         await UserService.deleteUserOtp(user.id)
     
@@ -270,7 +270,7 @@ export async function updateUserHandler(request: FastifyRequest<{ Body: UpdateUs
     try {
         const userId = request.user.id
 
-        const user = await UserService.updateUser(userId, request.body)
+        const user = await UserService.update(userId, request.body)
 
         return reply.code(200).send({ message: "User updated successfully", data: { ...user } })
     } catch (err: any) {
