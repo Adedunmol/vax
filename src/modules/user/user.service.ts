@@ -12,10 +12,11 @@ class UserService {
         this.OTP_EXPIRATION = 3600000
     }
 
-    async createUser(input: CreateUserInput) {
+    async createUser(input: Omit<CreateUserInput, 'password_confirmation'>) {
         const password = await this.hashPassword(input.password)
-    
-        const user = await db.insert(users).values({ ...input, password }).returning({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, username: users.username })
+        const { first_name: firstName, last_name: lastName } = input
+
+        const user = await db.insert(users).values({ ...input, firstName, lastName, password }).returning({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, username: users.username })
     
         return user[0]
     }

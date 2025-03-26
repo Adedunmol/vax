@@ -1,6 +1,8 @@
 import { pgTable, serial, varchar, boolean, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import profiles from './profiles'
+import settings from './settings'
+import clients from './clients'
 
 const timestamps = {
     updated_at: timestamp(),
@@ -20,8 +22,10 @@ const users = pgTable('users', {
     ...timestamps
 })
 
-export const usersRelations = relations(users, ({ one }) => ({
-    profile: one(profiles)
+export const usersRelations = relations(users, ({ one, many }) => ({
+    profile: one(profiles),
+    settings: one(settings),
+    clients: many(clients)
 }))
 
 export default users
