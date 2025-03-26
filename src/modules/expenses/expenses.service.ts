@@ -28,7 +28,7 @@ class ExpensesService {
     }
 
     async update(expenseId: number, userId: number, updateObj: UpdateExpenseInput) {
-        const expense = await db.update(expenses).set({ ...updateObj, amount: updateObj.amount?.toFixed(2) }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
+        const expense = await db.update(expenses).set({ ...updateObj, amount: updateObj.amount?.toFixed(2), updated_at: new Date() }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
 
         return expense[0]
     }

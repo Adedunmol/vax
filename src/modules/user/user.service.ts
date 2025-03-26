@@ -49,7 +49,7 @@ class UserService {
 
     async update(userId: number, updateUserObj: any) {
 
-        const user = await db.update(users).set(updateUserObj).where(eq(users.id, userId)).returning()
+        const user = await db.update(users).set({ ...updateUserObj, updated_at: new Date() }).where(eq(users.id, userId)).returning()
 
         return user[0]
     }

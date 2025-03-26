@@ -9,7 +9,7 @@ class SettingsService {
 
     async update(userId: number, updateObj: UpdateSettingsInput) {
 
-        const data = await db.update(settings).set(updateObj).where(eq(settings.userId, userId)).returning()
+        const data = await db.update(settings).set({ ...updateObj, updated_at: new Date() }).where(eq(settings.userId, userId)).returning()
     
         return data[0]
     }

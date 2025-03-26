@@ -28,7 +28,7 @@ class ClientService {
             email: updateObj.email
         }
 
-        const client = await db.update(clients).set(updatedData).where(and(eq(clients.id, clientId), eq(clients.createdBy, userId))).returning()
+        const client = await db.update(clients).set({ ...updatedData, updated_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, userId))).returning()
 
         return client[0]
     }
