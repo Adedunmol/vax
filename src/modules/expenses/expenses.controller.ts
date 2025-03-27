@@ -65,7 +65,6 @@ export async function deleteExpenseHandler(request: FastifyRequest<{ Params: { e
         const expense = await ExpenseService.delete(request.params.expenseId, userId)
 
         return reply.code(200).send({ message: "Expense deleted successfully", data: { ...expense } })
-
     } catch (err: any) {
         return reply.code(500).send(err)
     }
