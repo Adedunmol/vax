@@ -4,6 +4,7 @@ import profiles from './profiles'
 import settings from './settings'
 import clients from './clients'
 import expenses from './expenses'
+import payments from './payments'
 
 const timestamps = {
     updated_at: timestamp(),
@@ -27,7 +28,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     profile: one(profiles),
     settings: one(settings),
     clients: many(clients),
-    expenses: many(expenses)
+    expenses: many(expenses),
+    payments: many(payments)
 }))
 
 export default users

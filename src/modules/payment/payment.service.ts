@@ -1,22 +1,53 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreatePaymentInput } from './payment.schema'
+import { payments, invoices } from '../../db/schema'
 
 class PaymentService {
 
-    constructor() {
-    }
+    constructor() {}
 
     async create(data: CreatePaymentInput) {
         // create payment entry
+        const payment = await db.insert(payments).values({ amount: data.amount.toFixed(2), paymentDate: data.payment_date, paymentMethod: data.payment_method, invoiceId: data.invoice_id }).returning()
+    
+        // update the amount_paid in invoice and if the amount_paid == total_amount, set status to paid, else set to partially paid
+        await db.update(invoices)
+                .set({
+                        amountPaid: sql`${invoices.amountPaid} + ${data.amount}`, // Increment `amount_paid`
+                        status: sql`CASE 
+                                        WHEN ${invoices.amountPaid} + ${data.amount} >= ${invoices.totalAmount} 
+                                        THEN 'paid' 
+                                        ELSE 'partially_paid' 
+                                    END`, // Update `status` based on amount_paid
+        })
+        .where(eq(invoices.id, data.invoice_id));
 
-        // update the amount_paid in invoice and if the amount_paid == total_amount, set status to paid
+        return payment[0]
+    }
+    
+    async get(paymentId: number, userId: number) {
+        const payment = db.query.payments.findFirst({ where: and(eq(payments.id, paymentId), eq(payments.userId, userId)) })
+    
+        return payment
+    }
+
+    async getAll(userId: number) {
+        const paymentsData = db.query.payments.findMany({ where: and(eq(payments.userId, userId), isNull(payments.deleted_at)) })
+    
+        return paymentsData
     }
 
     async update(paymentId: number, updateObj: any) {
-
-        // if the amount field is being modified, update the amount_paid
+        // if the amount field is being modified, update the amount_paid in the invoices table
     }
+
+    async delete(paymentId: number, userId: number) {
+        const expense = db.update(payments).set({ deleted_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId))).returning()
+    
+        return expense
+    }
+
 }
 
 export default new PaymentService()

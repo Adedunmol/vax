@@ -3,7 +3,7 @@ import { buildJsonSchemas } from 'fastify-zod'
 
 const createPaymentSchema = z.object({
     invoice_id: z.number({ required_error: 'invoice_id is required' }),
-    amount: z.number({ required_error: 'amount is required' }),
+    amount: z.number({ required_error: 'amount is required' }).nonnegative().gt(0, { message: 'amount must be greater than 0' }),
     payment_method: z.string({ required_error: 'payment_method of payment is required' }), // enum(['bank_transfer', 'cash', 'online_payment', 'crypto'])
     payment_date: z.string().refine((str) => !isNaN(Date.parse(str)), { message: "Invalid payment_date format" }).transform((str) => new Date(str))
 })
