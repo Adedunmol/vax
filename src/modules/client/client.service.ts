@@ -2,6 +2,7 @@ import { eq, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreateClientInput, UpdateClientInput } from './client.schema'
 import clients from '../../db/schema/clients'
+import { invoices } from '../../db/schema'
 
 class ClientService {
 
@@ -43,6 +44,18 @@ class ClientService {
         const client = db.query.clients.findMany({ where: and(eq(clients.createdBy, createdBy), isNull(clients.deleted_at)) })
     
         return client
+    }
+
+    async getInvoices(clientId: number, userId: number) {
+        const invoicesData = db.query.invoices.findMany({ 
+            where: and(
+                eq(invoices.createdFor, clientId), 
+                isNull(invoices.deleted_at),
+                eq(invoices.createdBy, userId)
+                ),
+        })
+    
+        return invoicesData
     }
 
     async delete(clientId: number, createdBy: number) {

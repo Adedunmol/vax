@@ -42,8 +42,6 @@ export async function getAllInvoicesHandler(request: FastifyRequest, reply: Fast
     }
 }
 
-export async function getClientInvoicesHandler() {}
-
 export async function updateInvoiceHandler(request: FastifyRequest<{ Body: UpdateInvoiceInput, Params: { invoiceId: number } }>, reply: FastifyReply) {
     try {
         const userId = request.user.id

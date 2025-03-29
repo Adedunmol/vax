@@ -47,6 +47,20 @@ export async function getAllClientsHandler(request: FastifyRequest, reply: Fasti
     }
 }
 
+export async function getClientInvoicesHandler(request: FastifyRequest<{ Params: { clientId: number } }>, reply: FastifyReply) {
+    try {
+        if (!request.params.clientId) return reply.code(400).send({ message: 'clientId is required' })
+
+        const userId = request.user.id
+
+        const invoices = await ClientService.getInvoices(request.params.clientId, userId)
+
+        return reply.code(200).send({ message: "Invoices retrieved successfully", data: { invoices } })
+    } catch (err: any) {
+        return reply.code(500).send(err)
+    }
+}
+
 export async function updateClientHandler(request: FastifyRequest<{ Body: UpdateClientInput, Params: { clientId: number } }>, reply: FastifyReply) {
     try {
         if (!request.params.clientId) return reply.code(400).send({ message: 'clientId is required' })
