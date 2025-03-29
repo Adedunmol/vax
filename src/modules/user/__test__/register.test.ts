@@ -15,7 +15,7 @@ const password = faker.internet.password()
 const passwordConfirmation = password
 const id = Math.floor(Math.random() * 1000)
 
-const createUserStub = ImportMock.mockFunction(userService, 'createUser', {
+const createUserStub = ImportMock.mockFunction(userService, 'create', {
   firstName,
   lastName,
   email,
