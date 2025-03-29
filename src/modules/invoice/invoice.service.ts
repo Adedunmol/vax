@@ -46,7 +46,9 @@ class InvoiceService {
 
     async delete(invoiceId: number, userId: number) {
         const invoice = db.update(invoices).set({ deleted_at: new Date() }).where(and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId))).returning()
-    
+        
+        // cancel associated reminders
+
         return invoice
     }
 }

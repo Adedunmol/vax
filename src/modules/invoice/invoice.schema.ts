@@ -15,7 +15,7 @@ const createInvoiceSchema = z.object({
                 .refine((date) => date > new Date(), { message: "due_date must be in the future" }),
     client_id: z.number({ required_error: "client_id is required" }),
     description: z.string().optional(),
-    items: z.array(serviceSchema)
+    items: z.array(serviceSchema).optional()
 })
 
 const updateInvoiceSchema = z.object({
