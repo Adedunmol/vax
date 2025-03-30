@@ -7,7 +7,7 @@ class PaymentService {
 
     constructor() {}
 
-    async create(data: CreatePaymentInput) {
+    async create(data: CreatePaymentInput & { userId: number }) {
         // create payment entry
         const payment = await db.insert(payments).values({ amount: data.amount.toFixed(2), paymentDate: data.payment_date, paymentMethod: data.payment_method, invoiceId: data.invoice_id }).returning()
     
@@ -38,7 +38,7 @@ class PaymentService {
         return paymentsData
     }
 
-    async update(paymentId: number, updateObj: any) {
+    async update(paymentId: number, userId: number, updateObj: any) {
         // if the amount field is being modified, update the amount_paid in the invoices table
     }
 
