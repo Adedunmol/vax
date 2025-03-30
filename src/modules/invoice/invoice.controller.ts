@@ -1,14 +1,45 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import InvoiceService from './invoice.service'
 import { CreateInvoiceInput, UpdateInvoiceInput } from './invoice.schema'
+import { createReminder } from '../reminder/reminder.controller'
+import UserService from '../user/user.service'
+import SettingsService from '../settings/settings.service'
+
+const WeeklyInterval = 7
 
 export async function createInvoiceHandler(request: FastifyRequest<{ Body: CreateInvoiceInput }>, reply: FastifyReply) {
     try {
         const userId = request.user.id
 
-        const data = await InvoiceService.create({ ...request.body, userId })
+        const settings = await SettingsService.get(userId)
 
-        return reply.code(201).send({ message: 'Invoice created successfully', data })
+        if (!settings) return reply.code(400).send({ message: 'No settings associated with user' })
+
+        const invoice = await InvoiceService.create({ ...request.body, userId })
+
+        const recurrentReminderData = {
+            dueDate: invoice.dueDate || new Date(),
+            isRecurring: settings?.recurrentReminders || true,
+            intervalDays: settings?.recurrentInterval || WeeklyInterval,
+            invoiceId: invoice.id
+        }
+
+        await createReminder(recurrentReminderData)
+
+        const dueDate = invoice.dueDate!
+
+        dueDate.setDate(invoice.dueDate!.getDate() - (settings.notify_before || 1))
+
+        const beforeDueReminderData = {
+            dueDate,
+            isRecurring: false,
+            intervalDays: 0,
+            invoiceId: invoice.id
+        }
+
+        await createReminder(beforeDueReminderData)
+
+        return reply.code(201).send({ message: 'Invoice created successfully', data: { ...invoice } })
     } catch (err: any) {
         return reply.code(500).send(err)
     }

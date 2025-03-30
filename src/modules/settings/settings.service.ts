@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import db from '../../db'
 import settings from '../../db/schema/settings'
 import { UpdateSettingsInput } from './settings.schema'
@@ -6,6 +6,14 @@ import { UpdateSettingsInput } from './settings.schema'
 class SettingsService {
 
     constructor() {}
+
+    async get(userId: number) {
+        const settingsData = db.query.settings.findFirst({ 
+            where: and(eq(settings.userId, userId)),
+        })
+    
+        return settingsData
+    }
 
     async update(userId: number, updateObj: UpdateSettingsInput) {
 
