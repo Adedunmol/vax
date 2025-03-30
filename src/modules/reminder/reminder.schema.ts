@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
-const createReminderSchema = z.object({
+export const createReminderSchema = z.object({
     invoiceId: z.number(),
     isRecurring: z.boolean(),
     intervalDays: z.number(),

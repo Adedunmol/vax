@@ -42,7 +42,10 @@ class RemindersService {
 
     async getAll(userId: number) {
         const remindersData = db.query.invoices.findMany({ 
-            where: and(eq(reminders.userId, userId), isNull(reminders.deleted_at)),
+            where: and(
+                eq(reminders.userId, userId), 
+                isNull(reminders.deleted_at),
+            ),
         })
     
         return remindersData
