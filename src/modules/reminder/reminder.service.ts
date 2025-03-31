@@ -1,7 +1,9 @@
 import { eq, and, isNull, lte} from 'drizzle-orm'
 import db from '../../db'
 import { CreateReminderInput, UpdateReminderInput } from './reminder.schema'
-import { reminders } from '../../db/schema'
+import { clients, reminders, users } from '../../db/schema'
+
+type RemindersWithUsers = typeof reminders.$inferSelect & { user: typeof users.$inferSelect, client: typeof clients.$inferSelect };
 
 class RemindersService {
 
@@ -21,12 +23,16 @@ class RemindersService {
 
     async getDueReminders() {
         // fetch the remidners in chunks
-        const pendingReminders = await db.query.reminders.findMany({
+        const pendingReminders: RemindersWithUsers[] = await db.query.reminders.findMany({
             where: and(
                 eq(reminders.reminderStatus, 'pending'), // Not sent
                 eq(reminders.canceled, false), // Not canceled
                 lte(reminders.dueDate, new Date())
-            )   
+            ),
+            with: {
+                user: true,
+                client: true
+            } 
         })
 
         return pendingReminders

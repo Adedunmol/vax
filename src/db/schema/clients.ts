@@ -1,6 +1,8 @@
 import { pgTable, serial, varchar, boolean, integer, timestamp } from 'drizzle-orm/pg-core'
 import users from './users'
 import { relations } from 'drizzle-orm'
+import invoices from './invoices'
+import reminders from './reminders'
 
 const timestamps = {
     updated_at: timestamp(),
@@ -18,8 +20,10 @@ const clients = pgTable('clients', {
     ...timestamps
 })
 
-export const clientsRelations = relations(clients, ({ one }) => ({
-    user: one(users, { fields: [clients.createdBy], references: [users.id] })
+export const clientsRelations = relations(clients, ({ one, many }) => ({
+    user: one(users, { fields: [clients.createdBy], references: [users.id] }),
+    invoice: many(invoices),
+    reminder: many(reminders)
 }))
 
 export default clients

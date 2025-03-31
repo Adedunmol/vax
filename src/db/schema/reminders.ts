@@ -2,6 +2,7 @@ import { pgTable, serial, varchar, boolean, integer, timestamp, pgEnum } from 'd
 import { relations } from 'drizzle-orm'
 import invoices from './invoices'
 import users from './users'
+import clients from './clients'
 
 const timestamps = {
     updated_at: timestamp(),
@@ -14,6 +15,7 @@ const reminderStatus = pgEnum('reminder_status', ['pending', 'sent', 'scheduled'
 const reminders = pgTable('reminders', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').references(() => users.id),
+    clientId: integer('client_id').references(() => clients.id),
     invoiceId: integer('invoice_id').references(() => invoices.id),
     reminderStatus: reminderStatus().default('pending'),
     isRecurring: boolean('is_recurring').default(false),
@@ -25,7 +27,8 @@ const reminders = pgTable('reminders', {
 
 export const remindersRelations = relations(reminders, ({ one }) => ({
     invoice: one(invoices, { fields: [reminders.invoiceId], references: [invoices.id] }),
-    user: one(users, { fields: [reminders.userId], references: [users.id] })
+    user: one(users, { fields: [reminders.userId], references: [users.id] }),
+    client: one(clients, { fields: [reminders.clientId], references: [clients.id] })
 }))
 
 export default reminders
