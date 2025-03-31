@@ -9,7 +9,7 @@ class PaymentService {
 
     async create(data: CreatePaymentInput & { userId: number }) {
         // create payment entry
-        const payment = await db.insert(payments).values({ amount: data.amount.toFixed(2), paymentDate: data.payment_date, paymentMethod: data.payment_method, invoiceId: data.invoice_id }).returning()
+        const [payment] = await db.insert(payments).values({ amount: data.amount.toFixed(2), paymentDate: data.payment_date, paymentMethod: data.payment_method, invoiceId: data.invoice_id }).returning()
     
         // update the amount_paid in invoice and if the amount_paid == total_amount, set status to paid, else set to partially paid
         await db.update(invoices)
@@ -23,7 +23,7 @@ class PaymentService {
         })
         .where(eq(invoices.id, data.invoice_id));
 
-        return payment[0]
+        return payment
     }
     
     async get(paymentId: number, userId: number) {

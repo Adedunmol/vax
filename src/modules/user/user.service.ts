@@ -16,9 +16,9 @@ class UserService {
         const password = await this.hashPassword(input.password)
         const { first_name: firstName, last_name: lastName } = input
 
-        const user = await db.insert(users).values({ ...input, firstName, lastName, password }).returning({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, username: users.username })
+        const [user] = await db.insert(users).values({ ...input, firstName, lastName, password }).returning({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, username: users.username })
     
-        return user[0]
+        return user
     }
 
     async findByEmail(email: string) {
@@ -49,9 +49,9 @@ class UserService {
 
     async update(userId: number, updateUserObj: any) {
 
-        const user = await db.update(users).set({ ...updateUserObj, updated_at: new Date() }).where(eq(users.id, userId)).returning()
+        const [user] = await db.update(users).set({ ...updateUserObj, updated_at: new Date() }).where(eq(users.id, userId)).returning()
 
-        return user[0]
+        return user
     }
 
     async updateProfile(updateObj: Profile) {

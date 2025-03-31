@@ -10,9 +10,9 @@ class ExpensesService {
     async create(data: CreateExpenseInput & { userId: number }) {
         const { expense_date: expenseDate, ...rest } = data
 
-        const expense = await db.insert(expenses).values({ ...rest, expenseDate, amount: data.amount.toFixed(2) }).returning()
+        const [expense] = await db.insert(expenses).values({ ...rest, expenseDate, amount: data.amount.toFixed(2) }).returning()
     
-        return expense[0]
+        return expense
     }
 
     async get(expenseId: number, userId: number) {
@@ -28,9 +28,9 @@ class ExpensesService {
     }
 
     async update(expenseId: number, userId: number, updateObj: UpdateExpenseInput) {
-        const expense = await db.update(expenses).set({ ...updateObj, amount: updateObj.amount?.toFixed(2), updated_at: new Date() }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
+        const [expense] = await db.update(expenses).set({ ...updateObj, amount: updateObj.amount?.toFixed(2), updated_at: new Date() }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
 
-        return expense[0]
+        return expense
     }
 
     async delete(expenseId: number, userId: number) {

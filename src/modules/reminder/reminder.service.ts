@@ -10,15 +10,15 @@ class RemindersService {
     constructor() {}
 
     async create(data: CreateReminderInput) {
-        const reminder = await db.insert(reminders).values(data).returning()
+        const [reminder] = await db.insert(reminders).values(data).returning()
     
-        return reminder[0]
+        return reminder
     }
 
     async update(reminderId: number, userId: number, updateObj: UpdateReminderInput) {
-        const reminder = await db.update(reminders).set(updateObj).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
+        const [reminder] = await db.update(reminders).set(updateObj).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
 
-        return reminder[0]
+        return reminder
     }
 
     async getDueReminders() {

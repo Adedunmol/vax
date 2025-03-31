@@ -16,9 +16,9 @@ class ClientService {
             email: data.email
         }
 
-        const client = await db.insert(clients).values({ ...updatedData }).returning()
+        const [client] = await db.insert(clients).values({ ...updatedData }).returning()
     
-        return client[0]
+        return client
     }
 
     async update(clientId: number, userId: number, updateObj: UpdateClientInput) {
@@ -29,9 +29,9 @@ class ClientService {
             email: updateObj.email
         }
 
-        const client = await db.update(clients).set({ ...updatedData, updated_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, userId))).returning()
+        const [client] = await db.update(clients).set({ ...updatedData, updated_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, userId))).returning()
 
-        return client[0]
+        return client
     }
 
     async get(clientId: number, createdBy: number) {
