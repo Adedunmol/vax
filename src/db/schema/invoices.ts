@@ -3,6 +3,7 @@ import users from './users'
 import { relations } from 'drizzle-orm'
 import clients from './clients'
 import reminders from './reminders'
+import items from './items'
 
 const timestamps = {
     updated_at: timestamp(),
@@ -24,9 +25,11 @@ const invoices = pgTable('invoices', {
     ...timestamps
 })
 
-export const invoicesRelations = relations(invoices, ({ one }) => ({
+export const invoicesRelations = relations(invoices, ({ one, many }) => ({
     user: one(users, { fields: [invoices.createdBy], references: [users.id] }),
     client: one(clients, { fields: [invoices.createdFor], references: [clients.id] }),
+    reminders: many(reminders),
+    items: many(items)
 }))
 
 export default invoices
