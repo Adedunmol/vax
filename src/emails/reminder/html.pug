@@ -1,0 +1,18 @@
+h1 Hello #{clientName} 👋,
+
+body  
+    p This is a friendly reminder from #{userName} regarding your outstanding invoice.
+    p Here are the details of your invoice:
+    
+    ul
+        li #[strong Invoice ID:] #{invoiceId}
+        li #[strong Amount Due:] $#{amountDue}
+        li #[strong Due Date:] #{dueDate}
+        li #[strong Payment Method:] #{paymentMethod}
+
+    p Kindly ensure payment is made by the due date to avoid any late fees or service interruptions.
+
+p If you have already made the payment, please disregard this message.
+p Feel free to contact #{userEmail} if you have any questions.
+
+p Thank you for your prompt attention to this matter!
