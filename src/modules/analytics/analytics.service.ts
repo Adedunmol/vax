@@ -122,7 +122,13 @@ export class InvoiceAnalytics {
 
     async latePaymentsInvoices() {}
 
-    async unpaidInvoices() {}
+    async unpaidInvoices(userId: number) {
+        const invoicesData = await db.select({ invoiceId: invoices.id })
+                                    .from(invoices)
+                                    .where(and(eq(invoices.status, "unpaid"), eq(invoices.createdBy, userId)))
+
+        return invoicesData
+    }
 }
 
 export class ReminderAnalytics {
@@ -148,7 +154,7 @@ export class ReportAnalytics {
         const revenue = await new RevenueAnalytics().totalRevenue(userId);
         const outstandingRevenue = await new RevenueAnalytics().outstandingRevenue(userId);
         const expenses = await new ExpenseAnalytics().totalExpenses(userId);
-        const unpaidInvoices = await new InvoiceAnalytics().unpaidInvoices();
+        const unpaidInvoices = await new InvoiceAnalytics().unpaidInvoices(userId);
         const remindersSent = await new ReminderAnalytics().totalSentReminders(userId);
 
         return {

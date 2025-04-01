@@ -59,7 +59,7 @@ class RemindersService {
     }
 
     async delete(reminderId: number, userId: number) {
-        const reminder = db.update(reminders).set({ deleted_at: new Date() }).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
+        const reminder = db.update(reminders).set({ deleted_at: new Date(), reminderStatus: 'canceled' }).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
     
         return reminder
     }

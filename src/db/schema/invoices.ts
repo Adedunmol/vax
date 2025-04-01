@@ -11,7 +11,7 @@ const timestamps = {
     deleted_at: timestamp(),
 }
 
-const invoiceStatus = pgEnum("invoice_status", ["pending", "partially_paid", "paid", "overdue"])
+const invoiceStatus = pgEnum("invoice_status", ["unpaid", "partially_paid", "paid", "overdue"])
 
 const invoices = pgTable('invoices', {
     id: serial('id').primaryKey(),
@@ -21,7 +21,7 @@ const invoices = pgTable('invoices', {
     createdFor: integer('created_for').references(() => clients.id),
     totalAmount: decimal('total_amount'),
     amountPaid: decimal('amount_paid'),
-    status: invoiceStatus().default('pending'),
+    status: invoiceStatus().default('unpaid'),
     ...timestamps
 })
 
