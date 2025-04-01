@@ -126,13 +126,37 @@ export class InvoiceAnalytics {
 }
 
 export class ReminderAnalytics {
-    async totalSentReminders() {}
+    async totalSentReminders(userId: number) {
+        const [remindersData] = await db.select({ count: count() })
+        .from(reminders).where(eq(reminders.userId, userId))
 
-    async effectiveReminders() {}
+        return remindersData
+    }
 
-    async ignoredReminders() {}
+    async invoiceReminders(invoiceId: number, userId: number) {
+        const remindersData = await db.select()
+                                        .from(reminders)
+                                        .where(and(eq(reminders.userId, userId), eq(reminders.invoiceId, invoiceId)))
+
+        return remindersData
+    }
+
 }
 
 export class ReportAnalytics {
-    async dashboardReports() {}
+    async dashboardReports(userId: number) {
+        const revenue = await new RevenueAnalytics().totalRevenue(userId);
+        const outstandingRevenue = await new RevenueAnalytics().outstandingRevenue(userId);
+        const expenses = await new ExpenseAnalytics().totalExpenses(userId);
+        const unpaidInvoices = await new InvoiceAnalytics().unpaidInvoices();
+        const remindersSent = await new ReminderAnalytics().totalSentReminders(userId);
+
+        return {
+            revenue,
+            outstandingRevenue,
+            expenses,
+            unpaidInvoices,
+            remindersSent
+        };
+    }
 }
