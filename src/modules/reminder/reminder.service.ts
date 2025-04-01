@@ -1,9 +1,9 @@
 import { eq, and, isNull, lte} from 'drizzle-orm'
 import db from '../../db'
 import { CreateReminderInput, UpdateReminderInput } from './reminder.schema'
-import { clients, reminders, users } from '../../db/schema'
+import { clients, invoices, reminders, users } from '../../db/schema'
 
-type RemindersWithUsers = typeof reminders.$inferSelect & { user: typeof users.$inferSelect, client: typeof clients.$inferSelect };
+type RemindersWithUsers = typeof reminders.$inferSelect & { user: typeof users.$inferSelect, client: typeof clients.$inferSelect, invoice: typeof invoices.$inferSelect };
 
 class RemindersService {
 
@@ -31,7 +31,8 @@ class RemindersService {
             ),
             with: {
                 user: true,
-                client: true
+                client: true,
+                invoice: true
             } 
         })
 

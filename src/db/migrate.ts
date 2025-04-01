@@ -7,6 +7,8 @@ if (!env.DB_MIGRATING) {
     throw new Error('expected DB_MIGRATING to be set to "true"')
 }
 
-await migrate(db, { migrationsFolder: config.out! })
+(async () => {
+    await migrate(db, { migrationsFolder: config.out! })
 
-await connection.end()
+    await connection.end()
+})()

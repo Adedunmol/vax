@@ -6,13 +6,16 @@ export const enqueueReminders = async () => {
 
     const reminderPromises = dueReminders.map(async (reminder) => {
         try {
-            const emailData = {
-                template: 'reminder',
-                locals: { firstName: reminder.user.firstName },
-                to: reminder.client.email
-            };
+            if (!reminder.canceled || reminder.invoice.status !== 'paid') {
+                const emailData = {
+                    template: 'reminder',
+                    locals: { firstName: reminder.user.firstName },
+                    to: reminder.client.email
+                };
+    
+                await sendToQueue('invoices', emailData);
+            }
 
-            await sendToQueue('emails', emailData);
         } catch (error) {
             console.error(`Failed to enqueue reminder for ${reminder.client.email}:`, error);
         }
