@@ -70,6 +70,7 @@ export class RevenueAnalytics {
                                     total: sum(payments.amount)
                                 })
                                 .from(payments)
+                                .where(eq(payments.userId, userId))
                                 .groupBy(payments.paymentMethod)
 
         return revenue
@@ -77,13 +78,43 @@ export class RevenueAnalytics {
 }
 
 export class ExpenseAnalytics {
-    async totalExpenses() {}
+    async totalExpenses(userId: number) {
+        const [expensesData] = await db.select({ total: sum(expenses.amount) }).from(expenses).where(eq(expenses.userId, userId))
 
-    async categoryExpenses() {}
+        return expensesData
+    }
 
-    async trendExpenses() {}
+    async categoryExpenses(userId: number) {
+        const expensesData = await db.select({
+                                        category: expenses.category,
+                                        total: sum(expenses.amount)
+                                    })
+                                    .from(expenses)
+                                    .where(eq(expenses.userId, userId))
+                                    .groupBy(expenses.category)
 
-    async ratioExpenses() {}
+        return expensesData
+    }
+
+    async trendExpenses(userId: number) {
+        const expensesData = await db.select({
+                                        month: sql`TO_CHAR(${expenses.expenseDate}, 'YYYY-MM')`.as("month"),
+                                        total: sum(expenses.amount)
+                                    })
+                                    .from(expenses)
+                                    .where(eq(expenses.userId, userId))
+                                    .groupBy(sql`TO_CHAR(${expenses.expenseDate}, 'YYYY-MM')`)
+                                    .orderBy(sql`month DESC`)
+
+        return expensesData
+    }
+
+    async ratioExpenses(userId: number) {
+
+        const totalRevenue = await new RevenueAnalytics().totalRevenue(userId)
+        const totalExpenses = await this.totalExpenses(userId);
+        return Number(totalExpenses!) / (Number(totalRevenue!) || 1);
+    }
 }
 
 export class InvoiceAnalytics {
