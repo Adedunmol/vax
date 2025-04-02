@@ -1,16 +1,13 @@
-import { eq } from 'drizzle-orm'
+import { eq, and, desc, sql } from 'drizzle-orm'
 import db from '../../db'
-import { profiles, users } from '../../db/schema'
+import { profiles, userOtpVerifications, users } from '../../db/schema'
 import { CreateUserInput } from './user.schema'
 import bcrypt from 'bcrypt'
 import { Profile } from '../../types/user'
 
-class UserService {
-    OTP_EXPIRATION: number
+const OTP_EXPIRATION = 3600000
 
-    constructor() {
-        this.OTP_EXPIRATION = 3600000
-    }
+class UserService {
 
     async create(input: Omit<CreateUserInput, 'password_confirmation'>) {
         const password = await this.hashPassword(input.password)
@@ -56,7 +53,7 @@ class UserService {
 
     async updateProfile(updateObj: Profile) {
         const { userId, ...rest } = updateObj
-        const profile = await db.update(profiles).set(rest).where(eq(profiles.userId, userId)).returning()
+        await db.update(profiles).set(rest).where(eq(profiles.userId, userId)).returning()
     }
 
     async generateOTP(id: number, email: string) {
@@ -65,9 +62,13 @@ class UserService {
     
         const hashedOTP = await bcrypt.hash(otp, 10)
     
-        const expiresAt = Date.now() + this.OTP_EXPIRATION
-    
-        // create an entry in the otp verification table
+        const expiresAt = Date.now() + OTP_EXPIRATION
+
+        await db.insert(userOtpVerifications).values({
+            userId: id,
+            otp: hashedOTP,
+            expiresAt
+        })
     
         return otp
     }
@@ -79,12 +80,17 @@ class UserService {
     }
 
     async findUserWithOtp(userId: number) {
+        const otpRecord = await db.query.userOtpVerifications.findFirst({
+            where: and(
+                eq(userOtpVerifications.userId, userId),
+            )
+        });
 
-        return []
+        return otpRecord
     }
 
     async deleteUserOtp(userId: number) {
-
+        await db.delete(userOtpVerifications).where(eq(userOtpVerifications.userId, userId))
     }
 
     async compareOtp(candidateOtp: string, hashedOtp: string) {

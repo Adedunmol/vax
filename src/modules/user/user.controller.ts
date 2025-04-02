@@ -143,15 +143,15 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
 
 export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTPInput }>, reply: FastifyReply) {
     try {
-        const userOTPRecords = await UserService.findUserWithOtp(request.body.userId)
+        const userOTPRecord = await UserService.findUserWithOtp(request.body.userId)
 
-        if (userOTPRecords.length <= 0) {
+        if (!userOTPRecord) {
             return reply.code(403).send({ message: "Account record doesn't exist or has been verified already. Please sign up or log in." })
         }
     
         // user otp record exists
-        const { expiresAt } = userOTPRecords[0]
-        const hashedOTP = userOTPRecords[0] //.otp
+        const { expiresAt } = userOTPRecord
+        const hashedOTP = userOTPRecord.otp
     
         if (expiresAt < Date.now()) {
             await UserService.deleteUserOtp(request.body.userId)
@@ -233,15 +233,15 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
 
         if (!user) return reply.code(404).send({ message: 'No user found with this email' })
     
-        const userOTPRecords = await UserService.findUserWithOtp(user.id)
+        const userOTPRecord = await UserService.findUserWithOtp(user.id)
     
-        if (userOTPRecords.length <= 0) {
+        if (!userOTPRecord) {
             return reply.code(400).send({ message: 'Password reset request has not been made.' })
         }
     
         // user otp record exists
-        const { expiresAt } = userOTPRecords[0]
-        const hashedOTP = userOTPRecords[0] // .otp
+        const { expiresAt } = userOTPRecord
+        const hashedOTP = userOTPRecord.otp
     
         if (expiresAt < Date.now()) {
             await UserService.deleteUserOtp(user.id)

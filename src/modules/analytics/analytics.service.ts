@@ -118,9 +118,26 @@ export class ExpenseAnalytics {
 }
 
 export class InvoiceAnalytics {
-    async averagePaymentTime() {}
+    async latePaymentsInvoices(userId: number) {
+        const result = await db.select({
+                                    id: invoices.id,
+                                    clientId: invoices.createdFor,
+                                    totalAmount: invoices.totalAmount,
+                                    dueDate: invoices.dueDate,
+                                    paymentDate: payments.paymentDate,
+                                    amountPaid: payments.amount
+                                })
+                                .from(invoices)
+                                .innerJoin(payments, eq(invoices.id, payments.invoiceId))
+                                .where(
+                                    and(
+                                        sql`${payments.paymentDate} > ${invoices.dueDate}`,
+                                        eq(invoices.createdBy, userId)
+                                    )
+                                )
 
-    async latePaymentsInvoices() {}
+        return result
+    }
 
     async unpaidInvoices(userId: number) {
         const invoicesData = await db.select({ invoiceId: invoices.id })
