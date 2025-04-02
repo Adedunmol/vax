@@ -1,6 +1,6 @@
 import db from "../../db";
 import { invoices, payments, expenses, clients, reminders, users } from "../../db/schema";  
-import { eq, and, sum, count, desc, avg, sql } from "drizzle-orm";
+import { eq, and, sum, count, avg, sql } from "drizzle-orm";
 
 export class RevenueAnalytics {
     async totalRevenue(userId: number) {
