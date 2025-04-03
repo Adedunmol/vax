@@ -1,9 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { ExpenseAnalytics, InvoiceAnalytics, ReminderAnalytics, RevenueAnalytics } from './analytics.service'
+import { ExpenseQuery, InvoiceQuery, ReminderQuery, RevenueQuery } from './analytics.schema'
 
-type Revenue = 'total' | 'monthly' | 'outstanding' | 'average' | 'top-clients' | 'payment-method'
-
-export async function revenueHandler(request: FastifyRequest<{ Querystring: { type: Revenue } }>, reply: FastifyReply) {
+export async function revenueHandler(request: FastifyRequest<{ Querystring: RevenueQuery }>, reply: FastifyReply) {
     try {
         const userId = request.user.id
 
@@ -38,15 +37,13 @@ export async function revenueHandler(request: FastifyRequest<{ Querystring: { ty
     }  
 }
 
-type Expense = 'total' | 'category' | 'trend' | 'ratio'
-
-export async function expenseHandler(request: FastifyRequest<{ Querystring: { 'group_by': Expense } }>, reply: FastifyReply) {
+export async function expenseHandler(request: FastifyRequest<{ Querystring: ExpenseQuery }>, reply: FastifyReply) {
     try {
         const userId = request.user.id
 
         let expense: unknown
 
-        switch (request.query.group_by) {
+        switch (request.query.type) {
             case 'total':
                 expense = await new ExpenseAnalytics().totalExpenses(userId)
                 break
@@ -70,15 +67,13 @@ export async function expenseHandler(request: FastifyRequest<{ Querystring: { 'g
     }  
 }
 
-type Invoice = 'late' | 'unpaid'
-
-export async function invoiceHandler(request: FastifyRequest<{ Querystring: { 'group_by': Invoice } }>, reply: FastifyReply) {
+export async function invoiceHandler(request: FastifyRequest<{ Querystring: InvoiceQuery }>, reply: FastifyReply) {
     try {
         const userId = request.user.id
 
         let invoice: unknown
 
-        switch (request.query.group_by) {
+        switch (request.query.type) {
             case 'late':
                 invoice = await new InvoiceAnalytics().latePaymentsInvoices(userId)
                 break
@@ -95,15 +90,14 @@ export async function invoiceHandler(request: FastifyRequest<{ Querystring: { 'g
     }  
 }
 
-type Reminder = 'total-sent' | 'invoice'
 
-export async function reminderHandler(request: FastifyRequest<{ Querystring: { 'group_by': Reminder, invoiceId: number } }>, reply: FastifyReply) {
+export async function reminderHandler(request: FastifyRequest<{ Querystring: ReminderQuery }>, reply: FastifyReply) {
     try {
         const userId = request.user.id
 
         let reminder: unknown
 
-        switch (request.query.group_by) {
+        switch (request.query.type) {
             case 'total-sent':
                 reminder = await new ReminderAnalytics().totalSentReminders(userId)
                 break

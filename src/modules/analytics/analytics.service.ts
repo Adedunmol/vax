@@ -5,9 +5,9 @@ import { eq, and, sum, count, avg, sql } from "drizzle-orm";
 export class RevenueAnalytics {
     async totalRevenue(userId: number) {
         
-        const [total] = await db.select({ total: sum(invoices.totalAmount) }).from(invoices).where(and(eq(invoices.status, "paid"), eq(invoices.createdBy, userId)))
+        const [totalRevenue] = await db.select({ total: sum(invoices.totalAmount).mapWith(Number) }).from(invoices).where(and(eq(invoices.status, "paid"), eq(invoices.createdBy, userId)))
 
-        return total
+        return totalRevenue
     }
 
     async monthlyRevenue(userId: number) {
@@ -42,7 +42,7 @@ export class RevenueAnalytics {
     }
 
     async averageRevenue(userId: number) {
-        const [revenue] = await db.select({ avgRevenue: avg(invoices.totalAmount) })
+        const [revenue] = await db.select({ avgRevenue: avg(invoices.totalAmount).mapWith(Number) })
                                 .from(invoices)
                                 .where(and(eq(invoices.status, "paid"), eq(invoices.createdBy, userId)))
 
@@ -52,7 +52,7 @@ export class RevenueAnalytics {
     async topClientsRevenue(userId: number) {
         const revenue = await db.select({
                                 client: clients.firstName || ' ' || clients.lastName,
-                                totalSpent: sum(invoices.totalAmount)
+                                totalSpent: sum(invoices.totalAmount).mapWith(Number)
                             })
                             .from(invoices)
                             .innerJoin(clients, eq(invoices.createdFor, clients.id))
@@ -67,7 +67,7 @@ export class RevenueAnalytics {
     async paymentMethodsRevenue(userId: number) {
         const revenue = await db.select({
                                     method: payments.paymentMethod,
-                                    total: sum(payments.amount)
+                                    total: sum(payments.amount).mapWith(Number)
                                 })
                                 .from(payments)
                                 .where(eq(payments.userId, userId))
@@ -79,7 +79,7 @@ export class RevenueAnalytics {
 
 export class ExpenseAnalytics {
     async totalExpenses(userId: number) {
-        const [expensesData] = await db.select({ total: sum(expenses.amount) }).from(expenses).where(eq(expenses.userId, userId))
+        const [expensesData] = await db.select({ total: sum(expenses.amount).mapWith(Number) }).from(expenses).where(eq(expenses.userId, userId))
 
         return expensesData
     }
@@ -87,7 +87,7 @@ export class ExpenseAnalytics {
     async categoryExpenses(userId: number) {
         const expensesData = await db.select({
                                         category: expenses.category,
-                                        total: sum(expenses.amount)
+                                        total: sum(expenses.amount).mapWith(Number)
                                     })
                                     .from(expenses)
                                     .where(eq(expenses.userId, userId))
@@ -99,7 +99,7 @@ export class ExpenseAnalytics {
     async trendExpenses(userId: number) {
         const expensesData = await db.select({
                                         month: sql`TO_CHAR(${expenses.expenseDate}, 'YYYY-MM')`.as("month"),
-                                        total: sum(expenses.amount)
+                                        total: sum(expenses.amount).mapWith(Number)
                                     })
                                     .from(expenses)
                                     .where(eq(expenses.userId, userId))
@@ -113,7 +113,7 @@ export class ExpenseAnalytics {
 
         const totalRevenue = await new RevenueAnalytics().totalRevenue(userId)
         const totalExpenses = await this.totalExpenses(userId);
-        return Number(totalExpenses!) / (Number(totalRevenue!) || 1);
+        return { ratio: Number(totalExpenses!) / (Number(totalRevenue!) || 1) };
     }
 }
 
@@ -122,10 +122,10 @@ export class InvoiceAnalytics {
         const result = await db.select({
                                     id: invoices.id,
                                     clientId: invoices.createdFor,
-                                    totalAmount: invoices.totalAmount,
+                                    totalAmount: sql<number>`(${invoices.totalAmount})::NUMERIC`,
                                     dueDate: invoices.dueDate,
                                     paymentDate: payments.paymentDate,
-                                    amountPaid: payments.amount
+                                    amountPaid: sql<number>`(${payments.amount})::NUMERIC`
                                 })
                                 .from(invoices)
                                 .innerJoin(payments, eq(invoices.id, payments.invoiceId))
