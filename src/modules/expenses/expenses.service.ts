@@ -34,7 +34,7 @@ class ExpensesService {
     }
 
     async delete(expenseId: number, userId: number) {
-        const expense = db.update(expenses).set({ deleted_at: new Date() }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
+        const [expense] = await db.update(expenses).set({ deleted_at: new Date() }).where(and(eq(expenses.id, expenseId), eq(expenses.userId, userId))).returning()
     
         return expense
     }

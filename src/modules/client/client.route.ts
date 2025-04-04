@@ -3,7 +3,7 @@ import { $ref } from './client.schema'
 import { $errorRef } from '../../errors/schema-base'
 import { createClientHandler, deleteClientHandler, getAllClientsHandler, getClientHandler, getClientInvoicesHandler, updateClientHandler } from './client.controller'
 
-async function userRoutes(server: FastifyInstance) {
+async function clientRoutes(server: FastifyInstance) {
     
     server.post(
         '/',
@@ -90,4 +90,4 @@ async function userRoutes(server: FastifyInstance) {
     )
 }
 
-export default userRoutes
+export default clientRoutes
