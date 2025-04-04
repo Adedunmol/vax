@@ -5,6 +5,9 @@ import { ZodError, z } from 'zod'
 const stringBoolean = z.coerce.string().transform(val => val === 'true').default('false')
 
 const EnvSchema = z.object({
+    CLOUDINARY_API_KEY: z.string(),
+    CLOUDINARY_API_SECRET: z.string(),
+    CLOUDINARY_CLOUD_NAME: z.string(),
     DB_URL: z.string(),
     DB_PASSWORD: z.string(),
     DB_USER: z.string(),
