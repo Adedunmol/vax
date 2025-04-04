@@ -18,6 +18,24 @@ const createInvoiceSchema = z.object({
     items: z.array(serviceSchema).optional()
 })
 
+const invoiceResponse = z.object({
+    status: z.enum(["unpaid", "partially_paid", "paid", "overdue"]),
+    id: z.number(),
+    updated_at: z.date(),
+    created_at: z.date(),
+    deleted_at: z.date(),
+    createdBy: z.number(),
+    createdFor: z.number(),
+    totalAmount: z.number(),
+    amountPaid: z.number()
+})
+
+const allInvoicesResponse = z.array(invoiceResponse)
+
+const invoiceParam = z.object({
+    invoiceId: z.number()
+})
+
 const updateInvoiceSchema = z.object({
     description: z.string().optional(),
     amount: z.number().optional(),
@@ -32,5 +50,8 @@ export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>
 
 export const { schemas: invoiceSchemas, $ref } = buildJsonSchemas({
     createInvoiceSchema,
+    invoiceResponse,
+    invoiceParam,
+    allInvoicesResponse,
     updateInvoiceSchema
 }, { '$id': 'InvoiceSchema' })
