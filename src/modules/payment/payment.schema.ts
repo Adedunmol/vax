@@ -8,6 +8,24 @@ const createPaymentSchema = z.object({
     payment_date: z.string().refine((str) => !isNaN(Date.parse(str)), { message: "Invalid payment_date format" }).transform((str) => new Date(str))
 })
 
+const paymentResponse = z.object({
+    amount: z.string(),
+    id: z.number(),
+    updated_at: z.date(),
+    created_at: z.date(),
+    deleted_at: z.date(),
+    userId: z.number(),
+    invoiceId: z.number(),
+    paymentDate: z.date(),
+    paymentMethod: z.string(),
+})
+
+const allPaymentsResponse = z.array(paymentResponse)
+
+const paymentParam = z.object({
+    paymentId: z.number()
+})
+
 const updatePaymentSchema = z.object({
     invoice_id: z.number().optional(),
     amount: z.number().optional(),
@@ -20,5 +38,8 @@ export type UpdatePaymentInput = z.infer<typeof updatePaymentSchema>
 
 export const { schemas: paymentSchemas, $ref } = buildJsonSchemas({
     createPaymentSchema,
+    paymentResponse,
+    paymentParam,
+    allPaymentsResponse,
     updatePaymentSchema
 }, { '$id': 'PaymentSchema' })
