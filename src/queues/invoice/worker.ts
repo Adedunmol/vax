@@ -8,8 +8,6 @@ const invoiceWorker = new Worker('invoices', async job => {
         const { invoiceId } = job.data;
     
         // Generate the invoice
-        // const invoicePath = `/invoices/invoice_${invoiceId}.pdf`;
-        // await createInvoice(invoiceId, invoicePath);
         const data = {
             logoUrl: "", // settings.customLogo
             businessName: "", // user.username
