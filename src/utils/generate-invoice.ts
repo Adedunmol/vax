@@ -1,192 +1,134 @@
-import fs from 'fs'
-import PDFDocument from 'pdfkit'
-import { differenceInDays, differenceInWeeks, differenceInMonths, isPast } from 'date-fns';
-import { invoices, clients } from "../db/schema";
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
-export function formatDistance(dueDate: Date, currentDate: Date = new Date()): string {
-    const daysDiff = differenceInDays(dueDate, currentDate);
-    const weeksDiff = differenceInWeeks(dueDate, currentDate);
-    const monthsDiff = differenceInMonths(dueDate, currentDate);
+type InvoiceItem = {
+  units: number;
+  description: string;
+  rate: number;
+  total: number;
+};
 
-    let timeUnit: string;
-    let value: number;
+type Client = {
+  name: string;
+  email: string;
+  address?: string;
+};
 
-    if (Math.abs(monthsDiff) > 0) {
-        timeUnit = Math.abs(monthsDiff) === 1 ? 'month' : 'months';
-        value = monthsDiff;
-    } else if (Math.abs(weeksDiff) > 0) {
-        timeUnit = Math.abs(weeksDiff) === 1 ? 'week' : 'weeks';
-        value = weeksDiff;
-    } else {
-        timeUnit = Math.abs(daysDiff) === 1 ? 'day' : 'days';
-        value = daysDiff;
-    }
+type InvoiceData = {
+  logoUrl: string;
+  businessName: string;
+  invoiceId: string;
+  invoiceDate: string;
+  dueDate: string;
+  items: InvoiceItem[];
+  client: Client;
+};
 
-    if (isPast(dueDate)) {
-        return `was due ${Math.abs(value)} ${timeUnit} ago`;
-    } else {
-        return `due in the next ${Math.abs(value)} ${timeUnit}`;
-    }
+// Cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+function bufferToStream(buffer: Buffer): Readable {
+  const stream = new Readable();
+  stream.push(buffer);
+  stream.push(null);
+  return stream;
 }
 
-type Invoice = typeof invoices.$inferSelect & { client: typeof clients.$inferSelect, services: any[] }
+export async function generateInvoicePDF(data: InvoiceData) {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([600, 800]);
+  const { width, height } = page.getSize();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-async function createInvoice(invoice: Invoice, path: string) {
-    let doc = new PDFDocument({ margin: 50 })
+  // Load logo from Cloudinary
+  const logoImageBytes = (await fetch(data.logoUrl).then(res => res.arrayBuffer()));
+  const logoImage = await pdfDoc.embedPng(logoImageBytes);
+  const logoDims = logoImage.scale(0.15);
 
-    generateHeader(doc)
-    generateCustomerInformation(doc, invoice)
-    generateInvoiceTable(doc, invoice)
-    generateFooter(doc, invoice)
+  // Draw logo
+  page.drawImage(logoImage, {
+    x: 50,
+    y: height - 80,
+    width: logoDims.width,
+    height: logoDims.height,
+  });
 
-    doc.end()
-    doc.pipe(fs.createWriteStream(path))
+  // Business name
+  page.drawText(data.businessName, {
+    x: 50,
+    y: height - 100,
+    size: 18,
+    font,
+    color: rgb(0, 0, 0),
+  });
+
+  // Invoice meta
+  page.drawText(`Invoice ID: ${data.invoiceId}`, { x: 400, y: height - 60, size: 12, font });
+  page.drawText(`Date: ${data.invoiceDate}`, { x: 400, y: height - 80, size: 12, font });
+  page.drawText(`Due: ${data.dueDate}`, { x: 400, y: height - 100, size: 12, font });
+
+  // Client Info
+  const clientY = height - 140;
+  page.drawText('Bill To:', { x: 50, y: clientY, size: 12, font });
+  page.drawText(data.client.name, { x: 50, y: clientY - 15, size: 10, font });
+  page.drawText(data.client.email, { x: 50, y: clientY - 30, size: 10, font });
+  if (data.client.address) {
+    page.drawText(data.client.address, { x: 50, y: clientY - 45, size: 10, font });
+  }
+
+  // Table Headers
+  const itemsStartY = clientY - 70;
+  page.drawText('Units', { x: 50, y: itemsStartY, size: 12, font });
+  page.drawText('Description', { x: 100, y: itemsStartY, size: 12, font });
+  page.drawText('Rate', { x: 350, y: itemsStartY, size: 12, font });
+  page.drawText('Total', { x: 450, y: itemsStartY, size: 12, font });
+
+  // Items
+  let cursorY = itemsStartY - 20;
+  data.items.forEach((item) => {
+    page.drawText(item.units.toString(), { x: 50, y: cursorY, size: 10, font });
+    page.drawText(item.description, { x: 100, y: cursorY, size: 10, font });
+    page.drawText(item.rate.toFixed(2), { x: 350, y: cursorY, size: 10, font });
+    page.drawText(item.total.toFixed(2), { x: 450, y: cursorY, size: 10, font });
+    cursorY -= 20;
+  });
+
+  // Due footer
+  const today = new Date();
+  const due = new Date(data.dueDate);
+  const timeDiff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const footerText =
+    timeDiff > 0
+      ? `${timeDiff} day(s) left until due date`
+      : `${Math.abs(timeDiff)} day(s) overdue`;
+
+  page.drawText(footerText, {
+    x: 50,
+    y: 40,
+    size: 10,
+    font,
+    color: rgb(1, 0, 0),
+  });
+
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
 }
 
-
-function generateHeader(doc: any) {
-    doc//.image('logo.png', 50, 45, { width: 50 })
-    .fillColor('#444444')
-    .fontSize(20)
-    .text('CENTS Inc.', 110, 57)
-    .fontSize(10)
-    .text("CENTS Inc.", 200, 50, { align: "right" })
-    .text('123 Main Street', 200, 65, { align: 'right' })
-    .text('New York, NY, 10025', 200, 80, { align: 'right' })
-    .moveDown()
-}
-
-
-function generateFooter(doc: any, invoice: Invoice) {
-    const dueDate = invoice.dueDate!
-    doc.fontSize(
-        10
-    ).text(
-        `Payment is due within ${ formatDistance(dueDate, new Date()) }. Thank you for your business.`,
-        50,
-        780,
-        { align: 'center', width: 500 }
-    )
-}
-
-
-function generateCustomerInformation(doc: any, invoice: Invoice) {
-    doc
-      .fillColor("#444444")
-      .fontSize(20)
-      .text("Invoice", 50, 160);
-  
-    generateHr(doc, 185);
-  
-    const customerInformationTop = 200;
-  
-    doc
-      .fontSize(10)
-      .text("Invoice Number:", 50, customerInformationTop)
-      .font("Helvetica-Bold")
-      .text(String(invoice.id).slice(0, 8), 150, customerInformationTop)
-      .font("Helvetica")
-      .text("Invoice Due Date:", 50, customerInformationTop + 15)
-      .text(formatDate(new Date(invoice.dueDate!)), 150, customerInformationTop + 15)
-      
-  
-      .font("Helvetica-Bold")
-      .text(invoice.client.firstName, 300, customerInformationTop)
-      .font("Helvetica")
-      .text(invoice.client.email, 300, customerInformationTop + 15)
-      
-      .moveDown();
-  
-    generateHr(doc, 252);
-}
-
-
-function generateTableRow(
-    doc: any,
-    y: number,
-    description: string,
-    unitCost: string,
-    hours: string | number,
-    lineTotal: string
-  ) {
-    doc
-      .fontSize(10)
-      .text(description, 50, y)
-      .text(unitCost, 280, y, { width: 90, align: "right" })
-      .text(hours, 370, y, { width: 90, align: "right" })
-      .text(lineTotal, 0, y, { align: "right" });
-}
-  
-
-
-function generateInvoiceTable(doc: any, invoice: Invoice) {
-    let i;
-    const invoiceTableTop = 330;
-  
-    doc.font("Helvetica-Bold");
-    generateTableRow(
-      doc,
-      invoiceTableTop,
-      "Description",
-      "Unit Cost",
-      "Hours",
-      "Line Total"
+export async function uploadToCloudinary(data: InvoiceData, pdfBuffer: Buffer) {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: 'raw', folder: 'invoices', public_id: data.invoiceId },
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result!.secure_url);
+      }
     );
-    generateHr(doc, invoiceTableTop + 20);
-    doc.font("Helvetica");
-  
-    for (i = 0; i < invoice.services.length; i++) {
-      const item = invoice.services[i];
-      const position = invoiceTableTop + (i + 1) * 30;
-      generateTableRow(
-        doc,
-        position,
-        item.item,
-        formatCurrency(item.rate),
-        item.hours,
-        formatCurrency(item.rate * item.hours)
-      );
-  
-      generateHr(doc, position + 20);
-    }
-  
-    const totalPosition = (invoiceTableTop + (i + 1) * 30) + 15 //25;
-    doc.font("Helvetica-Bold");
-    generateTableRow(
-      doc,
-      totalPosition,
-      "",
-      "Total:",
-      "",
-      formatCurrency(+invoice.totalAmount!)
-    );
-    doc.font("Helvetica");
+
+    bufferToStream(pdfBuffer).pipe(uploadStream);
+  });
 }
-  
-
-
-function generateHr(doc: any, y: number) {
-    doc
-      .strokeColor("#aaaaaa")
-      .lineWidth(1)
-      .moveTo(50, y)
-      .lineTo(550, y)
-      .stroke();
-}
-
-
-
-function formatCurrency(amount: number) {
-    return "$" + String(amount);
-}
-  
-
-function formatDate(date: Date) {
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-  
-    return year + "/" + month + "/" + day;
-}
-
-export default createInvoice;
