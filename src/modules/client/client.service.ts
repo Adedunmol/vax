@@ -59,7 +59,7 @@ class ClientService {
     }
 
     async delete(clientId: number, createdBy: number) {
-        const client = db.update(clients).set({ deleted_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, createdBy))).returning()
+        const [client] = await db.update(clients).set({ deleted_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, createdBy))).returning()
     
         return client
     }
