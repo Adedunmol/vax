@@ -41,6 +41,64 @@ const loginResponseSchema = z.object({
     expires_in: z.number()
 })
 
+const userResponse = z.object({
+    updated_at: z.date(),
+    created_at: z.date(),
+    deleted_at: z.date(),
+    id: z.number(),
+    firstName: z.string(),
+    lastName: z.string(),
+    username: z.string(),
+    email: z.string(),
+    verified: z.boolean(),
+})
+
+const responseCore = {
+    status: z.string(),
+    message: z.string()
+}
+
+const genericResponse = z.object({
+    ...responseCore
+})
+
+const updateUserResponse = z.object({
+    ...responseCore,
+    data: userResponse
+})
+
+const resetPasswordRequestResponse = z.object({
+    ...responseCore,
+    data: z.object({
+        userId: z.number(),
+        email: z.string(),
+        otp: z.string()
+    })
+})
+
+const resendOTPResponse = z.object({
+    ...responseCore,
+    data: z.object({
+        userId: z.number(),
+        email: z.string()
+    })
+})
+
+const verifyOTPResponse = z.object({
+    ...responseCore,
+    data: z.object({
+        id: z.number()
+    })
+})
+
+const refreshTokenResponse = z.object({
+    ...responseCore,
+    data: z.object({
+        accessToken: z.string(),
+        expiresIn: z.number()
+    })
+})
+
 const verifyOTPSchema = z.object({
     userId: z.number({ required_error: 'userId is required' }),
     otp: z.string({ required_error: 'otp is required' })
@@ -87,5 +145,12 @@ export const { schemas: userSchemas, $ref } = buildJsonSchemas({
     verifyOTPSchema,
     resendOTPSchema,
     resetPasswordRequestSchema,
-    resetPasswordSchema
+    resetPasswordSchema,
+    updateUserSchema,
+    updateUserResponse,
+    genericResponse,
+    resetPasswordRequestResponse,
+    resendOTPResponse,
+    verifyOTPResponse,
+    refreshTokenResponse
 }, { '$id': 'UserSchema' })

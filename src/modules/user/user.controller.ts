@@ -38,11 +38,11 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
     try {
         const user = await UserService.findByEmail(body.email)
 
-        if (!user) return reply.code(401).send('invalid credentials')
+        if (!user) return reply.code(401).send({ message: 'invalid credentials' })
 
         const match = await bcrypt.compare(body.password, user.password)
 
-        if (!match) return reply.code(401).send('invalid credentials')
+        if (!match) return reply.code(401).send({ message: 'invalid credentials' })
 
         // update user's last login
         await UserService.updateProfile({ userId: user.id, lastLogin: new Date() })
@@ -221,7 +221,7 @@ export async function resetPasswordRequestHandler(request: FastifyRequest<{ Body
         }
         await sendToQueue('emails', emailData) // send verification mail to user
     
-        return reply.code(200).send({ status: "success", message: "otp has been sent to the provided email", data: { userId: user.id, email: user.email, otp: '1234' } }) // userOTPVerification.otp
+        return reply.code(200).send({ status: "success", message: "otp has been sent to the provided email", data: { userId: user.id, email: user.email, otp } }) // userOTPVerification.otp
     } catch (err) {
         return reply.code(500).send(err)
     }
