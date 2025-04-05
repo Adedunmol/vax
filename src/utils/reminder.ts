@@ -1,3 +1,6 @@
+import db from "../db";
+import { eq } from "drizzle-orm"
+import { reminders } from "../db/schema";
 import ReminderService from "../modules/reminder/reminder.service"
 import { sendToQueue } from "../queues"
 
@@ -14,8 +17,9 @@ export const enqueueReminders = async () => {
                 };
     
                 await sendToQueue('invoices', emailData);
-            }
 
+                await db.update(reminders).set({ reminderStatus: 'scheduled' }).where(eq(reminders.id, reminder.id))
+            }
         } catch (error) {
             console.error(`Failed to enqueue reminder for ${reminder.client.email}:`, error);
         }

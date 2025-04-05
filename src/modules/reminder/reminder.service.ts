@@ -7,8 +7,6 @@ type RemindersWithUsers = typeof reminders.$inferSelect & { user: typeof users.$
 
 class RemindersService {
 
-    constructor() {}
-
     async create(data: CreateReminderInput) {
         const [reminder] = await db.insert(reminders).values(data).returning()
     
