@@ -8,6 +8,27 @@ export const createReminderSchema = z.object({
     dueDate: z.string().refine((str) => !isNaN(Date.parse(str)), { message: "Invalid dueDate format" }).transform((str) => new Date(str))
 })
 
+const reminderParam = z.object({
+    reminderId: z.number()
+})
+
+const reminderResponse = z.object({
+    invoiceId: z.number(),
+    isRecurring: z.boolean(),
+    canceled: z.boolean(),
+    intervalDays: z.number(),
+    dueDate: z.date(),
+    id: z.number(),
+    updated_at: z.date(),
+    created_at: z.date(),
+    deleted_at: z.date(),
+    userId: z.number(),
+    clientId: z.number(),
+    reminderStatus: z.enum(['pending', 'sent', 'scheduled', 'canceled'])
+})
+
+const allRemindersResponse = z.array(reminderResponse)
+
 const updateReminderSchema = z.object({
     invoiceId: z.number(),
     intervalDays: z.number().optional(),
@@ -20,5 +41,8 @@ export type UpdateReminderInput = z.infer<typeof updateReminderSchema>
 
 export const { schemas: reminderSchemas, $ref } = buildJsonSchemas({
     createReminderSchema,
+    reminderParam,
+    reminderResponse,
+    allRemindersResponse,
     updateReminderSchema
 }, { '$id': 'RemindersSchema' })
