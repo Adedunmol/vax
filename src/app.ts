@@ -3,6 +3,13 @@ import { registerPlugins } from './utils/register-plugins'
 import { errorSchemas } from './errors/schema-base'
 import userRoutes from './modules/user/user.route'
 import { userSchemas } from './modules/user/user.schema'
+import { settingsSchemas } from './modules/settings/settings.schema'
+import { reminderSchemas } from './modules/reminder/reminder.schema'
+import { paymentSchemas } from './modules/payment/payment.schema'
+import { invoiceSchemas } from './modules/invoice/invoice.schema'
+import { expenseSchemas } from './modules/expenses/expenses.schema'
+import { clientSchemas } from './modules/client/client.schema'
+import { analyticsSchemas } from './modules/analytics/analytics.schema'
 import { JWT } from '@fastify/jwt'
 
 declare module 'fastify' {
@@ -48,7 +55,17 @@ const buildServer = (opts={}) => {
     return next()
   });
   
-  [...userSchemas, ...errorSchemas].forEach(schema => {
+  [
+    ...userSchemas, 
+    ...analyticsSchemas, 
+    ...clientSchemas,
+    ...invoiceSchemas,
+    ...expenseSchemas,
+    ...paymentSchemas,
+    ...reminderSchemas,
+    ...settingsSchemas,
+    ...errorSchemas
+  ].forEach(schema => {
     server.addSchema(schema)
   })
 

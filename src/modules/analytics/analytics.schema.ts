@@ -134,7 +134,7 @@ export type ExpenseQuery = z.infer<typeof expenseQuerySchema>
 export type InvoiceQuery = z.infer<typeof invoiceQuerySchema>
 export type ReminderQuery = z.infer<typeof reminderQuerySchema>
 
-export const { schemas: settingsSchemas, $ref } = buildJsonSchemas({
+export const { schemas: analyticsSchemas, $ref } = buildJsonSchemas({
     revenueQuerySchema,
     revenueResponse,
     expenseQuerySchema,

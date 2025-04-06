@@ -26,16 +26,16 @@ export async function registerPlugins(server: FastifyInstance) {
       serverAdapter
   })
 
-  server.decorate(
-    'authenticate',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        await request.jwtVerify()
-      } catch (err) {
-        reply.send(err)
-      }
-    }
-  )
+  // server.decorate(
+  //   'authenticate',
+  //   async (request: FastifyRequest, reply: FastifyReply) => {
+  //     try {
+  //       await request.jwtVerify()
+  //     } catch (err) {
+  //       reply.send(err)
+  //     }
+  //   }
+  // )
 
   server.addHook('preHandler', (req, reply, next) => {
     req.jwt = server.jwt
@@ -65,6 +65,6 @@ export async function registerPlugins(server: FastifyInstance) {
 
   await server.register(fastifyCookie, {
     secret: 'your-secret-key',
-    hook: 'onRequest',
+    // hook: 'onRequest',
   })
 }
