@@ -14,7 +14,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     201: $ref('paymentResponse'),
                     400: $errorRef('errorSchema')
                 }
-            } 
+            },
+            preHandler: [server.authenticate]
         }, 
         createPaymentHandler
     )
@@ -28,7 +29,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     200: $ref('paymentResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getPaymentHandler
     )
@@ -40,7 +42,8 @@ async function paymentRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('allPaymentsResponse')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getAllPaymentsHandler
     )
@@ -55,7 +58,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     200: $ref('paymentResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         updatePaymentHandler
     )
@@ -69,7 +73,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     200: $ref('paymentResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         deletePaymentHandler
     )

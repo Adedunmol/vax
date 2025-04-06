@@ -12,6 +12,8 @@ import { version } from '../../package.json'
 import { getRedisClient } from '../queues/redis'
 import emailQueue from '../queues/email/producer'
 import fastifyCookie from '@fastify/cookie'
+import { FastifyRequest } from 'fastify/types/request'
+import { FastifyReply } from 'fastify/types/reply'
 
 
 export async function registerPlugins(server: FastifyInstance) {
@@ -19,10 +21,26 @@ export async function registerPlugins(server: FastifyInstance) {
   const serverAdapter = new FastifyAdapter()
   
   await server.register(fastifyJwt, { secret: env.JWT_SECRET })
-  createBullBoard({
+    createBullBoard({
       queues: [new BullMQAdapter(emailQueue)],
       serverAdapter
-    })
+  })
+
+  server.decorate(
+    'authenticate',
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        await request.jwtVerify()
+      } catch (err) {
+        reply.send(err)
+      }
+    }
+  )
+
+  server.addHook('preHandler', (req, reply, next) => {
+    req.jwt = server.jwt
+    return next()
+  })
 
   await server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
   

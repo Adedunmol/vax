@@ -14,7 +14,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('revenueResponse'),
                     400: $errorRef('errorSchema')
                 }
-            } 
+            },
+            preHandler: [server.authenticate]
         }, 
         revenueHandler
     )
@@ -28,7 +29,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         expenseHandler
     )
@@ -42,7 +44,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('invoiceResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         invoiceHandler
     )
@@ -56,7 +59,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         reminderHandler
     )

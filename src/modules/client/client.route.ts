@@ -15,7 +15,8 @@ async function clientRoutes(server: FastifyInstance) {
                     400: $errorRef('errorSchema'),
                     409: $errorRef('errorSchema')
                 }
-            } 
+            },
+            preHandler: [server.authenticate]
         }, 
         createClientHandler 
     )
@@ -29,7 +30,8 @@ async function clientRoutes(server: FastifyInstance) {
                     200: $ref('clientResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getClientHandler
     )
@@ -55,7 +57,8 @@ async function clientRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('allClientsResponse')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getAllClientsHandler
     )
@@ -70,7 +73,8 @@ async function clientRoutes(server: FastifyInstance) {
                     200: $ref('clientResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         updateClientHandler
     )
@@ -84,7 +88,8 @@ async function clientRoutes(server: FastifyInstance) {
                     200: $ref('clientResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         deleteClientHandler
     )

@@ -14,7 +14,8 @@ async function settingsRoutes(server: FastifyInstance) {
                     200: $ref('settingsResponse'),
                     400: $errorRef('errorSchema')
                 }
-            } 
+            },
+            preHandler: [server.authenticate]
         }, 
     updateSettingsHandler
     )

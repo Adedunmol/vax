@@ -14,7 +14,8 @@ async function expenseRoutes(server: FastifyInstance) {
                     201: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
                 }
-            } 
+            },
+            preHandler: [server.authenticate]
         }, 
         createExpenseHandler
     )
@@ -28,7 +29,8 @@ async function expenseRoutes(server: FastifyInstance) {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getExpenseHandler
     )
@@ -40,7 +42,8 @@ async function expenseRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('allExpensesResponse')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getAllExpensesHandler
     )
@@ -55,7 +58,8 @@ async function expenseRoutes(server: FastifyInstance) {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         updateExpenseHandler
     )
@@ -69,7 +73,8 @@ async function expenseRoutes(server: FastifyInstance) {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         deleteExpenseHandler
     )

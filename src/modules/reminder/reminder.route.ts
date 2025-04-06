@@ -14,7 +14,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getReminderHandler
     )
@@ -26,7 +27,8 @@ async function paymentRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('allRemindersResponse')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getAllRemindersHandler
     )
@@ -41,7 +43,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         updateReminderHandler
     )
@@ -55,7 +58,8 @@ async function paymentRoutes(server: FastifyInstance) {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
                 }
-            }
+            },
+            preHandler: [server.authenticate]
         },
         deleteReminderHandler
     )
