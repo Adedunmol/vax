@@ -12,8 +12,7 @@ import { version } from '../../package.json'
 import { getRedisClient } from '../queues/redis'
 import emailQueue from '../queues/email/producer'
 import fastifyCookie from '@fastify/cookie'
-import { FastifyRequest } from 'fastify/types/request'
-import { FastifyReply } from 'fastify/types/reply'
+import userRoutes from '../modules/user/user.route'
 
 
 export async function registerPlugins(server: FastifyInstance) {
@@ -52,7 +51,7 @@ export async function registerPlugins(server: FastifyInstance) {
       openapi: {
         info: {
           title: 'Vax',
-          description: 'An invoicing api for freelancers',
+          description: 'An invoicing API for freelancers',
           version    
         }
       }
@@ -62,6 +61,8 @@ export async function registerPlugins(server: FastifyInstance) {
     routePrefix: '/docs',
     staticCSP: true
   })
+
+  server.register(userRoutes, { prefix: 'api/v1/users' })
 
   await server.register(fastifyCookie, {
     secret: 'your-secret-key',

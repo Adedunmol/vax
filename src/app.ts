@@ -69,8 +69,6 @@ const buildServer = (opts={}) => {
     server.addSchema(schema)
   })
 
-  server.register(userRoutes, { prefix: 'api/v1/users' })
-
   return server
 }
 
