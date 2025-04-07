@@ -14,7 +14,8 @@ async function clientRoutes(server: FastifyInstance) {
                     201: $ref('clientResponse'),
                     400: $errorRef('errorSchema'),
                     409: $errorRef('errorSchema')
-                }
+                },
+                tags: ['clients']
             },
             preHandler: [server.authenticate]
         }, 
@@ -29,7 +30,8 @@ async function clientRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('clientResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['clients']
             },
             preHandler: [server.authenticate]
         },
@@ -44,7 +46,8 @@ async function clientRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('invoiceResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['clients']
             }
         },
         getClientInvoicesHandler
@@ -56,7 +59,8 @@ async function clientRoutes(server: FastifyInstance) {
             schema: {
                 response: {
                     200: $ref('allClientsResponse')
-                }
+                },
+                tags: ['clients']
             },
             preHandler: [server.authenticate]
         },
@@ -72,7 +76,8 @@ async function clientRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('clientResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['clients']
             },
             preHandler: [server.authenticate]
         },
@@ -87,7 +92,8 @@ async function clientRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('clientResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['clients']
             },
             preHandler: [server.authenticate]
         },

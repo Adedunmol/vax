@@ -13,7 +13,8 @@ async function paymentRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['reminders']
             },
             preHandler: [server.authenticate]
         },
@@ -26,7 +27,8 @@ async function paymentRoutes(server: FastifyInstance) {
             schema: {
                 response: {
                     200: $ref('allRemindersResponse')
-                }
+                },
+                tags: ['reminders']
             },
             preHandler: [server.authenticate]
         },
@@ -42,7 +44,8 @@ async function paymentRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['reminders']
             },
             preHandler: [server.authenticate]
         },
@@ -57,7 +60,8 @@ async function paymentRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('reminderResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['reminders']
             },
             preHandler: [server.authenticate]
         },

@@ -13,7 +13,8 @@ async function expenseRoutes(server: FastifyInstance) {
                 response: {
                     201: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['expenses']
             },
             preHandler: [server.authenticate]
         }, 
@@ -28,7 +29,8 @@ async function expenseRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['expenses']
             },
             preHandler: [server.authenticate]
         },
@@ -41,7 +43,8 @@ async function expenseRoutes(server: FastifyInstance) {
             schema: {
                 response: {
                     200: $ref('allExpensesResponse')
-                }
+                },
+                tags: ['expenses']
             },
             preHandler: [server.authenticate]
         },
@@ -57,7 +60,8 @@ async function expenseRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['expenses']
             },
             preHandler: [server.authenticate]
         },
@@ -72,7 +76,8 @@ async function expenseRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('expenseResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['expenses']
             },
             preHandler: [server.authenticate]
         },

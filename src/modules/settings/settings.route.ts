@@ -13,7 +13,8 @@ async function settingsRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('settingsResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['settings']
             },
             preHandler: [server.authenticate]
         }, 

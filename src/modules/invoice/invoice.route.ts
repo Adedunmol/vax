@@ -13,7 +13,8 @@ async function invoiceRoutes(server: FastifyInstance) {
                 response: {
                     201: $ref('invoiceResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['invoices']
             },
             preHandler: [server.authenticate]
         }, 
@@ -28,7 +29,8 @@ async function invoiceRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('invoiceResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['invoices']
             },
             preHandler: [server.authenticate]
         },
@@ -41,7 +43,8 @@ async function invoiceRoutes(server: FastifyInstance) {
             schema: {
                 response: {
                     200: $ref('allInvoicesResponse')
-                }
+                },
+                tags: ['invoices']
             },
             preHandler: [server.authenticate]
         },
@@ -57,7 +60,8 @@ async function invoiceRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('invoiceResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['invoices']
             },
             preHandler: [server.authenticate]
         },
@@ -72,7 +76,8 @@ async function invoiceRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('invoiceResponse'),
                     400: $errorRef('errorSchema')
-                }
+                },
+                tags: ['invoices']
             },
             preHandler: [server.authenticate]
         },

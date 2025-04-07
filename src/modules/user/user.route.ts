@@ -14,7 +14,8 @@ async function userRoutes(server: FastifyInstance) {
                     201: $ref('createUserResponseSchema'),
                     400: $errorRef('errorSchema'),
                     409: $errorRef('errorSchema')
-                }
+                },
+                tags: ['users']
             } 
         }, 
         registerUserHandler
@@ -29,7 +30,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('loginResponseSchema'),
                     400: $errorRef('errorSchema'),
                     401: $errorRef('errorSchema')
-                }
+                },
+                tags: ['users']
             }
         },
         loginUserHandler
@@ -37,6 +39,11 @@ async function userRoutes(server: FastifyInstance) {
 
     server.get(
         '/logout',
+        {
+            schema: {
+                tags: ['users']
+            }
+        },
         logoutHandler
     )
 
@@ -48,7 +55,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('refreshTokenResponse'),
                     401: $errorRef('errorSchema'),
                     403: $errorRef('errorSchema')
-                }
+                },
+                tags: ['users']
             }
         },
         refreshTokenHandler
@@ -63,7 +71,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('verifyOTPResponse'),
                     400: $errorRef('errorSchema'),
                     403: $errorRef('errorSchema')
-                }
+                },
+                tags: ['users']
             }
         },
         verifyOtpHandler
@@ -77,7 +86,8 @@ async function userRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('resendOTPResponse'),
                     404: $errorRef('errorSchema'),
-                }
+                },
+                tags: ['users']
             }
         },
         resendOTPHandler
@@ -92,7 +102,8 @@ async function userRoutes(server: FastifyInstance) {
                     200: $ref('resetPasswordRequestResponse'),
                     400: $errorRef('errorSchema'),
                     404: $errorRef('errorSchema')
-                }
+                },
+                tags: ['users']
             }
         },
         resetPasswordRequestHandler
@@ -106,7 +117,8 @@ async function userRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('genericResponse'),
                     404: $errorRef('errorSchema'),
-                }
+                },
+                tags: ['users']
             }
         },
         resetPasswordHandler
@@ -120,7 +132,8 @@ async function userRoutes(server: FastifyInstance) {
                 response: {
                     200: $ref('updateUserResponse'),
                     409: $errorRef('errorSchema'),
-                }
+                },
+                tags: ['users']
             }
         },
         updateUserHandler
