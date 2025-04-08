@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import InvoiceService from './invoice.service'
 import { CreateInvoiceInput, UpdateInvoiceInput } from './invoice.schema'
 import { createReminder } from '../reminder/reminder.controller'
-import UserService from '../user/user.service'
 import SettingsService from '../settings/settings.service'
 import moment from "moment";
 

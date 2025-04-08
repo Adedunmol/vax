@@ -20,11 +20,21 @@ import analyticsRoutes from '../modules/analytics/analytics.route'
 import clientsRoutes from '../modules/client/client.route'
 import remindersRoutes from '../modules/reminder/reminder.route'
 import settingsRoutes from '../modules/settings/settings.route'
+import errorHandler from '../middlewares/error'
+import fastifyCors from '@fastify/cors'
+import fastifyHelmet from '@fastify/helmet'
+import fastifyCompress from '@fastify/compress'
+import fastifyGracefulShutdown from 'fastify-graceful-shutdown'
 
 
 export async function registerPlugins(server: FastifyInstance) {
 
   const serverAdapter = new FastifyAdapter()
+
+  await server.register(fastifyCors);
+  await server.register(fastifyHelmet);
+  await server.register(fastifyCompress);
+  await server.register(fastifyGracefulShutdown);
   
   await server.register(fastifyJwt, { secret: env.JWT_SECRET })
     createBullBoard({
@@ -85,4 +95,6 @@ export async function registerPlugins(server: FastifyInstance) {
     secret: 'your-secret-key',
     // hook: 'onRequest',
   })
+
+  server.setErrorHandler(errorHandler)
 }
