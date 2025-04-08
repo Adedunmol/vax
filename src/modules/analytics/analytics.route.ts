@@ -3,7 +3,7 @@ import { reminderHandler, invoiceHandler, expenseHandler, revenueHandler } from 
 import { $ref } from './analytics.schema'
 import { $errorRef } from '../../errors/schema-base'
 
-async function userRoutes(server: FastifyInstance) {
+async function analyticsRoutes(server: FastifyInstance) {
     
     server.get(
         '/revenues',
@@ -70,4 +70,4 @@ async function userRoutes(server: FastifyInstance) {
     )
 }
 
-export default userRoutes
+export default analyticsRoutes
