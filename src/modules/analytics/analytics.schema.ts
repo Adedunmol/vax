@@ -6,7 +6,7 @@ const revenueQuerySchema = z.object({
 })
 
 const totalRevenueResponse = z.object({
-    total: z.string()
+    total: z.number()
 })
 
 const monthlyRevenueResponse = z.object({
@@ -129,6 +129,14 @@ const reminderResponse = z.union([
     invoiceRemindersResponse
 ])
 
+const dashboardResponse = z.object({
+    revenue: totalRevenueResponse,
+    outstandingRevenue: outstandingRevenueResponse,
+    expenses: expenseResponse,
+    unpaidInvoices: unpaidInvoicesResponse,
+    remindersSent: z.object({ count: z.number() })
+})
+
 export type RevenueQuery = z.infer<typeof revenueQuerySchema>
 export type ExpenseQuery = z.infer<typeof expenseQuerySchema>
 export type InvoiceQuery = z.infer<typeof invoiceQuerySchema>
@@ -142,5 +150,6 @@ export const { schemas: analyticsSchemas, $ref } = buildJsonSchemas({
     invoiceQuerySchema,
     invoiceResponse,
     reminderQuerySchema,
-    reminderResponse
+    reminderResponse,
+    dashboardResponse
 }, { '$id': 'AnalyticsSchema' })

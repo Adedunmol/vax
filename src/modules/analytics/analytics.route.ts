@@ -68,6 +68,20 @@ async function analyticsRoutes(server: FastifyInstance) {
         },
         reminderHandler
     )
+
+    server.get(
+        '/dashboard',
+        {
+            schema: {
+                response: {
+                    200: $ref('dashboardResponse'),
+                },
+                tags: ['analytics']
+            },
+            preHandler: [server.authenticate]
+        },
+        reminderHandler
+    )
 }
 
 export default analyticsRoutes
