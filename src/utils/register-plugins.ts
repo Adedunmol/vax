@@ -47,8 +47,22 @@ export async function registerPlugins(server: FastifyInstance) {
       openapi: {
         info: {
           title: 'Vax',
-          description: 'An invoicing API for freelancers',
-          version    
+          description: `|
+          The **Freelancer Invoicing API** enables freelancers and independent professionals to efficiently manage client billing and invoices.
+      
+          This API provides endpoints to:
+          - Create and manage invoices with line items, due dates, and notes
+          - Send invoices via email with retry and scheduling support
+          - Track invoice status (e.g., sent, paid, overdue)
+          - Manage client profiles and billing information
+          - Automate recurring invoices for long-term engagements
+          - Generate downloadable invoice PDFs
+      
+          Built with **Fastify** and **TypeScript**, this API is optimized for performance and validation. Background tasks like email delivery and PDF generation are handled with **Redis** and **BullMQ** queues.
+      
+          Use this API to integrate invoicing functionality into freelance platforms, dashboards, or financial tooling.
+          `,
+          version
         }
       }
     })

@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm"
 import { reminders } from "../db/schema";
 import ReminderService from "../modules/reminder/reminder.service"
 import { sendToQueue } from "../queues"
+import moment from "moment";
 
 export const enqueueReminders = async () => {
     const dueReminders = await ReminderService.getDueReminders();
@@ -18,7 +19,12 @@ export const enqueueReminders = async () => {
     
                 await sendToQueue('invoices', emailData);
 
-                await db.update(reminders).set({ reminderStatus: 'scheduled' }).where(eq(reminders.id, reminder.id))
+                const nextReminderDate = moment(reminder.dueDate).add(reminder.intervalDays, 'days').toDate()
+                
+                await Promise.all([
+                    db.update(reminders).set({ reminderStatus: 'scheduled' }).where(eq(reminders.id, reminder.id)),
+                    db.insert(reminders).values({ ...reminder, dueDate: nextReminderDate })
+                ])
             }
         } catch (error) {
             console.error(`Failed to enqueue reminder for ${reminder.client.email}:`, error);

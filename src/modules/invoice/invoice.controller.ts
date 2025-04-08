@@ -4,6 +4,8 @@ import { CreateInvoiceInput, UpdateInvoiceInput } from './invoice.schema'
 import { createReminder } from '../reminder/reminder.controller'
 import UserService from '../user/user.service'
 import SettingsService from '../settings/settings.service'
+import moment from "moment";
+
 
 const WeeklyInterval = 7
 
@@ -26,12 +28,10 @@ export async function createInvoiceHandler(request: FastifyRequest<{ Body: Creat
 
         await createReminder(recurrentReminderData)
 
-        const dueDate = invoice.dueDate!
-
-        dueDate.setDate(invoice.dueDate!.getDate() - (settings.notify_before || 1))
+        const notifyBefore = moment(invoice.dueDate).subtract(settings.notify_before || 1, 'days').toDate()
 
         const beforeDueReminderData = {
-            dueDate,
+            dueDate: notifyBefore,
             isRecurring: false,
             intervalDays: 0,
             invoiceId: invoice.id
