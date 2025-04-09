@@ -6,7 +6,7 @@ import SettingsService from '../settings/settings.service'
 import moment from "moment";
 
 
-const WeeklyInterval = 7
+export const WeeklyInterval = 7
 
 export async function createInvoiceHandler(request: FastifyRequest<{ Body: CreateInvoiceInput }>, reply: FastifyReply) {
     try {

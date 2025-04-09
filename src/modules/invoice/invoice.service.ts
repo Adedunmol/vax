@@ -7,8 +7,6 @@ import { items, reminders } from '../../db/schema'
 
 class InvoiceService {
 
-    constructor() {}
-
     async create(data: CreateInvoiceInput & { userId: number }) {
         const { due_date: dueDate, ...rest } = data
 

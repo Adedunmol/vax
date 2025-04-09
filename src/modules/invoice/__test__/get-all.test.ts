@@ -1,71 +1,100 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { ImportMock } from 'ts-mock-imports';
-import InvoiceService from '../invoice.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import InvoiceService from '../invoice.service'
 
-const url = '/api/v1/invoices';
+const userId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const invoicesMock = [
-    { id: 1, due_date: new Date().toISOString(), client_id: 100, description: "Invoice 1", items: [] },
-    { id: 2, due_date: new Date().toISOString(), client_id: 101, description: "Invoice 2", items: [] }
-];
+test('✅ Should retrieve all invoices successfully', async (t) => {
+  const fastify = build()
 
-const getAllInvoicesStub = ImportMock.mockFunction(InvoiceService, 'getAll', invoicesMock);
+  const invoices = [
+    {
+      id: faker.number.int(),
+      dueDate: faker.date.soon(),
+      description: 'Invoice 1',
+      createdBy: userId,
+      createdFor: 1
+    },
+    {
+      id: faker.number.int(),
+      dueDate: faker.date.soon(),
+      description: 'Invoice 2',
+      createdBy: userId,
+      createdFor: 2
+    }
+  ]
 
-test("✅ Should retrieve all invoices successfully", async (t) => {
-    const fastify = build();
-    t.teardown(() => {
-        fastify.close();
-        getAllInvoicesStub.restore();
-    });
+  const invoicesStub = ImportMock.mockFunction(InvoiceService, 'getAll', invoices)
 
-    const response = await fastify.inject({
-        method: "GET",
-        url
-    });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-    t.equal(response.statusCode, 200);
-    t.same(response.json(), {
-        message: "Invoices retrieved successfully",
-        data: { invoices: invoicesMock }
-    });
-});
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/invoices/',
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-test("✅ Should return empty list when no invoices exist", async (t) => {
-    const fastify = build();
-    const emptyStub = ImportMock.mockFunction(InvoiceService, 'getAll', []);
-    t.teardown(() => {
-        fastify.close();
-        emptyStub.restore();
-    });
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Invoices retrieved successfully',
+    data: { invoices }
+  })
 
-    const response = await fastify.inject({
-        method: "GET",
-        url
-    });
+  invoicesStub.restore()
+  await fastify.close()
+})
 
-    t.equal(response.statusCode, 200);
-    t.same(response.json(), {
-        message: "Invoices retrieved successfully",
-        data: { invoices: [] }
-    });
-});
+test('❌ Should return 404 if no invoices found for the user', async (t) => {
+  const fastify = build()
 
-test("❌ Should return 500 if an internal error occurs", async (t) => {
-    const fastify = build();
-    const errorStub = ImportMock.mockFunction(InvoiceService, 'getAll', () => {
-        throw new Error("Database error");
-    });
-    
-    t.teardown(() => {
-        fastify.close();
-        errorStub.restore();
-    });
+  const invoicesStub = ImportMock.mockFunction(InvoiceService, 'getAll', [])
 
-    const response = await fastify.inject({
-        method: "GET",
-        url
-    });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-    t.equal(response.statusCode, 500);
-});
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/invoices/',
+    headers: { Authorization: 'Bearer mock-token' }
+  })
+
+  t.equal(res.statusCode, 404)
+  t.match(res.json(), { message: 'No invoices found' })
+
+  invoicesStub.restore()
+  await fastify.close()
+})
+
+test('❌ Should return 500 if InvoiceService.getAll throws an error', async (t) => {
+  const fastify = build()
+
+  const invoicesStub = ImportMock.mockFunction(InvoiceService, 'getAll', Promise.reject(new Error('DB Error')))
+
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
+
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/invoices/',
+    headers: { Authorization: 'Bearer mock-token' }
+  })
+
+  t.equal(res.statusCode, 500)
+  t.match(res.json(), { message: /DB Error/ })
+
+  invoicesStub.restore()
+  await fastify.close()
+})

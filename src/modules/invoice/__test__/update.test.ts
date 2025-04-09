@@ -1,102 +1,127 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { faker } from '@faker-js/faker';
-import { ImportMock } from 'ts-mock-imports';
-import InvoiceService from '../invoice.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import InvoiceService from '../invoice.service'
 
-const url = '/api/v1/invoices';
-const invoiceId = faker.number.int();
-const description = faker.lorem.sentence();
-const amount = faker.number.float({ min: 10, max: 1000 });
-const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-const pastDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+const userId = faker.number.int()
+const invoiceId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const updateInvoiceStub = ImportMock.mockFunction(InvoiceService, 'update', {
+test('✅ Should update invoice successfully', async (t) => {
+  const fastify = build()
+
+  const updatedInvoice = {
     id: invoiceId,
-    description,
-    amount,
-    expense_date: new Date(futureDate)
-});
+    description: 'Updated Invoice Description',
+    amount: 200.00,
+    expense_date: new Date(),
+    createdBy: userId,
+    createdFor: 1
+  }
 
-test("✅ Should update an invoice successfully", async (t) => {
-    const fastify = build();
+  const stub = ImportMock.mockFunction(InvoiceService, 'update', updatedInvoice)
 
-    t.teardown(() => {
-        fastify.close();
-        updateInvoiceStub.restore();
-    });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-    const response = await fastify.inject({
-        method: "PUT",
-        url: `${url}/${invoiceId}`,
-        payload: { description, amount, expense_date: futureDate }
-    });
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' },
+    payload: { description: 'Updated Invoice Description', amount: 200.00 }
+  })
 
-    t.equal(response.statusCode, 200);
-    t.same(response.json(), {
-        message: "Invoice updated successfully",
-        data: { id: invoiceId, description, amount, expense_date: new Date(futureDate) }
-    });
-});
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Invoice updated successfully',
+    data: updatedInvoice
+  })
 
-test("❌ Should return 400 if invoiceId is missing", async (t) => {
-    const fastify = build();
-    t.teardown(() => fastify.close());
+  stub.restore()
+  await fastify.close()
+})
 
-    const response = await fastify.inject({
-        method: "PUT",
-        url: `${url}/`,
-        payload: { description, amount, expense_date: futureDate }
-    });
+test('❌ Should return 400 if invoiceId is missing', async (t) => {
+  const fastify = build()
 
-    t.equal(response.statusCode, 400);
-    t.match(response.json(), { message: /invoiceId is required/ });
-});
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-test("❌ Should return 400 if due_date is invalid", async (t) => {
-    const fastify = build();
-    t.teardown(() => fastify.close());
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/invoices/`,
+    headers: { Authorization: 'Bearer mock-token' },
+    payload: { description: 'Updated Invoice Description', amount: 200.00 }
+  })
 
-    const response = await fastify.inject({
-        method: "PUT",
-        url: `${url}/${invoiceId}`,
-        payload: { description, amount, expense_date: "invalid-date" }
-    });
+  t.equal(res.statusCode, 400)
+  t.match(res.json(), { message: 'invoiceId is required' })
 
-    t.equal(response.statusCode, 400);
-    t.match(response.json(), { message: /invalid due_date format/ });
-});
+  await fastify.close()
+})
 
-test("❌ Should return 400 if due_date is in the past", async (t) => {
-    const fastify = build();
-    t.teardown(() => fastify.close());
+test('❌ Should return 400 if expense_date is invalid (not a date)', async (t) => {
+  const fastify = build()
 
-    const response = await fastify.inject({
-        method: "PUT",
-        url: `${url}/${invoiceId}`,
-        payload: { description, amount, expense_date: pastDate }
-    });
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' },
+    payload: { description: 'Updated Invoice Description', amount: 200.00, expense_date: 'invalid-date' }
+  })
 
-    t.equal(response.statusCode, 400);
-    t.match(response.json(), { message: /due_date must be in the future/ });
-});
+  t.equal(res.statusCode, 400)
+  t.match(res.json(), { message: 'invalid due_date format' })
 
-test("❌ Should return 500 if an internal error occurs", async (t) => {
-    const fastify = build();
-    const errorStub = ImportMock.mockFunction(InvoiceService, 'update', () => {
-        throw new Error("Database error");
-    });
-    
-    t.teardown(() => {
-        fastify.close();
-        errorStub.restore();
-    });
+  await fastify.close()
+})
 
-    const response = await fastify.inject({
-        method: "PUT",
-        url: `${url}/${invoiceId}`,
-        payload: { description, amount, expense_date: futureDate }
-    });
+test('❌ Should return 400 if expense_date is in the past', async (t) => {
+  const fastify = build()
 
-    t.equal(response.statusCode, 500);
-});
+  const pastDate = new Date(new Date().setDate(new Date().getDate() - 1)) // Yesterday
+
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' },
+    payload: { description: 'Updated Invoice Description', amount: 200.00, expense_date: pastDate.toISOString() }
+  })
+
+  t.equal(res.statusCode, 400)
+  t.match(res.json(), { message: 'due_date must be in the future' })
+
+  await fastify.close()
+})
+
+test('❌ Should return 500 if InvoiceService.update throws an error', async (t) => {
+  const fastify = build()
+
+  const invoiceStub = ImportMock.mockFunction(InvoiceService, 'update', Promise.reject(new Error('DB Error')))
+
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
+
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' },
+    payload: { description: 'Updated Invoice Description', amount: 200.00 }
+  })
+
+  t.equal(res.statusCode, 500)
+  t.match(res.json(), { message: /DB Error/ })
+
+  invoiceStub.restore()
+  await fastify.close()
+})

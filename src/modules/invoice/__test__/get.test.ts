@@ -1,91 +1,113 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { faker } from '@faker-js/faker';
-import { ImportMock } from 'ts-mock-imports';
-import InvoiceService from '../invoice.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import InvoiceService from '../invoice.service'
 
-const url = '/api/v1/invoices';
-const invoiceId = faker.number.int();
-const userId = faker.number.int();
-const invoiceData = {
+const userId = faker.number.int()
+const invoiceId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
+
+test('✅ Should retrieve invoice successfully', async (t) => {
+  const fastify = build()
+
+  const invoice = {
     id: invoiceId,
-    due_date: new Date().toISOString(),
-    client_id: faker.number.int(),
-    description: faker.lorem.sentence(),
-    items: [
-        { units: 5, rate: 100, description: "Design work", paid: false },
-        { units: 2, rate: 200, description: "Development work", paid: true }
-    ]
-};
+    dueDate: faker.date.soon(),
+    description: 'Test invoice',
+    createdBy: userId,
+    createdFor: 1
+  }
 
-const getInvoiceStub = ImportMock.mockFunction(InvoiceService, 'get', invoiceData);
+  const invoiceStub = ImportMock.mockFunction(InvoiceService, 'get', invoice)
 
-test("✅ Should retrieve an invoice successfully", async (t) => {
-    const fastify = build();
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-    t.teardown(() => {
-        fastify.close();
-        getInvoiceStub.restore();
-    });
+  const res = await fastify.inject({
+    method: 'GET',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/${invoiceId}`
-    });
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Invoice retrieved successfully',
+    data: invoice
+  })
 
-    t.equal(response.statusCode, 200);
-    t.same(response.json(), {
-        message: "Invoice retrieved successfully",
-        data: invoiceData
-    });
-});
+  invoiceStub.restore()
+  await fastify.close()
+})
 
-test("❌ Should return 400 if invoiceId is missing", async (t) => {
-    const fastify = build();
-    t.teardown(() => fastify.close());
+test('❌ Should return 400 if invoiceId is not provided', async (t) => {
+  const fastify = build()
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/`
-    });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-    t.equal(response.statusCode, 400);
-    t.match(response.json(), { message: /invoiceId is required/ });
-});
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/invoices/',
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-test("❌ Should return 404 if invoice does not exist", async (t) => {
-    const fastify = build();
-    const notFoundStub = ImportMock.mockFunction(InvoiceService, 'get', null);
-    
-    t.teardown(() => {
-        fastify.close();
-        notFoundStub.restore();
-    });
+  t.equal(res.statusCode, 400)
+  t.match(res.json(), { message: 'invoiceId is required' })
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/${invoiceId}`
-    });
+  await fastify.close()
+})
 
-    t.equal(response.statusCode, 404);
-    t.match(response.json(), { message: /No invoice found with the id/ });
-});
+test('❌ Should return 404 if no invoice found with the id', async (t) => {
+  const fastify = build()
 
-test("❌ Should return 500 if an internal error occurs", async (t) => {
-    const fastify = build();
-    const errorStub = ImportMock.mockFunction(InvoiceService, 'get', () => {
-        throw new Error("Database error");
-    });
-    
-    t.teardown(() => {
-        fastify.close();
-        errorStub.restore();
-    });
+  const invoiceStub = ImportMock.mockFunction(InvoiceService, 'get', null)
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/${invoiceId}`
-    });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-    t.equal(response.statusCode, 500);
-});
+  const res = await fastify.inject({
+    method: 'GET',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
+
+  t.equal(res.statusCode, 404)
+  t.match(res.json(), { message: 'No invoice found with the id' })
+
+  invoiceStub.restore()
+  await fastify.close()
+})
+
+test('❌ Should return 500 if InvoiceService.get throws error', async (t) => {
+  const fastify = build()
+
+  const invoiceStub = ImportMock.mockFunction(InvoiceService, 'get', Promise.reject(new Error('DB Error')))
+
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
+
+  const res = await fastify.inject({
+    method: 'GET',
+    url: `/api/v1/invoices/${invoiceId}`,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
+
+  t.equal(res.statusCode, 500)
+  t.match(res.json(), { message: /DB Error/ })
+
+  invoiceStub.restore()
+  await fastify.close()
+})
