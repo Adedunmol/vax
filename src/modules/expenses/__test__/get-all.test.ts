@@ -1,88 +1,111 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { ImportMock } from 'ts-mock-imports';
-import expenseService from '../expenses.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import ExpenseService from '../expenses.service'
 
-const url = '/api/v1/expenses';
-const userId = 100;
+const userId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const expensesMock = [
-  {
-    id: 1,
-    category: 'Office Supplies',
-    amount: 150.75,
-    expense_date: new Date().toISOString(),
-    userId,
-  },
-  {
-    id: 2,
-    category: 'Software Subscription',
-    amount: 99.99,
-    expense_date: new Date().toISOString(),
-    userId,
-  }
-];
+test('✅ Should get all expenses successfully', async (t) => {
+  const fastify = build()
 
-const getAllExpensesStub = ImportMock.mockFunction(expenseService, 'getAll', expensesMock);
+  const mockExpenses = [
+    {
+      id: faker.number.int(),
+      category: 'Groceries',
+      amount: '45.99',
+      expenseDate: new Date(),
+      userId
+    },
+    {
+      id: faker.number.int(),
+      category: 'Transport',
+      amount: '10.50',
+      expenseDate: new Date(),
+      userId
+    }
+  ]
 
-test("✅ Should retrieve all expenses successfully", async (t) => {
-  const fastify = build();
+  const stub = ImportMock.mockFunction(ExpenseService, 'getAll', mockExpenses)
 
-  t.teardown(() => {
-    fastify.close();
-    getAllExpensesStub.restore();
-  });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
 
-  const response = await fastify.inject({
-    method: "GET",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/expenses',
+    headers: {
+      Authorization: 'Bearer mocked-token'
+    }
+  })
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Expenses retrieved successfully", data: { expenses: expensesMock } });
-});
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Expenses retrieved successfully',
+    data: {
+      expenses: mockExpenses
+    }
+  })
 
-// Test: No expenses found
-test("✅ Should return empty list when no expenses are found", async (t) => {
-  const fastify = build();
-  getAllExpensesStub.restore();
-  const emptyStub = ImportMock.mockFunction(expenseService, 'getAll', []);
+  stub.restore()
+  await fastify.close()
+})
 
-  t.teardown(() => {
-    fastify.close();
-    emptyStub.restore();
-  });
+test('✅ Should return empty array if user has no expenses', async (t) => {
+  const fastify = build()
 
-  const response = await fastify.inject({
-    method: "GET",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const stub = ImportMock.mockFunction(ExpenseService, 'getAll', [])
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Expenses retrieved successfully", data: { expenses: [] } });
-});
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
 
-// Test: Internal server error
-test("❌ Should return error for internal server error", async (t) => {
-  const fastify = build();
-  getAllExpensesStub.restore();
-  const errorStub = ImportMock.mockFunction(expenseService, 'getAll', () => {
-    throw new Error("Database error");
-  });
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/expenses',
+    headers: {
+      Authorization: 'Bearer mocked-token'
+    }
+  })
 
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
-  });
+  t.equal(res.statusCode, 200)
+  t.same(res.json().data.expenses, [])
+  t.match(res.json(), { message: 'Expenses retrieved successfully' })
 
-  const response = await fastify.inject({
-    method: "GET",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  stub.restore()
+  await fastify.close()
+})
 
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
-});
+test('🧨 Should handle internal server error', async (t) => {
+  const fastify = build()
+
+  const stub = ImportMock.mockFunction(ExpenseService, 'getAll', () => {
+    throw new Error('Database failure')
+  })
+
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
+
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/expenses',
+    headers: {
+      Authorization: 'Bearer mocked-token'
+    }
+  })
+
+  t.equal(res.statusCode, 500)
+  t.match(res.json(), { message: 'Database failure' })
+
+  stub.restore()
+  await fastify.close()
+})

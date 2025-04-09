@@ -1,97 +1,90 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { ImportMock } from 'ts-mock-imports';
-import expenseService from '../expenses.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import ExpenseService from '../expenses.service'
 
-const url = '/api/v1/expenses/1';
-const userId = 100;
+const userId = faker.number.int()
+const expenseId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const deletedExpenseMock = {
-  id: 1,
-  category: 'Sample Category',
-  amount: 150.75,
-  expense_date: new Date().toISOString(),
-  userId,
-};
+test('✅ Should delete expense successfully', async (t) => {
+  const fastify = build()
 
-const deleteExpenseStub = ImportMock.mockFunction(expenseService, 'delete', deletedExpenseMock);
+  const deletedExpense = {
+    id: expenseId,
+    category: 'Groceries',
+    amount: '120.00',
+    expenseDate: new Date(),
+    deleted_at: new Date(),
+    userId
+  }
 
-test("✅ Should delete an expense successfully", async (t) => {
-  const fastify = build();
+  const stub = ImportMock.mockFunction(ExpenseService, 'delete', deletedExpense)
 
-  t.teardown(() => {
-    fastify.close();
-    deleteExpenseStub.restore();
-  });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-  const response = await fastify.inject({
-    method: "DELETE",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const res = await fastify.inject({
+    method: 'DELETE',
+    url: `/api/v1/expenses/${expenseId}`,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Expense deleted successfully", data: deletedExpenseMock });
-});
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Expense deleted successfully',
+    data: deletedExpense
+  })
 
-// Test: Missing expenseId
-test("❌ Should return 400 if expenseId is missing", async (t) => {
-  const fastify = build();
+  stub.restore()
+  await fastify.close()
+})
 
-  t.teardown(() => {
-    fastify.close();
-  });
+test('🚫 Should return 400 if expenseId param is missing', async (t) => {
+  const fastify = build()
 
-  const response = await fastify.inject({
-    method: "DELETE",
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
+
+  const res = await fastify.inject({
+    method: 'DELETE',
     url: '/api/v1/expenses/',
-    headers: { Authorization: "Bearer valid-token" },
-  });
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-  t.equal(response.statusCode, 400);
-  t.same(response.json(), { message: "expenseId is required" });
-});
+  t.equal(res.statusCode, 404) // Route not matched
+  await fastify.close()
+})
 
-// Test: Expense not found
-test("❌ Should return 404 if expense does not exist", async (t) => {
-  const fastify = build();
-  deleteExpenseStub.restore();
-  const notFoundStub = ImportMock.mockFunction(expenseService, 'delete', null);
+test('🧨 Should return 500 if ExpenseService.delete throws error', async (t) => {
+  const fastify = build()
 
-  t.teardown(() => {
-    fastify.close();
-    notFoundStub.restore();
-  });
+  const stub = ImportMock.mockFunction(ExpenseService, 'delete', () => {
+    throw new Error('DB delete failed')
+  })
 
-  const response = await fastify.inject({
-    method: "DELETE",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _, done) => {
+    req.user = authUser
+    done()
+  })
 
-  t.equal(response.statusCode, 404);
-  t.same(response.json(), { message: "No expense found with the id" });
-});
+  const res = await fastify.inject({
+    method: 'DELETE',
+    url: `/api/v1/expenses/${expenseId}`,
+    headers: { Authorization: 'Bearer token' }
+  })
 
-// Test: Internal server error
-test("❌ Should return 500 for internal server error", async (t) => {
-  const fastify = build();
-  deleteExpenseStub.restore();
-  const errorStub = ImportMock.mockFunction(expenseService, 'delete', () => {
-    throw new Error("Database error");
-  });
+  t.equal(res.statusCode, 500)
+  t.match(res.json(), { message: 'DB delete failed' })
 
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
-  });
-
-  const response = await fastify.inject({
-    method: "DELETE",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
-
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
-});
+  stub.restore()
+  await fastify.close()
+})

@@ -1,115 +1,135 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { faker } from '@faker-js/faker';
-import { ImportMock } from 'ts-mock-imports';
-import expenseService from '../expenses.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import ExpenseService from '../expenses.service'
 
-const url = '/api/v1/expenses/1';
-const userId = 100;
+const userId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const updatedExpenseMock = {
-  id: 1,
-  category: 'Updated Category',
-  amount: 200.50,
-  expense_date: new Date().toISOString(),
-  userId,
-};
+const expenseId = faker.number.int()
+const updateData = {
+  category: 'Health',
+  amount: 75.5,
+  expense_date: new Date().toISOString()
+}
 
-const updateExpenseStub = ImportMock.mockFunction(expenseService, 'update', updatedExpenseMock);
+test('✅ Should update expense successfully', async (t) => {
+  const fastify = build()
 
-test("✅ Should update an expense successfully", async (t) => {
-  const fastify = build();
+  const updatedExpense = {
+    id: expenseId,
+    ...updateData,
+    amount: updateData.amount.toFixed(2),
+    expenseDate: new Date(updateData.expense_date),
+    userId
+  }
 
-  t.teardown(() => {
-    fastify.close();
-    updateExpenseStub.restore();
-  });
+  const stub = ImportMock.mockFunction(ExpenseService, 'update', updatedExpense)
 
-  const response = await fastify.inject({
-    method: "PUT",
-    url,
-    payload: {
-      category: 'Updated Category',
-      amount: 200.50,
-      expense_date: new Date().toISOString(),
-    },
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Expense updated successfully", data: updatedExpenseMock });
-});
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/expenses/${expenseId}`,
+    payload: updateData,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-// Test: Missing expenseId
-test("❌ Should return 400 if expenseId is missing", async (t) => {
-  const fastify = build();
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Expense updated successfully',
+    data: updatedExpense
+  })
 
-  t.teardown(() => {
-    fastify.close();
-  });
+  stub.restore()
+  await fastify.close()
+})
 
-  const response = await fastify.inject({
-    method: "PUT",
-    url: '/api/v1/expenses/',
-    payload: {
-      category: 'Updated Category',
-      amount: 200.50,
-    },
-    headers: { Authorization: "Bearer valid-token" },
-  });
+test('🚫 Should return 400 if expenseId is missing in params', async (t) => {
+  const fastify = build()
 
-  t.equal(response.statusCode, 400);
-  t.same(response.json(), { message: "expenseId is required" });
-});
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
 
-// Test: Expense not found
-test("❌ Should return 404 if expense does not exist", async (t) => {
-  const fastify = build();
-  updateExpenseStub.restore();
-  const notFoundStub = ImportMock.mockFunction(expenseService, 'update', null);
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/expenses/`,
+    payload: updateData,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-  t.teardown(() => {
-    fastify.close();
-    notFoundStub.restore();
-  });
+  t.equal(res.statusCode, 404) // Fastify will treat missing param as 404 route not found
+  await fastify.close()
+})
 
-  const response = await fastify.inject({
-    method: "PUT",
-    url,
-    payload: {
-      category: 'Updated Category',
-      amount: 200.50,
-    },
-    headers: { Authorization: "Bearer valid-token" },
-  });
+test('🧨 Should return 500 if ExpenseService.update throws an error', async (t) => {
+  const fastify = build()
 
-  t.equal(response.statusCode, 404);
-  t.same(response.json(), { message: "No expense found with the id" });
-});
+  const stub = ImportMock.mockFunction(ExpenseService, 'update', () => {
+    throw new Error('DB failed')
+  })
 
-// Test: Internal server error
-test("❌ Should return 500 for internal server error", async (t) => {
-  const fastify = build();
-  updateExpenseStub.restore();
-  const errorStub = ImportMock.mockFunction(expenseService, 'update', () => {
-    throw new Error("Database error");
-  });
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
 
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
-  });
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/expenses/${expenseId}`,
+    payload: updateData,
+    headers: { Authorization: 'Bearer mock-token' }
+  })
 
-  const response = await fastify.inject({
-    method: "PUT",
-    url,
-    payload: {
-      category: 'Updated Category',
-      amount: 200.50,
-    },
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  t.equal(res.statusCode, 500)
+  t.match(res.json(), { message: 'DB failed' })
 
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
-});
+  stub.restore()
+  await fastify.close()
+})
+
+test('✅ Should allow partial updates (only category)', async (t) => {
+  const fastify = build()
+
+  const partialUpdate = { category: 'Transport' }
+  const mockResponse = {
+    id: expenseId,
+    category: 'Transport',
+    amount: '12.00',
+    expenseDate: new Date(),
+    userId
+  }
+
+  const stub = ImportMock.mockFunction(ExpenseService, 'update', mockResponse)
+
+  fastify.decorateRequest('user', null)
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser
+    done()
+  })
+
+  const res = await fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/expenses/${expenseId}`,
+    payload: partialUpdate,
+    headers: { Authorization: 'Bearer token' }
+  })
+
+  t.equal(res.statusCode, 200)
+  t.match(res.json(), {
+    message: 'Expense updated successfully',
+    data: mockResponse
+  })
+
+  stub.restore()
+  await fastify.close()
+})

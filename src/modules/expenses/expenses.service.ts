@@ -5,8 +5,6 @@ import expenses from '../../db/schema/expenses'
 
 class ExpensesService {
 
-    constructor() {}
-
     async create(data: CreateExpenseInput & { userId: number }) {
         const { expense_date: expenseDate, ...rest } = data
 

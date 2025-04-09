@@ -2,107 +2,145 @@ import { test } from 'tap';
 import build from '../../../app';
 import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
-import expenseService from '../expenses.service';
+import ExpenseService from '../expenses.service';
 
-const url = '/api/v1/expenses';
-
-const category = faker.commerce.department();
-const amount = faker.number.float({ min: 1, max: 1000 }); // precision: 0.01
-const expenseDate = new Date().toISOString();
 const userId = faker.number.int();
-const expenseId = faker.number.int();
+const authUser = { id: userId, email: faker.internet.email() };
 
-const createExpenseStub = ImportMock.mockFunction(expenseService, 'create', {
-  id: expenseId,
-  category,
-  amount,
-  expense_date: expenseDate,
-  userId,
-});
-
-test("✅ Should create an expense successfully", async (t) => {
-  const fastify = build();
-
-  t.teardown(() => {
-    fastify.close();
-    createExpenseStub.restore();
-  });
-
-  const response = await fastify.inject({
-    method: "POST",
-    url,
-    payload: {
-      category,
-      amount,
-      expense_date: expenseDate,
+const injectWithAuth = (fastify: any, payload: any) =>
+  fastify.inject({
+    method: 'POST',
+    url: '/api/v1/expenses',
+    headers: {
+      Authorization: 'Bearer mocked-token'
     },
-    headers: { Authorization: "Bearer valid-token" },
+    payload
   });
 
-  t.equal(response.statusCode, 201);
-  t.same(response.json(), { message: "Expense created successfully", data: createExpenseStub.getMockImplementation() });
+test('✅ Should create an expense successfully', async (t) => {
+  const fastify = build();
+
+  const mockExpense = {
+    id: faker.number.int(),
+    category: 'Utilities',
+    amount: '100.00',
+    expenseDate: new Date()
+  };
+
+  const stub = ImportMock.mockFunction(ExpenseService, 'create', mockExpense);
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
+  });
+
+  const payload = {
+    category: 'Utilities',
+    amount: 100,
+    expense_date: new Date().toISOString()
+  };
+
+  const res = await injectWithAuth(fastify, payload);
+
+  t.equal(res.statusCode, 201);
+  t.match(res.json().data, { id: mockExpense.id, category: 'Utilities', amount: '100.00' });
+
+  stub.restore();
+  await fastify.close();
 });
 
-// Test: Missing required fields
-test("❌ Should return error for missing required fields", async (t) => {
+test('❌ Should fail if category is missing', async (t) => {
   const fastify = build();
-  t.teardown(() => fastify.close());
 
-  const response = await fastify.inject({
-    method: "POST",
-    url,
-    payload: {},
-    headers: { Authorization: "Bearer valid-token" },
+  const payload = {
+    amount: 50,
+    expense_date: new Date().toISOString()
+  };
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /category is required|amount is required/);
+  const res = await injectWithAuth(fastify, payload);
+
+  t.equal(res.statusCode, 400);
+  t.match(res.json(), { error: "category is required" });
+
+  await fastify.close();
 });
 
-// Test: Invalid expense_date format
-test("❌ Should return error for invalid expense_date format", async (t) => {
+test('❌ Should fail if amount is missing', async (t) => {
   const fastify = build();
-  t.teardown(() => fastify.close());
 
-  const response = await fastify.inject({
-    method: "POST",
-    url,
-    payload: {
-      category,
-      amount,
-      expense_date: "invalid-date",
-    },
-    headers: { Authorization: "Bearer valid-token" },
+  const payload = {
+    category: 'Food',
+    expense_date: new Date().toISOString()
+  };
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /Invalid expense_date format/);
+  const res = await injectWithAuth(fastify, payload);
+
+  t.equal(res.statusCode, 400);
+  t.match(res.json(), { error: "amount is required" });
+
+  await fastify.close();
 });
 
-// Test: Internal server error
-test("❌ Should return error for internal server error", async (t) => {
+test('❌ Should fail if expense_date is invalid', async (t) => {
   const fastify = build();
-  createExpenseStub.restore();
-  const errorStub = ImportMock.mockFunction(expenseService, 'create', () => {
-    throw new Error("Database error");
+
+  const payload = {
+    category: 'Transport',
+    amount: 20,
+    expense_date: 'invalid-date'
+  };
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
+  const res = await injectWithAuth(fastify, payload);
+
+  t.equal(res.statusCode, 400);
+  t.match(res.json(), { error: "Invalid expense_date format" });
+
+  await fastify.close();
+});
+
+test('🧨 Should handle internal server error', async (t) => {
+  const fastify = build();
+
+  const stub = ImportMock.mockFunction(ExpenseService, 'create', () => {
+    throw new Error('DB connection failed');
   });
 
-  const response = await fastify.inject({
-    method: "POST",
-    url,
-    payload: {
-      category,
-      amount,
-      expense_date: expenseDate,
-    },
-    headers: { Authorization: "Bearer valid-token" },
+  const payload = {
+    category: 'Misc',
+    amount: 20,
+    expense_date: new Date().toISOString()
+  };
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
+  const res = await injectWithAuth(fastify, payload);
+
+  t.equal(res.statusCode, 500);
+  t.match(res.json(), { message: 'DB connection failed' });
+
+  stub.restore();
+  await fastify.close();
 });

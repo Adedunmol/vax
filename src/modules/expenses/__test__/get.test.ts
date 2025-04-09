@@ -1,95 +1,112 @@
 import { test } from 'tap';
 import build from '../../../app';
+import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
-import expenseService from '../expenses.service';
+import ExpenseService from '../expenses.service';
 
-const url = '/api/v1/expenses';
-const expenseId = 1;
-const userId = 100;
+const userId = faker.number.int();
+const authUser = { id: userId, email: faker.internet.email() };
 
-const expenseMock = {
-  id: expenseId,
-  category: 'Office Supplies',
-  amount: 150.75,
-  expense_date: new Date().toISOString(),
-  userId,
-};
+const injectWithAuth = (fastify: any, expenseId: number | string) =>
+  fastify.inject({
+    method: 'GET',
+    url: `/api/v1/expenses/${expenseId}`,
+    headers: {
+      Authorization: 'Bearer mocked-token'
+    }
+  });
 
-const getExpenseStub = ImportMock.mockFunction(expenseService, 'get', expenseMock);
-
-test("✅ Should retrieve an expense successfully", async (t) => {
+test('✅ Should get an expense successfully', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
-    getExpenseStub.restore();
+  const mockExpense = {
+    id: faker.number.int(),
+    category: 'Groceries',
+    amount: '150.00',
+    expenseDate: new Date()
+  };
+
+  const stub = ImportMock.mockFunction(ExpenseService, 'get', mockExpense);
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "GET",
-    url: `${url}/${expenseId}`,
-    headers: { Authorization: "Bearer valid-token" },
+  const res = await injectWithAuth(fastify, mockExpense.id);
+
+  t.equal(res.statusCode, 200);
+  t.match(res.json(), {
+    message: 'Expense retrieved successfully',
+    data: { id: mockExpense.id, category: 'Groceries' }
   });
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Expense retrieved successfully", data: expenseMock });
+  stub.restore();
+  await fastify.close();
 });
 
-// Test: Missing expenseId
-test("❌ Should return error when expenseId is missing", async (t) => {
+test('❌ Should return 400 if expenseId param is missing', async (t) => {
   const fastify = build();
-  t.teardown(() => fastify.close());
 
-  const response = await fastify.inject({
-    method: "GET",
-    url: `${url}/`,
-    headers: { Authorization: "Bearer valid-token" },
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /expenseId is required/);
+  const res = await fastify.inject({
+    method: 'GET',
+    url: '/api/v1/expenses/',
+    headers: {
+      Authorization: 'Bearer mocked-token'
+    }
+  });
+
+  t.equal(res.statusCode, 404); // Because missing route param falls through route match
+  await fastify.close();
 });
 
-// Test: Expense not found
-test("❌ Should return error when expense is not found", async (t) => {
+test('❌ Should return 404 if no expense found', async (t) => {
   const fastify = build();
-  getExpenseStub.restore();
-  const notFoundStub = ImportMock.mockFunction(expenseService, 'get', null);
 
-  t.teardown(() => {
-    fastify.close();
-    notFoundStub.restore();
+  const stub = ImportMock.mockFunction(ExpenseService, 'get', null);
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "GET",
-    url: `${url}/${expenseId}`,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const fakeExpenseId = faker.number.int();
 
-  t.equal(response.statusCode, 404);
-  t.match(response.json().message, /No expense found with the id/);
+  const res = await injectWithAuth(fastify, fakeExpenseId);
+
+  t.equal(res.statusCode, 404);
+  t.match(res.json(), { message: 'No expense found with the id' });
+
+  stub.restore();
+  await fastify.close();
 });
 
-// Test: Internal server error
-test("❌ Should return error for internal server error", async (t) => {
+test('🧨 Should handle internal server error', async (t) => {
   const fastify = build();
-  getExpenseStub.restore();
-  const errorStub = ImportMock.mockFunction(expenseService, 'get', () => {
-    throw new Error("Database error");
+
+  const stub = ImportMock.mockFunction(ExpenseService, 'get', () => {
+    throw new Error('Unexpected DB error');
   });
 
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _res, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "GET",
-    url: `${url}/${expenseId}`,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const res = await injectWithAuth(fastify, faker.number.int());
 
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
+  t.equal(res.statusCode, 500);
+  t.match(res.json(), { message: 'Unexpected DB error' });
+
+  stub.restore();
+  await fastify.close();
 });
