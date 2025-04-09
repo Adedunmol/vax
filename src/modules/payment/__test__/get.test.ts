@@ -1,78 +1,119 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { faker } from '@faker-js/faker';
-import { ImportMock } from 'ts-mock-imports';
-import paymentService from '../payment.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import PaymentService from '../payment.service'
 
-const url = '/api/v1/payments';
-const paymentId = Math.floor(Math.random() * 1000);
-const userId = Math.floor(Math.random() * 1000);
+const userId = faker.number.int()
+const paymentId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const paymentMock = {
-  id: paymentId,
-  invoiceId: faker.number.int(),
-  amount: faker.number.float({ min: 10, max: 1000 }),
-  paymentMethod: 'bank_transfer',
-  paymentDate: new Date().toISOString(),
-  userId,
-};
+test('✅ Should retrieve payment successfully', async (t) => {
+    const fastify = build()
 
-const getPaymentStub = ImportMock.mockFunction(paymentService, 'get', paymentMock);
+    const payment = {
+        id: paymentId,
+        amount: faker.number.float(),
+        paymentDate: new Date(),
+        paymentMethod: 'bank_transfer',
+        invoiceId: faker.number.int()
+    }
 
-test('✅ Should retrieve a payment successfully', async (t) => {
-  const fastify = build();
+    const stub = ImportMock.mockFunction(PaymentService, 'get', payment)
 
-  t.teardown(() => {
-    fastify.close();
-    getPaymentStub.restore();
-  });
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
 
-  const response = await fastify.inject({
-    method: 'GET',
-    url: `${url}/${paymentId}`,
-    headers: { authorization: `Bearer faketoken` },
-  });
+    const res = await fastify.inject({
+        method: 'GET',
+        url: `/api/v1/payments/${paymentId}`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), {
-    message: 'Payment retrieved successfully',
-    data: paymentMock,
-  });
-});
+    t.equal(res.statusCode, 200)
+    t.match(res.json(), {
+        message: 'Payment retrieved successfully',
+        data: payment
+    })
 
-test('❌ Should return 404 if payment does not exist', async (t) => {
-  getPaymentStub.restore();
-  const getPaymentStubEmpty = ImportMock.mockFunction(paymentService, 'get', null);
-  const fastify = build();
+    stub.restore()
+    await fastify.close()
+})
 
-  t.teardown(() => {
-    fastify.close();
-    getPaymentStubEmpty.restore();
-  });
+test('❌ Should return 400 if paymentId is not provided', async (t) => {
+    const fastify = build()
 
-  const response = await fastify.inject({
-    method: 'GET',
-    url: `${url}/99999`,
-    headers: { authorization: `Bearer faketoken` },
-  });
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
 
-  t.equal(response.statusCode, 404);
-  t.same(response.json(), { message: 'No payment found with the id' });
-});
+    const res = await fastify.inject({
+        method: 'GET',
+        url: `/api/v1/payments/`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
 
-test('❌ Should return 400 if paymentId is missing', async (t) => {
-  const fastify = build();
+    t.equal(res.statusCode, 400)
+    t.match(res.json(), {
+        message: 'paymentId is required'
+    })
 
-  t.teardown(() => {
-    fastify.close();
-  });
+    await fastify.close()
+})
 
-  const response = await fastify.inject({
-    method: 'GET',
-    url: `${url}/`,
-    headers: { authorization: `Bearer faketoken` },
-  });
+test('❌ Should return 404 if no payment is found with the given paymentId', async (t) => {
+    const fastify = build()
 
-  t.equal(response.statusCode, 400);
-  t.same(response.json(), { message: 'paymentId is required' });
-});
+    const stub = ImportMock.mockFunction(PaymentService, 'get', null)
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'GET',
+        url: `/api/v1/payments/${paymentId}`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
+
+    t.equal(res.statusCode, 404)
+    t.match(res.json(), {
+        message: 'No payment found with the id'
+    })
+
+    stub.restore()
+    await fastify.close()
+})
+
+test('❌ Should return 500 if PaymentService.get throws an error', async (t) => {
+    const fastify = build()
+
+    const stub = ImportMock.mockFunction(PaymentService, 'get', () => {
+        throw new Error('Something went wrong')
+    })
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'GET',
+        url: `/api/v1/payments/${paymentId}`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
+
+    t.equal(res.statusCode, 500)
+    t.match(res.json(), { message: 'Something went wrong' })
+
+    stub.restore()
+    await fastify.close()
+})

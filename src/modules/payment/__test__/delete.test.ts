@@ -1,63 +1,162 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { ImportMock } from 'ts-mock-imports';
-import PaymentService from '../payment.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import PaymentService from '../payment.service'
+import db from '../../../db'
 
-const url = '/api/v1/payments';
-const paymentId = 123;
-const userId = 456;
+const userId = faker.number.int()
+const authUser = { id: userId, email: faker.internet.email() }
 
-const deletePaymentStub = ImportMock.mockFunction(PaymentService, 'delete', { id: paymentId, userId });
+test('✅ Should successfully delete a payment', async (t) => {
+    const fastify = build()
 
-test('✅ Should delete a payment successfully', async (t) => {
-    const fastify = build();
+    const payment = {
+        id: faker.number.int(),
+        amount: faker.number.float(),
+        paymentDate: new Date(),
+        paymentMethod: 'bank_transfer',
+        invoiceId: faker.number.int(),
+        userId: userId
+    }
 
-    t.teardown(() => {
-        fastify.close();
-        deletePaymentStub.restore();
-    });
+    const stub = ImportMock.mockFunction(PaymentService, 'delete', payment)
 
-    const response = await fastify.inject({
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
         method: 'DELETE',
-        url: `${url}/${paymentId}`,
-        headers: { Authorization: `Bearer mock_token` },
-    });
+        url: `/api/v1/payments/${payment.id}`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
 
-    t.equal(response.statusCode, 200);
-    t.same(response.json(), { message: 'Payment deleted successfully', data: { id: paymentId, userId } });
-});
+    t.equal(res.statusCode, 200)
+    t.match(res.json(), {
+        message: 'Payment deleted successfully',
+        data: { ...payment }
+    })
 
-test('❌ Should return 400 if paymentId is missing', async (t) => {
-    const fastify = build();
+    stub.restore()
+    await fastify.close()
+})
 
-    t.teardown(() => {
-        fastify.close();
-    });
+test('❌ Should return 400 if paymentId is missing in params', async (t) => {
+    const fastify = build()
 
-    const response = await fastify.inject({
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
         method: 'DELETE',
-        url: `${url}/`,
-        headers: { Authorization: `Bearer mock_token` },
-    });
+        url: `/api/v1/payments/`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
 
-    t.equal(response.statusCode, 400);
-    t.same(response.json(), { message: 'paymentId is required' });
-});
+    t.equal(res.statusCode, 400)
+    t.match(res.json(), { message: 'paymentId is required' })
 
-test('❌ Should return 500 on unexpected error', async (t) => {
-    const fastify = build();
-    deletePaymentStub.throws(new Error('Unexpected error'));
+    await fastify.close()
+})
 
-    t.teardown(() => {
-        fastify.close();
-        deletePaymentStub.restore();
-    });
+test('❌ Should return 500 if PaymentService.delete throws an error', async (t) => {
+    const fastify = build()
 
-    const response = await fastify.inject({
+    const stub = ImportMock.mockFunction(PaymentService, 'delete', () => {
+        throw new Error('Something went wrong')
+    })
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
         method: 'DELETE',
-        url: `${url}/${paymentId}`,
-        headers: { Authorization: `Bearer mock_token` },
-    });
+        url: `/api/v1/payments/123`, // Simulate a valid payment ID
+        headers: { Authorization: 'Bearer mock-token' }
+    })
 
-    t.equal(response.statusCode, 500);
-});
+    t.equal(res.statusCode, 500)
+    t.match(res.json(), { message: 'Something went wrong' })
+
+    stub.restore()
+    await fastify.close()
+})
+
+test('❌ Should return 404 if payment not found for the user', async (t) => {
+    const fastify = build()
+
+    const paymentId = faker.number.int()
+
+    const stub = ImportMock.mockFunction(PaymentService, 'delete', () => null)
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'DELETE',
+        url: `/api/v1/payments/${paymentId}`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
+
+    t.equal(res.statusCode, 404)
+    t.match(res.json(), { message: 'No payment found with the id' })
+
+    stub.restore()
+    await fastify.close()
+})
+
+test('✅ Should update invoice amount when payment is deleted', async (t) => {
+    const fastify = build()
+
+    const payment = {
+        id: faker.number.int(),
+        amount: faker.number.float(),
+        paymentDate: new Date(),
+        paymentMethod: 'bank_transfer',
+        invoiceId: faker.number.int(),
+        userId: userId
+    }
+
+    const updatedInvoice = {
+        id: payment.invoiceId,
+        amountPaid: faker.number.float() - payment.amount,
+        status: 'partially_paid'
+    }
+
+    const paymentServiceStub = ImportMock.mockFunction(PaymentService, 'delete', payment)
+    const dbUpdateStub = ImportMock.mockFunction(db, 'update', updatedInvoice)
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'DELETE',
+        url: `/api/v1/payments/${payment.id}`,
+        headers: { Authorization: 'Bearer mock-token' }
+    })
+
+    t.equal(res.statusCode, 200)
+    t.match(res.json(), {
+        message: 'Payment deleted successfully',
+        data: { ...payment }
+    })
+
+    dbUpdateStub.restore()
+    paymentServiceStub.restore()
+    await fastify.close()
+})

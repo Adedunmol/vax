@@ -1,141 +1,231 @@
-import { test } from 'tap';
-import build from '../../../app';
-import { faker } from '@faker-js/faker';
-import { ImportMock } from 'ts-mock-imports';
-import paymentService from '../payment.service';
+import { test } from 'tap'
+import build from '../../../app'
+import { faker } from '@faker-js/faker'
+import { ImportMock } from 'ts-mock-imports'
+import PaymentService from '../payment.service'
 
-const url = '/api/v1/payments';
-const userId = Math.floor(Math.random() * 1000);
-const invoice_id = Math.floor(Math.random() * 1000);
-const amount = faker.number.float({ min: 1, max: 1000 });
-const payment_method = faker.helpers.arrayElement(['bank_transfer', 'cash', 'online_payment', 'crypto']);
-const payment_date = new Date().toISOString();
-
-const createPaymentStub = ImportMock.mockFunction(paymentService, 'create', {
-  id: Math.floor(Math.random() * 1000),
-  invoice_id,
-  amount,
-  payment_method,
-  payment_date,
-  userId
-});
+const userId = faker.number.int()
+const invoiceId = faker.number.int()
+const paymentMethod = 'bank_transfer'
+const paymentDate = new Date().toISOString()
+const amount = 100
+const authUser = { id: userId, email: faker.internet.email() }
 
 test('✅ Should create a payment successfully', async (t) => {
-  const fastify = build();
-  
-  t.teardown(() => {
-    fastify.close();
-    createPaymentStub.restore();
-  });
-  
-  const response = await fastify.inject({
-    method: 'POST',
-    url,
-    payload: {
-      invoice_id,
-      amount,
-      payment_method,
-      payment_date,
-    },
-    headers: { authorization: `Bearer valid_token` },
-  });
+    const fastify = build()
 
-  t.equal(response.statusCode, 201);
-  t.same(response.json(), {
-    message: 'Payment created successfully',
-    data: {
-      id: createPaymentStub.returns[0].id,
-      invoice_id,
-      amount,
-      payment_method,
-      payment_date,
-      userId,
-    },
-  });
-});
+    const payment = {
+        id: faker.number.int(),
+        amount: amount.toFixed(2),
+        paymentDate: new Date(),
+        paymentMethod,
+        invoiceId
+    }
 
-test('❌ Should return 400 for missing required fields', async (t) => {
-  const fastify = build();
-  
-  t.teardown(() => fastify.close());
-  
-  const response = await fastify.inject({
-    method: 'POST',
-    url,
-    payload: {},
-    headers: { authorization: `Bearer valid_token` },
-  });
+    const stub = ImportMock.mockFunction(PaymentService, 'create', payment)
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /invoice_id is required/);
-});
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
 
-test('❌ Should return 400 for invalid amount', async (t) => {
-  const fastify = build();
-  
-  t.teardown(() => fastify.close());
-  
-  const response = await fastify.inject({
-    method: 'POST',
-    url,
-    payload: {
-      invoice_id,
-      amount: -5,
-      payment_method,
-      payment_date,
-    },
-    headers: { authorization: `Bearer valid_token` },
-  });
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            invoice_id: invoiceId,
+            amount,
+            payment_method: paymentMethod,
+            payment_date: paymentDate
+        }
+    })
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /amount must be greater than 0/);
-});
+    t.equal(res.statusCode, 201)
+    t.match(res.json(), {
+        message: 'Payment created successfully',
+        data: payment
+    })
 
-test('❌ Should return 400 for invalid date format', async (t) => {
-  const fastify = build();
-  
-  t.teardown(() => fastify.close());
-  
-  const response = await fastify.inject({
-    method: 'POST',
-    url,
-    payload: {
-      invoice_id,
-      amount,
-      payment_method,
-      payment_date: 'invalid-date',
-    },
-    headers: { authorization: `Bearer valid_token` },
-  });
+    stub.restore()
+    await fastify.close()
+})
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /Invalid payment_date format/);
-});
+test('❌ Should return 400 if invoice_id is not provided', async (t) => {
+    const fastify = build()
 
-test('❌ Should return 500 on server error', async (t) => {
-  const fastify = build();
-  
-  const failingStub = ImportMock.mockFunction(paymentService, 'create', () => {
-    throw new Error('Database error');
-  });
-  
-  t.teardown(() => {
-    fastify.close();
-    failingStub.restore();
-  });
-  
-  const response = await fastify.inject({
-    method: 'POST',
-    url,
-    payload: {
-      invoice_id,
-      amount,
-      payment_method,
-      payment_date,
-    },
-    headers: { authorization: `Bearer valid_token` },
-  });
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
 
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
-});
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            amount,
+            payment_method: paymentMethod,
+            payment_date: paymentDate
+        }
+    })
+
+    t.equal(res.statusCode, 400)
+    t.match(res.json(), {
+        message: 'invoice_id is required'
+    })
+
+    await fastify.close()
+})
+
+test('❌ Should return 400 if amount is less than or equal to 0', async (t) => {
+    const fastify = build()
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            invoice_id: invoiceId,
+            amount: -1, // invalid amount
+            payment_method: paymentMethod,
+            payment_date: paymentDate
+        }
+    })
+
+    t.equal(res.statusCode, 400)
+    t.match(res.json(), {
+        message: 'amount must be greater than 0'
+    })
+
+    await fastify.close()
+})
+
+test('❌ Should return 400 if payment_method is missing', async (t) => {
+    const fastify = build()
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            invoice_id: invoiceId,
+            amount,
+            payment_date: paymentDate
+        }
+    })
+
+    t.equal(res.statusCode, 400)
+    t.match(res.json(), {
+        message: 'payment_method of payment is required'
+    })
+
+    await fastify.close()
+})
+
+test('❌ Should return 400 if payment_date is in invalid format', async (t) => {
+    const fastify = build()
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            invoice_id: invoiceId,
+            amount,
+            payment_method: paymentMethod,
+            payment_date: 'invalid-date'
+        }
+    })
+
+    t.equal(res.statusCode, 400)
+    t.match(res.json(), {
+        message: 'Invalid payment_date format'
+    })
+
+    await fastify.close()
+})
+
+test('❌ Should return 404 if invoice does not exist', async (t) => {
+    const fastify = build()
+
+    const stub = ImportMock.mockFunction(PaymentService, 'create', null)
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            invoice_id: invoiceId,
+            amount,
+            payment_method: paymentMethod,
+            payment_date: paymentDate
+        }
+    })
+
+    t.equal(res.statusCode, 404)
+    t.match(res.json(), {
+        message: 'Invoice not found'
+    })
+
+    stub.restore()
+    await fastify.close()
+})
+
+test('❌ Should return 500 if PaymentService.create throws an error', async (t) => {
+    const fastify = build()
+
+    const stub = ImportMock.mockFunction(PaymentService, 'create', () => {
+        throw new Error('Something went wrong')
+    })
+
+    fastify.decorateRequest('user', null)
+    fastify.addHook('preHandler', (req, _, done) => {
+        req.user = authUser
+        done()
+    })
+
+    const res = await fastify.inject({
+        method: 'POST',
+        url: '/api/v1/payments',
+        headers: { Authorization: 'Bearer mock-token' },
+        payload: {
+            invoice_id: invoiceId,
+            amount,
+            payment_method: paymentMethod,
+            payment_date: paymentDate
+        }
+    })
+
+    t.equal(res.statusCode, 500)
+    t.match(res.json(), { message: 'Something went wrong' })
+
+    stub.restore()
+    await fastify.close()
+})

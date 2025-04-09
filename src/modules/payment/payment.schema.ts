@@ -28,7 +28,7 @@ const paymentParam = z.object({
 
 const updatePaymentSchema = z.object({
     invoice_id: z.number().optional(),
-    amount: z.number().optional(),
+    // amount: z.number().optional(),
     payment_method: z.string().optional(), // enum(['bank_transfer', 'cash', 'online_payment', 'crypto'])
     payment_date: z.string().transform((str) => (str ? new Date(str) : undefined)).optional()
 })

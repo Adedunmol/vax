@@ -50,7 +50,7 @@ export async function updatePaymentHandler(request: FastifyRequest<{ Body: Updat
        
         const payment = await PaymentService.update(request.params.paymentId, userId, request.body)
 
-        return reply.code(200).send({ message: "Payment updated successfully", data: {} }) // ...payment
+        return reply.code(200).send({ message: "Payment updated successfully", data: payment })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
