@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { ExpenseAnalytics, InvoiceAnalytics, ReminderAnalytics, RevenueAnalytics } from './analytics.service'
+import { ExpenseAnalytics, InvoiceAnalytics, ReminderAnalytics, ReportAnalytics, RevenueAnalytics } from './analytics.service'
 import { ExpenseQuery, InvoiceQuery, ReminderQuery, RevenueQuery } from './analytics.schema'
 
 export async function revenueHandler(request: FastifyRequest<{ Querystring: RevenueQuery }>, reply: FastifyReply) {
@@ -113,4 +113,16 @@ export async function reminderHandler(request: FastifyRequest<{ Querystring: Rem
     } catch (err) {
         return reply.code(500).send(err)
     }  
+}
+
+export async function dashboardHandler(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const userId = request.user.id
+
+        const dashboard = await new ReportAnalytics().dashboardReports(userId)
+
+        return reply.code(200).send({ message: 'Dashboard report retrived successfully', data: dashboard })
+    } catch (err) {
+        return reply.code(500).send(err)
+    }
 }

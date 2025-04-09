@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { reminderHandler, invoiceHandler, expenseHandler, revenueHandler } from './analytics.controller'
+import { reminderHandler, invoiceHandler, expenseHandler, revenueHandler, dashboardHandler } from './analytics.controller'
 import { $ref } from './analytics.schema'
 import { $errorRef } from '../../errors/schema-base'
 
@@ -80,7 +80,7 @@ async function analyticsRoutes(server: FastifyInstance) {
             },
             preHandler: [server.authenticate]
         },
-        reminderHandler
+        dashboardHandler
     )
 }
 
