@@ -6,8 +6,6 @@ import { invoices } from '../../db/schema'
 
 class ClientService {
 
-    constructor() {}
-
     async create(data: CreateClientInput & { createdBy: number }) {
         const updatedData = {
             firstName: data.first_name,

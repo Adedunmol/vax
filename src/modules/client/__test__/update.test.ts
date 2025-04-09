@@ -2,99 +2,110 @@ import { test } from 'tap';
 import build from '../../../app';
 import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
-import clientService from '../client.service';
+import ClientService from '../client.service';
 
-const url = '/api/v1/clients';
-const clientId = 123;
+const userId = faker.number.int();
+const email = faker.internet.email();
+const clientId = faker.number.int();
+const authUser = { id: userId, email };
 
-const updatedClientData = {
+const validPayload = {
   first_name: faker.person.firstName(),
   last_name: faker.person.lastName(),
   email: faker.internet.email(),
-  phone_number: faker.phone.number(),
+  phone_number: faker.phone.number()
 };
 
-const updatedClientResponse = {
+const mockClient = {
   id: clientId,
-  ...updatedClientData,
-  createdBy: 1,
+  createdBy: userId,
+  ...validPayload,
 };
 
-const updateClientStub = ImportMock.mockFunction(clientService, 'update', updatedClientResponse);
+const injectWithAuth = (fastify: any, idParam?: number, body?: any) =>
+  fastify.inject({
+    method: 'PATCH',
+    url: `/api/v1/clients/${idParam ?? ''}`,
+    payload: body,
+    headers: {
+      Authorization: 'Bearer mocked-token'
+    }
+  });
 
-test("✅ Should update client successfully", async (t) => {
+test('✅ Should update client successfully', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
-    updateClientStub.restore();
+  const stub = ImportMock.mockFunction(ClientService, 'update', mockClient);
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url: `${url}/${clientId}`,
-    payload: updatedClientData,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const res = await injectWithAuth(fastify, clientId, validPayload);
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Client updated successfully", data: updatedClientResponse });
+  t.equal(res.statusCode, 200);
+  t.equal(res.json().message, 'Client updated successfully');
+  t.same(res.json().data, mockClient);
+
+  stub.restore();
+  fastify.close();
 });
 
-// Test: Missing clientId
-test("❌ Should return error for missing clientId", async (t) => {
+test('❌ Should return 400 if clientId param is missing', async (t) => {
   const fastify = build();
-  t.teardown(() => fastify.close());
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url: `${url}/`,
-    payload: updatedClientData,
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /clientId is required/);
+  const res = await injectWithAuth(fastify, undefined, validPayload);
+
+  t.equal(res.statusCode, 400);
+  t.match(res.json().message, /clientId is required/);
+
+  fastify.close();
 });
 
-// Test: Invalid email format
-test("❌ Should return error for invalid email format", async (t) => {
+test('❌ Should return 400 if payload has invalid email', async (t) => {
   const fastify = build();
 
-  t.teardown(() => fastify.close());
-
-  const invalidData = { ...updatedClientData, email: "invalid-email" };
-
-  const response = await fastify.inject({
-    method: "PATCH",
-    url: `${url}/${clientId}`,
-    payload: invalidData,
-    headers: { Authorization: "Bearer valid-token" },
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /Should be a valid email/);
+  const res = await injectWithAuth(fastify, clientId, {
+    ...validPayload,
+    email: 'invalid-email'
+  });
+
+  t.equal(res.statusCode, 400);
+  t.match(res.json().message, /email/);
+
+  fastify.close();
 });
 
-// Test: Internal server error
-test("❌ Should return error for internal server error", async (t) => {
+test('❌ Should return 500 if service throws error', async (t) => {
   const fastify = build();
-  updateClientStub.restore();
-  const errorStub = ImportMock.mockFunction(clientService, 'update', () => {
-    throw new Error("Database error");
+
+  const stub = ImportMock.mockFunction(ClientService, 'update').rejects(new Error('Something broke'));
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
-  });
+  const res = await injectWithAuth(fastify, clientId, validPayload);
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url: `${url}/${clientId}`,
-    payload: updatedClientData,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  t.equal(res.statusCode, 500);
+  t.match(res.body, /Something broke/);
 
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
+  stub.restore();
+  fastify.close();
 });

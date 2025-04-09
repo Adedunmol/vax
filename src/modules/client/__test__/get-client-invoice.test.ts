@@ -4,63 +4,94 @@ import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
 import ClientService from '../client.service';
 
-const url = '/api/v1/clients';
+const userId = faker.number.int();
+const email = faker.internet.email();
 const clientId = faker.number.int();
-const invoices = [
-    { id: faker.number.int(), amount: faker.number.float({ min: 10, max: 1000 }), due_date: faker.date.future().toISOString() },
-    { id: faker.number.int(), amount: faker.number.float({ min: 10, max: 1000 }), due_date: faker.date.future().toISOString() }
+
+const authUser = { id: userId, email };
+
+const mockInvoices = [
+  {
+    id: faker.number.int(),
+    createdFor: clientId,
+    createdBy: userId,
+    totalAmount: 5000,
+    status: 'unpaid',
+    dueDate: faker.date.future(),
+  },
+  {
+    id: faker.number.int(),
+    createdFor: clientId,
+    createdBy: userId,
+    totalAmount: 1200,
+    status: 'paid',
+    dueDate: faker.date.future(),
+  },
 ];
 
-const getInvoicesStub = ImportMock.mockFunction(ClientService, 'getInvoices', invoices);
+const injectWithAuth = (fastify: any, clientIdParam?: number) =>
+  fastify.inject({
+    method: 'GET',
+    url: `/api/v1/clients/${clientIdParam ?? ''}/invoices`,
+    headers: {
+      Authorization: 'Bearer mocked-token',
+    },
+  });
 
-test("✅ Should retrieve all invoices for a client successfully", async (t) => {
-    const fastify = build();
+test('✅ Should return invoices for a client', async (t) => {
+  const fastify = build();
 
-    t.teardown(() => {
-        fastify.close();
-        getInvoicesStub.restore();
-    });
+  const stub = ImportMock.mockFunction(ClientService, 'getInvoices', mockInvoices);
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/${clientId}/invoices`
-    });
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
+  });
 
-    t.equal(response.statusCode, 200);
-    t.same(response.json(), {
-        message: "Invoices retrieved successfully",
-        data: { invoices }
-    });
+  const res = await injectWithAuth(fastify, clientId);
+
+  t.equal(res.statusCode, 200);
+  t.equal(res.json().message, 'Invoices retrieved successfully');
+  t.same(res.json().data.invoices, mockInvoices);
+
+  stub.restore();
+  fastify.close();
 });
 
-test("❌ Should return 400 if clientId is missing", async (t) => {
-    const fastify = build();
-    t.teardown(() => fastify.close());
+test('❌ Should return 400 if clientId is missing', async (t) => {
+  const fastify = build();
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/invoices`
-    });
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
+  });
 
-    t.equal(response.statusCode, 400);
-    t.match(response.json(), { message: /clientId is required/ });
+  const res = await injectWithAuth(fastify);
+
+  t.equal(res.statusCode, 400);
+  t.match(res.json().message, /clientId is required/);
+
+  fastify.close();
 });
 
-test("❌ Should return 500 if an internal error occurs", async (t) => {
-    const fastify = build();
-    const errorStub = ImportMock.mockFunction(ClientService, 'getInvoices', () => {
-        throw new Error("Database error");
-    });
-    
-    t.teardown(() => {
-        fastify.close();
-        errorStub.restore();
-    });
+test('❌ Should return 500 if service throws an error', async (t) => {
+  const fastify = build();
 
-    const response = await fastify.inject({
-        method: "GET",
-        url: `${url}/${clientId}/invoices`
-    });
+  const stub = ImportMock.mockFunction(ClientService, 'getInvoices').rejects(new Error('Database failure'));
 
-    t.equal(response.statusCode, 500);
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
+  });
+
+  const res = await injectWithAuth(fastify, clientId);
+
+  t.equal(res.statusCode, 500);
+  t.match(res.body, /Database failure/);
+
+  stub.restore();
+  fastify.close();
 });

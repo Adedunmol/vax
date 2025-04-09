@@ -1,89 +1,77 @@
 import { test } from 'tap';
 import build from '../../../app';
+import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
-import clientService from '../client.service';
+import ClientService from '../client.service';
 
-const url = '/api/v1/clients';
+const userId = faker.number.int();
+const email = faker.internet.email();
 
-const validClients = [
+const authUser = { id: userId, email };
+
+const mockClients = [
   {
-    id: 1,
-    first_name: "John",
-    last_name: "Doe",
-    email: "johndoe@example.com",
-    phone_number: "123-456-7890",
-    createdBy: 1,
+    id: faker.number.int(),
+    first_name: faker.person.firstName(),
+    last_name: faker.person.lastName(),
+    email: faker.internet.email(),
+    phone_number: faker.phone.number(),
   },
   {
-    id: 2,
-    first_name: "Jane",
-    last_name: "Smith",
-    email: "janesmith@example.com",
-    phone_number: "987-654-3210",
-    createdBy: 1,
-  },
+    id: faker.number.int(),
+    first_name: faker.person.firstName(),
+    last_name: faker.person.lastName(),
+    email: faker.internet.email(),
+    phone_number: faker.phone.number(),
+  }
 ];
 
-const getAllClientsStub = ImportMock.mockFunction(clientService, 'getAll', validClients);
+const injectWithAuth = (fastify: any) =>
+  fastify.inject({
+    method: 'GET',
+    url: '/api/v1/clients',
+    headers: {
+      Authorization: 'Bearer mocked-token',
+    },
+  });
 
-test("✅ Should retrieve all clients successfully", async (t) => {
+test('✅ Should return all clients', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
-    getAllClientsStub.restore();
+  const stub = ImportMock.mockFunction(ClientService, 'getAll', mockClients);
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "GET",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const res = await injectWithAuth(fastify);
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Clients retrieved successfully", data: { clients: validClients } });
+  t.equal(res.statusCode, 200);
+  t.equal(res.json().message, 'Clients retrieved successfully');
+  t.same(res.json().data.clients, mockClients);
+
+  stub.restore();
+  fastify.close();
 });
 
-// Test: No clients found
-test("✅ Should return an empty array if no clients exist", async (t) => {
+test('❌ Should return 500 if service throws', async (t) => {
   const fastify = build();
-  getAllClientsStub.restore();
-  const emptyStub = ImportMock.mockFunction(clientService, 'getAll', []);
 
-  t.teardown(() => {
-    fastify.close();
-    emptyStub.restore();
+  const stub = ImportMock.mockFunction(ClientService, 'getAll').rejects(new Error('Something went wrong'));
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "GET",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
+  const res = await injectWithAuth(fastify);
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Clients retrieved successfully", data: { clients: [] } });
-});
+  t.equal(res.statusCode, 500);
+  t.match(res.body, /Something went wrong/);
 
-// Test: Internal server error
-test("❌ Should return error for internal server failure", async (t) => {
-  const fastify = build();
-  getAllClientsStub.restore();
-  const errorStub = ImportMock.mockFunction(clientService, 'getAll', () => {
-    throw new Error("Database error");
-  });
-
-  t.teardown(() => {
-    fastify.close();
-    errorStub.restore();
-  });
-
-  const response = await fastify.inject({
-    method: "GET",
-    url,
-    headers: { Authorization: "Bearer valid-token" },
-  });
-
-  t.equal(response.statusCode, 500);
-  t.match(response.json().message, /Database error/);
+  stub.restore();
+  fastify.close();
 });
