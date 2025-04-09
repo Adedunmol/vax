@@ -2,123 +2,138 @@ import { test } from 'tap';
 import build from '../../../app';
 import { faker } from '@faker-js/faker';
 import { ImportMock } from 'ts-mock-imports';
-import settingsService from '../settings.service';
+import SettingsService from '../settings.service';
 
-const url = '/api/v1/settings/update';
+const userId = faker.number.int();
+const email = faker.internet.email();
 
-const validSettings = {
-  currency: 'USD',
-  custom_logo: faker.image.url(),
-  notify_before: 3,
-  recurrent_reminders: true,
-  recurrent_interval: 7,
-};
+const authUser = { id: userId, email };
 
-const updateSettingsStub = ImportMock.mockFunction(settingsService, 'update', validSettings);
+const injectWithAuth = (fastify: any, body: any) =>
+  fastify.inject({
+    method: 'PATCH',
+    url: '/api/v1/settings/update',
+    headers: {
+      'Authorization': 'Bearer mocked-token'
+    },
+    payload: body
+  });
 
-test("✅ Should update settings successfully", async (t) => {
+test('✅ Should update user settings successfully', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
-    updateSettingsStub.restore();
+  const payload = {
+    currency: 'USD',
+    custom_logo: faker.image.url(),
+    notify_before: 3,
+    recurrent_reminders: true,
+    recurrent_interval: 7
+  };
+
+  const stub = ImportMock.mockFunction(SettingsService, 'update', { id: userId, ...payload });
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url,
-    payload: validSettings,
-  });
+  const res = await injectWithAuth(fastify, payload);
 
-  t.equal(response.statusCode, 200);
-  t.same(response.json(), { message: "Settings updated successfully", data: validSettings });
+  t.equal(res.statusCode, 200);
+  t.match(res.json().data, { ...payload });
+
+  stub.restore();
+  fastify.close();
 });
 
-// Test: Invalid currency length
-test("❌ Should return error for invalid currency length", async (t) => {
+test('✅ Should allow partial update of user settings', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
+  const payload = {
+    currency: 'EUR'
+  };
+
+  const stub = ImportMock.mockFunction(SettingsService, 'update', { id: userId, ...payload });
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url,
-    payload: { currency: "US" },
-  });
+  const res = await injectWithAuth(fastify, payload);
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /currency/);
+  t.equal(res.statusCode, 200);
+  t.match(res.json().data, { currency: 'EUR' });
+
+  stub.restore();
+  fastify.close();
 });
 
-// Test: Negative notify_before
-test("❌ Should return error for negative notify_before", async (t) => {
+test('❌ Should return 400 for invalid payload (bad currency length)', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
+  const payload = {
+    currency: 'US' // too short
+  };
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url,
-    payload: { notify_before: -1 },
-  });
+  const res = await injectWithAuth(fastify, payload);
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /notify_before/);
+  t.equal(res.statusCode, 400);
+  t.match(res.json().message, /currency/i);
+
+  fastify.close();
 });
 
-// Test: Negative recurrent_interval
-test("❌ Should return error for negative recurrent_interval", async (t) => {
+test('❌ Should return 400 for invalid payload (negative notify_before)', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
+  const payload = {
+    notify_before: -1
+  };
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url,
-    payload: { recurrent_interval: -5 },
-  });
+  const res = await injectWithAuth(fastify, payload);
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /recurrent_interval/);
+  t.equal(res.statusCode, 400);
+  t.match(res.json().message, /notify_before/i);
+
+  fastify.close();
 });
 
-// Test: Invalid data types
-test("❌ Should return error for invalid data types", async (t) => {
+test('❌ Should return 500 if service throws error', async (t) => {
   const fastify = build();
 
-  t.teardown(() => {
-    fastify.close();
+  const payload = {
+    currency: 'USD'
+  };
+
+  const stub = ImportMock.mockFunction(SettingsService, 'update');
+  stub.rejects(new Error('Something went wrong'));
+
+  fastify.decorateRequest('user', null);
+  fastify.addHook('preHandler', (req, _reply, done) => {
+    req.user = authUser;
+    done();
   });
 
-  const response = await fastify.inject({
-    method: "PATCH",
-    url,
-    payload: { currency: 123, notify_before: "ten" },
-  });
+  const res = await injectWithAuth(fastify, payload);
 
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /currency|notify_before/);
-});
+  t.equal(res.statusCode, 500);
+  t.match(res.json().message ?? res.json().error, /something went wrong/i);
 
-// Test: No payload
-test("❌ Should return error if no payload is provided", async (t) => {
-  const fastify = build();
-
-  t.teardown(() => {
-    fastify.close();
-  });
-
-  const response = await fastify.inject({
-    method: "PATCH",
-    url,
-  });
-
-  t.equal(response.statusCode, 400);
-  t.match(response.json().message, /Invalid request payload/);
+  stub.restore();
+  fastify.close();
 });

@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
-import { boolean } from 'drizzle-orm/mysql-core'
+
+const responseCore = {
+    status: z.string(),
+    message: z.string()
+}
 
 const updateSettingsSchema = z.object({
     currency: z.string().length(3).optional(),
@@ -11,16 +15,19 @@ const updateSettingsSchema = z.object({
 })
 
 const settingsResponse = z.object({
-    updated_at: z.date(),
-    created_at: z.date(),
-    deleted_at: z.date(),
-    id: z.number(),
-    userId: z.number(),
-    currency: z.string(),
-    customLogo: z.string(),
-    notify_before: z.number(),
-    recurrentReminders: z.boolean(),
-    recurrentInterval: z.number()
+    ...responseCore,
+    data: z.object({
+        updated_at: z.date(),
+        created_at: z.date(),
+        deleted_at: z.date(),
+        id: z.number(),
+        userId: z.number(),
+        currency: z.string(),
+        customLogo: z.string(),
+        notify_before: z.number(),
+        recurrentReminders: z.boolean(),
+        recurrentInterval: z.number()
+    })
 })
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>

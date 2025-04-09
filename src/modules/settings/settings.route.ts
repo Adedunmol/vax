@@ -1,9 +1,21 @@
 import { FastifyInstance } from 'fastify'
 import { $ref } from './settings.schema'
 import { $errorRef } from '../../errors/schema-base'
-import { updateSettingsHandler } from './settings.controller'
+import { getSettingsHandler, updateSettingsHandler } from './settings.controller'
 
 async function settingsRoutes(server: FastifyInstance) {
+
+    server.get(
+        '/',
+        {
+            schema: {
+                response: {
+                    200: $ref('settingsResponse')
+                }
+            }
+        },
+        getSettingsHandler
+    )
     
     server.patch(
         '/update',

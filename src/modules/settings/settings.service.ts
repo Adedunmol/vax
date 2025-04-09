@@ -5,8 +5,6 @@ import { UpdateSettingsInput } from './settings.schema'
 
 class SettingsService {
 
-    constructor() {}
-
     async get(userId: number) {
         const settingsData = db.query.settings.findFirst({ 
             where: and(eq(settings.userId, userId)),
