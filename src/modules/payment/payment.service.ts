@@ -29,7 +29,7 @@ class PaymentService {
     }
     
     async get(paymentId: number, userId: number) {
-        const payment = db.query.payments.findFirst({ where: and(eq(payments.id, paymentId), eq(payments.userId, userId)) })
+        const payment = db.query.payments.findFirst({ where: and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(reminders.deleted_at)) })
     
         return payment
     }
@@ -43,13 +43,13 @@ class PaymentService {
     async update(paymentId: number, userId: number, updateObj: any) {
         // if the amount field is being modified, update the amount_paid in the invoices table
 
-        const [payment] = await db.update(payments).set({ ...updateObj, updated_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId))).returning()
+        const [payment] = await db.update(payments).set({ ...updateObj, updated_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(reminders.deleted_at))).returning()
 
         return payment
     }
 
     async delete(paymentId: number, userId: number) {
-        const [payment] = await db.update(payments).set({ deleted_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId))).returning()
+        const [payment] = await db.update(payments).set({ deleted_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(reminders.deleted_at))).returning()
 
         if (payment) {
             await db.update(invoices).set({ amountPaid: (Number(invoices.amountPaid) - Number(payment?.amount)).toFixed(2) }).where(and(eq(invoices.id, payment.invoiceId!), eq(invoices.createdBy, userId)))

@@ -27,13 +27,13 @@ class ClientService {
             email: updateObj.email
         }
 
-        const [client] = await db.update(clients).set({ ...updatedData, updated_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, userId))).returning()
+        const [client] = await db.update(clients).set({ ...updatedData, updated_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, userId), isNull(clients.deleted_at))).returning()
 
         return client
     }
 
     async get(clientId: number, createdBy: number) {
-        const client = db.query.clients.findFirst({ where: and(eq(clients.id, clientId), eq(clients.createdBy, createdBy)) })
+        const client = db.query.clients.findFirst({ where: and(eq(clients.id, clientId), eq(clients.createdBy, createdBy), isNull(clients.deleted_at)) })
     
         return client
     }
@@ -57,7 +57,7 @@ class ClientService {
     }
 
     async delete(clientId: number, createdBy: number) {
-        const [client] = await db.update(clients).set({ deleted_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, createdBy))).returning()
+        const [client] = await db.update(clients).set({ deleted_at: new Date() }).where(and(eq(clients.id, clientId), eq(clients.createdBy, createdBy), isNull(clients.deleted_at))).returning()
     
         return client
     }

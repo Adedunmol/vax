@@ -32,7 +32,7 @@ class InvoiceService {
 
     async get(invoiceId: number, userId: number) {
         const invoice = db.query.invoices.findFirst({ 
-            where: and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId)),
+            where: and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)),
             with: {
                 clients: true
             }
@@ -53,13 +53,13 @@ class InvoiceService {
     }
 
     async update(invoiceId: number, userId: number, updateObj: UpdateInvoiceInput) {
-        const [invoice] = await db.update(invoices).set({ ...updateObj, updated_at: new Date() }).where(and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId))).returning()
+        const [invoice] = await db.update(invoices).set({ ...updateObj, updated_at: new Date() }).where(and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId), isNull(invoices.deleted_at))).returning()
 
         return invoice
     }
 
     async delete(invoiceId: number, userId: number) {
-        const invoice = await db.update(invoices).set({ deleted_at: new Date() }).where(and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId))).returning()
+        const invoice = await db.update(invoices).set({ deleted_at: new Date() }).where(and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId), isNull(invoices.deleted_at))).returning()
         
         // cancel associated reminders
         await db.update(reminders).set({ canceled: true }).where(and(eq(reminders.invoiceId, invoiceId), eq(reminders.userId, userId)))
