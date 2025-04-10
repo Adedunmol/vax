@@ -14,7 +14,7 @@ class RemindersService {
     }
 
     async update(reminderId: number, userId: number, updateObj: UpdateReminderInput) {
-        const [reminder] = await db.update(reminders).set(updateObj).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
+        const [reminder] = await db.update(reminders).set(updateObj).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId), isNull(reminders.deleted_at))).returning()
 
         return reminder
     }
@@ -25,7 +25,8 @@ class RemindersService {
             where: and(
                 eq(reminders.reminderStatus, 'pending'), // Not sent
                 eq(reminders.canceled, false), // Not canceled
-                lte(reminders.dueDate, new Date())
+                lte(reminders.dueDate, new Date()),
+                isNull(reminders.deleted_at)
             ),
             with: {
                 user: true,
@@ -39,7 +40,7 @@ class RemindersService {
 
     async get(reminderId: number, userId: number) {
         const reminder = db.query.invoices.findFirst({ 
-            where: and(eq(reminders.id, reminderId), eq(reminders.userId, userId)),
+            where: and(eq(reminders.id, reminderId), eq(reminders.userId, userId), isNull(reminders.deleted_at)),
         })
     
         return reminder
