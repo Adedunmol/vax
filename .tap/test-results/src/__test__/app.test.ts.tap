@@ -1,41 +1,27 @@
 Initializing Redis Client...
 TAP version 14
-connected to redis
 # Subtest: GET /healthcheck should return 200
-    ok 1 - should be equal
+    not ok 1 - getaddrinfo ENOTFOUND redis
+      ---
+      errno: -3008
+      code: ENOTFOUND
+      syscall: getaddrinfo
+      hostname: redis
+      tapCaught: returnedPromiseRejection
+      ...
+    
     1..1
-ok 1 - GET /healthcheck should return 200 # time=2622.44ms
-
-not ok 2 - timeout!
+not ok 1 - GET /healthcheck should return 200 # time=2364.38ms
   ---
-  signal: null
-  handles:
-    - type: Socket
-      events:
-        - close
-        - error
-        - prefinish
-        - finish
-        - drain
-        - data
-        - end
-        - readable
-        - connect
-        - timeout
-    - type: Socket
-      events:
-        - close
-        - error
-        - prefinish
-        - finish
-        - drain
-        - data
-        - end
-        - readable
-        - connect
-        - timeout
-  expired: TAP
-  test: TAP
+  at:
+    fileName: src\__test__\app.test.ts
+    lineNumber: 19
+    columnNumber: 16
+    typeName: Object
+    generated:
+      fileName: src/__test__/app.test.ts
+      lineNumber: 29
+      columnNumber: 16
   ...
 
-1..2
+1..1

@@ -32,9 +32,9 @@ test('✅ Should update expense successfully', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
@@ -62,9 +62,9 @@ test('🚫 Should return 400 if expenseId is missing in params', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
     fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
@@ -93,9 +93,9 @@ test('🧨 Should return 500 if ExpenseService.update throws an error', async (t
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
@@ -132,9 +132,9 @@ test('✅ Should allow partial updates (only category)', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser

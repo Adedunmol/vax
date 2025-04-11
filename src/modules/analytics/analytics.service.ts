@@ -2,7 +2,7 @@ import db from "../../db";
 import { invoices, payments, expenses, clients, reminders, users } from "../../db/schema";  
 import { eq, and, sum, count, avg, sql } from "drizzle-orm";
 
-export class RevenueAnalytics {
+class RevenueAnalytics {
     async totalRevenue(userId: number) {
         
         const [totalRevenue] = await db.select({ total: sum(invoices.totalAmount).mapWith(Number) }).from(invoices).where(and(eq(invoices.status, "paid"), eq(invoices.createdBy, userId)))
@@ -77,7 +77,7 @@ export class RevenueAnalytics {
     }
 }
 
-export class ExpenseAnalytics {
+class ExpenseAnalytics {
     async totalExpenses(userId: number) {
         const [expensesData] = await db.select({ total: sum(expenses.amount).mapWith(Number) }).from(expenses).where(eq(expenses.userId, userId))
 
@@ -117,7 +117,7 @@ export class ExpenseAnalytics {
     }
 }
 
-export class InvoiceAnalytics {
+class InvoiceAnalytics {
     async latePaymentsInvoices(userId: number) {
         const result = await db.select({
                                     id: invoices.id,
@@ -148,7 +148,7 @@ export class InvoiceAnalytics {
     }
 }
 
-export class ReminderAnalytics {
+class ReminderAnalytics {
     async totalSentReminders(userId: number) {
         const [remindersData] = await db.select({ count: count() })
         .from(reminders).where(eq(reminders.userId, userId))
@@ -166,7 +166,7 @@ export class ReminderAnalytics {
 
 }
 
-export class ReportAnalytics {
+class ReportAnalytics {
     async dashboardReports(userId: number) {
         const revenue = await new RevenueAnalytics().totalRevenue(userId);
         const outstandingRevenue = await new RevenueAnalytics().outstandingRevenue(userId);
@@ -183,3 +183,13 @@ export class ReportAnalytics {
         };
     }
 }
+
+export const revenueAnalytics = new RevenueAnalytics()
+
+export const expenseAnalytics = new ExpenseAnalytics()
+
+export const invoiceAnalytics = new InvoiceAnalytics()
+
+export const reminderAnalytics = new ReminderAnalytics()
+
+export const reportAnalytics = new ReportAnalytics()

@@ -30,9 +30,9 @@ test('✅ Should return total revenue', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -58,9 +58,9 @@ test('✅ Should return monthly revenue', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
     
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -85,9 +85,9 @@ test('✅ Should return outstanding revenue', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -112,9 +112,9 @@ test('✅ Should return average revenue', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -140,9 +140,9 @@ test('✅ Should return top clients revenue', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -168,9 +168,9 @@ test('✅ Should return payment methods revenue', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -190,9 +190,9 @@ test('❌ Should return 400 for unknown revenue type', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;

@@ -28,9 +28,9 @@ test('✅ Should delete invoice successfully', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -57,9 +57,9 @@ test('❌ Should return 400 if invoiceId is missing', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -86,9 +86,9 @@ test('❌ Should return 404 if invoice is not found', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -115,9 +115,9 @@ test('❌ Should return 500 if InvoiceService.delete throws an error', async (t)
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser

@@ -33,9 +33,9 @@ test('✅ Should get an expense successfully', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
@@ -58,9 +58,9 @@ test('❌ Should return 400 if expenseId param is missing', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
@@ -88,9 +88,9 @@ test('❌ Should return 404 if no expense found', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
@@ -117,9 +117,9 @@ test('🧨 Should handle internal server error', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;

@@ -21,7 +21,15 @@ test('✅ Should successfully delete a reminder', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'delete', reminder)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -38,15 +46,19 @@ test('✅ Should successfully delete a reminder', async (t) => {
         message: 'Reminder deleted successfully',
         data: { ...reminder }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 if reminderId is missing in params', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -60,8 +72,6 @@ test('❌ Should return 400 if reminderId is missing in params', async (t) => {
 
     t.equal(res.statusCode, 400)
     t.match(res.json(), { message: 'reminderId is required' })
-
-    await fastify.close()
 })
 
 test('❌ Should return 404 if reminder not found', async (t) => {
@@ -71,7 +81,15 @@ test('❌ Should return 404 if reminder not found', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'delete', null)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -85,9 +103,6 @@ test('❌ Should return 404 if reminder not found', async (t) => {
 
     t.equal(res.statusCode, 404)
     t.match(res.json(), { message: 'No reminder found with the id' })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 500 if ReminderService.delete throws an error', async (t) => {
@@ -97,7 +112,15 @@ test('❌ Should return 500 if ReminderService.delete throws an error', async (t
         throw new Error('Database failure')
     })
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -111,7 +134,4 @@ test('❌ Should return 500 if ReminderService.delete throws an error', async (t
 
     t.equal(res.statusCode, 500)
     t.match(res.json(), { message: 'Database failure' })
-
-    stub.restore()
-    await fastify.close()
 })

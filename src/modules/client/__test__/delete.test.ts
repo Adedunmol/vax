@@ -36,9 +36,9 @@ test('✅ Should delete client successfully', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -59,9 +59,9 @@ test('❌ Should return 400 if clientId param is missing', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -84,9 +84,9 @@ test('❌ Should return 404 if client does not exist', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -109,9 +109,9 @@ test('❌ Should return 500 if service throws error', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;

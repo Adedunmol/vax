@@ -47,9 +47,9 @@ test('✅ Should create invoice successfully', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -80,9 +80,9 @@ test('❌ Should return 400 if no user settings found', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -123,9 +123,9 @@ test('❌ Should return 500 if InvoiceService.create throws error', async (t) =>
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -155,9 +155,9 @@ test('❌ Should return 400 for invalid due_date format', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -187,9 +187,9 @@ test('❌ Should return 400 for due_date in the past', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
@@ -222,10 +222,9 @@ test('❌ Should return 400 for missing client_id', async (t) => {
     await fastify.close()
   })
 
-
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser

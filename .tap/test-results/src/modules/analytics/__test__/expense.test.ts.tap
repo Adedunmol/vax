@@ -1,51 +1,36 @@
 Initializing Redis Client...
 TAP version 14
+connected to redis
+expense:  { total: [33m3500[39m }
+data:  {
+  status: [32m'success'[39m,
+  message: [32m'Expense retrieved successfully'[39m,
+  data: { total: [33m3500[39m }
+}
 # Subtest: ✅ Should return total expenses
-    not ok 1 - The decorator 'user' has already been added!
-      ---
-      stack: |
-        decorateConstructor (node_modules/fastify/lib/decorate.js:41:11)
-        Object.decorateRequest (node_modules/fastify/lib/decorate.js:123:3)
-        fastifyJwt (node_modules/@fastify/jwt/jwt.js:186:13)
-        Plugin.exec (node_modules/avvio/lib/plugin.js:125:28)
-        Boot._loadPlugin (node_modules/avvio/boot.js:432:10)
-      at:
-        fileName: node_modules\fastify\lib\decorate.js
-        lineNumber: 41
-        columnNumber: 11
-        functionName: decorateConstructor
-      type: FastifyError
-      code: FST_ERR_DEC_ALREADY_PRESENT
-      statusCode: 500
-      tapCaught: uncaughtException
-      source: >2
-          const instance = konstructor.prototype
-          if (Object.prototype.hasOwnProperty.call(instance, name) || hasKey(konstructor, name)) {
-            throw new FST_ERR_DEC_ALREADY_PRESENT(name)
-        ----------^
-          }
-      ...
-    
-    1..1
-not ok 1 - ✅ Should return total expenses # time=227.284ms
+    ok 1 - should be equal
+    ok 2 - should match pattern
+    1..2
+ok 1 - ✅ Should return total expenses # time=1869.213ms
+
+not ok 2 - timeout!
   ---
-  at:
-    fileName: src\modules\analytics\__test__\expense.test.ts
-    lineNumber: 31
-    columnNumber: 16
-    typeName: Object
-    generated:
-      fileName: src/modules/analytics/__test__/expense.test.ts
-      lineNumber: 41
-      columnNumber: 16
-  source: "    req.user = authUser;\r
-  
-    \    done();\r
-  
-    \  });\r
-  
-    \r
-  
-    \  const res = await injectWithAuth(fastify, 'total');\n"
+  signal: null
+  handles:
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
+  expired: TAP
+  test: TAP
   ...
 
+1..2

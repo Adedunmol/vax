@@ -97,6 +97,10 @@ class UserService {
         return bcrypt.compare(candidateOtp, hashedOtp)
     }
 
+    async comparePassword(candidatePassword: string, hashedPassword: string) {
+        return bcrypt.compare(candidatePassword, hashedPassword)
+    }
+
     async hashPassword(password: string) {
         return bcrypt.hash(password, 10)
     }

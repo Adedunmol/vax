@@ -22,8 +22,16 @@ test('✅ Should successfully delete a payment', async (t) => {
 
     const stub = ImportMock.mockFunction(PaymentService, 'delete', payment)
 
-    fastify.decorateRequest('user', null)
-    fastify.addHook('preHandler', (req, _, done) => {
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+      })
+    
+    //   if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
+      
+      fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
     })
@@ -39,15 +47,19 @@ test('✅ Should successfully delete a payment', async (t) => {
         message: 'Payment deleted successfully',
         data: { ...payment }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 if paymentId is missing in params', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+      })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+      
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -72,7 +84,15 @@ test('❌ Should return 500 if PaymentService.delete throws an error', async (t)
         throw new Error('Something went wrong')
     })
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+      })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+      
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -86,9 +106,6 @@ test('❌ Should return 500 if PaymentService.delete throws an error', async (t)
 
     t.equal(res.statusCode, 500)
     t.match(res.json(), { message: 'Something went wrong' })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 404 if payment not found for the user', async (t) => {
@@ -98,7 +115,15 @@ test('❌ Should return 404 if payment not found for the user', async (t) => {
 
     const stub = ImportMock.mockFunction(PaymentService, 'delete', () => null)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+      })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -112,9 +137,6 @@ test('❌ Should return 404 if payment not found for the user', async (t) => {
 
     t.equal(res.statusCode, 404)
     t.match(res.json(), { message: 'No payment found with the id' })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('✅ Should update invoice amount when payment is deleted', async (t) => {
@@ -138,7 +160,16 @@ test('✅ Should update invoice amount when payment is deleted', async (t) => {
     const paymentServiceStub = ImportMock.mockFunction(PaymentService, 'delete', payment)
     const dbUpdateStub = ImportMock.mockFunction(db, 'update', updatedInvoice)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        paymentServiceStub.restore()
+        dbUpdateStub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -155,8 +186,4 @@ test('✅ Should update invoice amount when payment is deleted', async (t) => {
         message: 'Payment deleted successfully',
         data: { ...payment }
     })
-
-    dbUpdateStub.restore()
-    paymentServiceStub.restore()
-    await fastify.close()
 })

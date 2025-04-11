@@ -28,7 +28,15 @@ test('✅ Should successfully update a payment', async (t) => {
         ...updateData
     })
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -46,15 +54,19 @@ test('✅ Should successfully update a payment', async (t) => {
         message: 'Payment updated successfully',
         data: { ...payment, ...updateData }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 if paymentId is missing in params', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -69,8 +81,6 @@ test('❌ Should return 400 if paymentId is missing in params', async (t) => {
 
     t.equal(res.statusCode, 400)
     t.match(res.json(), { message: 'paymentId is required' })
-
-    await fastify.close()
 })
 
 test('❌ Should return 400 if update payload is invalid (invalid payment_date format)', async (t) => {
@@ -89,7 +99,14 @@ test('❌ Should return 400 if update payload is invalid (invalid payment_date f
         payment_date: 'invalid-date-format'
     }
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -104,8 +121,6 @@ test('❌ Should return 400 if update payload is invalid (invalid payment_date f
 
     t.equal(res.statusCode, 400)
     t.match(res.json(), { message: 'Invalid payment_date format' })
-
-    await fastify.close()
 })
 
 test('❌ Should return 500 if PaymentService.update throws an error', async (t) => {
@@ -115,7 +130,15 @@ test('❌ Should return 500 if PaymentService.update throws an error', async (t)
         throw new Error('Something went wrong')
     })
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -130,9 +153,6 @@ test('❌ Should return 500 if PaymentService.update throws an error', async (t)
 
     t.equal(res.statusCode, 500)
     t.match(res.json(), { message: 'Something went wrong' })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 404 if the payment does not exist for the user', async (t) => {
@@ -142,7 +162,15 @@ test('❌ Should return 404 if the payment does not exist for the user', async (
 
     const stub = ImportMock.mockFunction(PaymentService, 'update', () => null)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -157,7 +185,4 @@ test('❌ Should return 404 if the payment does not exist for the user', async (
 
     t.equal(res.statusCode, 404)
     t.match(res.json(), { message: 'Payment not found' })
-
-    stub.restore()
-    await fastify.close()
 })

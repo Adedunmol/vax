@@ -1,33 +1,117 @@
 Initializing Redis Client...
 TAP version 14
+connected to redis
 # Subtest: ✅ Should create a new client successfully
-    not ok 1 - The decorator 'user' has already been added!
+    not ok 1 - should be equal
       ---
-      stack: |
-        decorateConstructor (node_modules/fastify/lib/decorate.js:41:11)
-        Object.decorateRequest (node_modules/fastify/lib/decorate.js:123:3)
-        fastifyJwt (node_modules/@fastify/jwt/jwt.js:186:13)
-        Plugin.exec (node_modules/avvio/lib/plugin.js:125:28)
-        Boot._loadPlugin (node_modules/avvio/boot.js:432:10)
+      compare: ===
       at:
-        fileName: node_modules\fastify\lib\decorate.js
-        lineNumber: 41
-        columnNumber: 11
-        functionName: decorateConstructor
-      type: FastifyError
-      code: FST_ERR_DEC_ALREADY_PRESENT
-      statusCode: 500
-      tapCaught: uncaughtException
-      source: >2
-          const instance = konstructor.prototype
-          if (Object.prototype.hasOwnProperty.call(instance, name) || hasKey(konstructor, name)) {
-            throw new FST_ERR_DEC_ALREADY_PRESENT(name)
-        ----------^
-          }
+        fileName: src\modules\client\__test__\create.test.ts
+        lineNumber: 63
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/client/__test__/create.test.ts
+          lineNumber: 74
+          columnNumber: 7
+      stack: |
+        src/modules/client/__test__/create.test.ts:63:7
+        Generator.next
+        fulfilled (src/modules/client/__test__/create.test.ts:5:58)
+      source: "  //   fastify.decorateRequest('user', null)\r
+      
+        \  // }\r
+      
+        \  \r
+      
+        \  fastify.addHook('preHandler', (req, _reply, done) => {\r
+      
+        \    req.user = authUser;\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -201
+        +401
       ...
     
-    1..1
-not ok 1 - ✅ Should create a new client successfully # time=259.468ms
+    not ok 2 - should be equivalent
+      ---
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,7 +1,1 @@
+        -Object {
+        -  "id": 1,
+        -  "first_name": "Fred",
+        -  "last_name": "Boehm",
+        -  "email": "Arjun_Schumm@yahoo.com",
+        -  "phone_number": "1-986-567-6749",
+        -}
+        +undefined
+      at:
+        fileName: src\modules\client\__test__\create.test.ts
+        lineNumber: 64
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/client/__test__/create.test.ts
+          lineNumber: 75
+          columnNumber: 7
+      stack: |
+        src/modules/client/__test__/create.test.ts:64:7
+        Generator.next
+        fulfilled (src/modules/client/__test__/create.test.ts:5:58)
+      source: "  // }\r
+      
+        \  \r
+      
+        \  fastify.addHook('preHandler', (req, _reply, done) => {\r
+      
+        ------^
+      
+        \    req.user = authUser;\r
+      
+        \    done();\n"
+      ...
+    
+    not ok 3 - should be equal
+      ---
+      compare: ===
+      at:
+        fileName: src\modules\client\__test__\create.test.ts
+        lineNumber: 65
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/client/__test__/create.test.ts
+          lineNumber: 76
+          columnNumber: 7
+      stack: |
+        src/modules/client/__test__/create.test.ts:65:7
+        Generator.next
+        fulfilled (src/modules/client/__test__/create.test.ts:5:58)
+      source: "  \r
+      
+        \  fastify.addHook('preHandler', (req, _reply, done) => {\r
+      
+        \    req.user = authUser;\r
+      
+        ------^
+      
+        \    done();\r
+      
+        \  });\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -Client created successfully
+        +Authorization token is invalid: The token is malformed.
+      ...
+    
+    1..3
+not ok 1 - ✅ Should create a new client successfully # time=2505.588ms
   ---
   at:
     fileName: src\modules\client\__test__\create.test.ts
@@ -38,16 +122,76 @@ not ok 1 - ✅ Should create a new client successfully # time=259.468ms
       fileName: src/modules/client/__test__/create.test.ts
       lineNumber: 51
       columnNumber: 16
-  source: "  });\r
+  source: "\r
   
-    \r
+    \  const res = await fastify.inject({\r
   
-    \  t.equal(res.statusCode, 201);\r
+    \    method: 'POST',\r
   
     ---------------^
   
-    \  t.same(res.json().data, createdClient);\r
+    \    url: '/api/v1/clients',\r
   
-    \  t.equal(res.json().message, 'Client created successfully');\n"
+    \    headers: {\n"
+  ...
+
+# Subtest: ❌ Should return 400 if required field is missing
+    ok 1 - should be equal
+    not ok 2 - should match pattern
+      ---
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,3 +1,3 @@
+         Object {
+        -  "error": /first_name is required/i,
+        +  "error": "Bad Request",
+         }
+      at:
+        fileName: src\modules\client\__test__\create.test.ts
+        lineNumber: 89
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/client/__test__/create.test.ts
+          lineNumber: 100
+          columnNumber: 7
+      stack: |
+        src/modules/client/__test__/create.test.ts:89:7
+        Generator.next
+        fulfilled (src/modules/client/__test__/create.test.ts:5:58)
+      source: "  const err = {\r
+      
+        \    code: '23505',\r
+      
+        \    detail: '(email)=() already exists',\r
+      
+        ------^
+      
+        \  };\n"
+      ...
+    
+    1..2
+# error thrown in teardown
+not ok 2 - ❌ Should return 400 if required field is missing # time=1201.125ms
+  ---
+  at:
+    fileName: src\modules\client\__test__\create.test.ts
+    lineNumber: 67
+    columnNumber: 16
+    typeName: Object
+    generated:
+      fileName: src/modules/client/__test__/create.test.ts
+      lineNumber: 78
+      columnNumber: 16
+  source: "    req.user = authUser;\r
+  
+    \    done();\r
+  
+    \  });\r
+  
+    \r
+  
+    \  const { first_name, ...invalidData } = validClientData;\n"
   ...
 

@@ -28,15 +28,18 @@ test('✅ Should return user settings successfully', async (t) => {
     recurrent_interval: 7
   });
 
-  fastify.decorateRequest('user', authUser);
-  
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+})
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', authUser);
+  // }  
   const res = await injectWithAuth(fastify);
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data, { currency: 'USD', notify_before: 30, recurrent_reminders: true, recurrent_interval: 7 });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 500 when there is an internal server error', async (t) => {
@@ -47,26 +50,33 @@ test('❌ Should return 500 when there is an internal server error', async (t) =
     throw new Error('Database error');
   });
 
-  fastify.decorateRequest('user', authUser);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+})
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', authUser);
+  // }
 
   const res = await injectWithAuth(fastify);
 
   t.equal(res.statusCode, 500);
   t.match(res.json().message, 'Database error');
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 if user is not authenticated', async (t) => {
   const fastify = build();
+
+  t.teardown(async () => {
+    await fastify.close()
+})
 
   // No user is attached to the request
   const res = await injectWithAuth(fastify);
 
   t.equal(res.statusCode, 401); // Unauthorized because no authentication token
   t.match(res.json().message, 'Unauthorized');
-  fastify.close();
 });
 
 test('❌ Should return 404 if user settings do not exist', async (t) => {
@@ -75,13 +85,17 @@ test('❌ Should return 404 if user settings do not exist', async (t) => {
   // Mocking SettingsService.get to return null for non-existing user
   const stub = ImportMock.mockFunction(SettingsService, 'get', null);
 
-  fastify.decorateRequest('user', authUser);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+})
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', authUser);
+  // }
 
   const res = await injectWithAuth(fastify);
 
   t.equal(res.statusCode, 404);
   t.match(res.json().message, 'No settings found for the user');
-
-  stub.restore();
-  fastify.close();
 });

@@ -45,9 +45,9 @@ test('✅ Should return all clients', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;

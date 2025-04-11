@@ -21,7 +21,15 @@ test('✅ Should retrieve payment successfully', async (t) => {
 
     const stub = ImportMock.mockFunction(PaymentService, 'get', payment)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -38,15 +46,19 @@ test('✅ Should retrieve payment successfully', async (t) => {
         message: 'Payment retrieved successfully',
         data: payment
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 if paymentId is not provided', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -62,8 +74,6 @@ test('❌ Should return 400 if paymentId is not provided', async (t) => {
     t.match(res.json(), {
         message: 'paymentId is required'
     })
-
-    await fastify.close()
 })
 
 test('❌ Should return 404 if no payment is found with the given paymentId', async (t) => {
@@ -71,7 +81,15 @@ test('❌ Should return 404 if no payment is found with the given paymentId', as
 
     const stub = ImportMock.mockFunction(PaymentService, 'get', null)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -87,9 +105,6 @@ test('❌ Should return 404 if no payment is found with the given paymentId', as
     t.match(res.json(), {
         message: 'No payment found with the id'
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 500 if PaymentService.get throws an error', async (t) => {
@@ -99,7 +114,15 @@ test('❌ Should return 500 if PaymentService.get throws an error', async (t) =>
         throw new Error('Something went wrong')
     })
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -113,7 +136,4 @@ test('❌ Should return 500 if PaymentService.get throws an error', async (t) =>
 
     t.equal(res.statusCode, 500)
     t.match(res.json(), { message: 'Something went wrong' })
-
-    stub.restore()
-    await fastify.close()
 })

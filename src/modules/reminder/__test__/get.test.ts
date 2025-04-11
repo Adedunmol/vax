@@ -21,7 +21,15 @@ test('✅ Should successfully get a reminder by ID', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'get', reminder)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -38,15 +46,19 @@ test('✅ Should successfully get a reminder by ID', async (t) => {
         message: 'Reminder retrieved successfully',
         data: { ...reminder }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 if reminderId is missing', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -59,8 +71,6 @@ test('❌ Should return 400 if reminderId is missing', async (t) => {
     })
 
     t.equal(res.statusCode, 404) // Fastify will return 404 for missing param route
-
-    await fastify.close()
 })
 
 test('❌ Should return 404 if reminder not found', async (t) => {
@@ -69,7 +79,15 @@ test('❌ Should return 404 if reminder not found', async (t) => {
     const fakeReminderId = faker.number.int()
     const stub = ImportMock.mockFunction(ReminderService, 'get', null)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -83,9 +101,6 @@ test('❌ Should return 404 if reminder not found', async (t) => {
 
     t.equal(res.statusCode, 404)
     t.match(res.json(), { message: 'No reminder found with the id' })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 500 if service throws an error', async (t) => {
@@ -94,7 +109,15 @@ test('❌ Should return 500 if service throws an error', async (t) => {
     const reminderId = faker.number.int()
     const stub = ImportMock.mockFunction(ReminderService, 'get', Promise.reject(new Error('DB error')))
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -107,7 +130,4 @@ test('❌ Should return 500 if service throws an error', async (t) => {
     })
 
     t.equal(res.statusCode, 500)
-
-    stub.restore()
-    await fastify.close()
 })

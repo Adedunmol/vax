@@ -22,7 +22,15 @@ test('✅ Should successfully update a reminder', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'update', updatedReminder)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -45,16 +53,20 @@ test('✅ Should successfully update a reminder', async (t) => {
         message: 'Reminder updated successfully',
         data: { ...updatedReminder }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 when dueDate is in the past', async (t) => {
     const fastify = build()
     const reminderId = faker.number.int()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -72,8 +84,6 @@ test('❌ Should return 400 when dueDate is in the past', async (t) => {
 
     t.equal(res.statusCode, 400)
     t.match(res.json().message, /due_date must be in the future/)
-
-    await fastify.close()
 })
 
 test('❌ Should return 500 if service throws error', async (t) => {
@@ -82,7 +92,15 @@ test('❌ Should return 500 if service throws error', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'update', Promise.reject(new Error('DB error')))
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -99,7 +117,4 @@ test('❌ Should return 500 if service throws error', async (t) => {
     })
 
     t.equal(res.statusCode, 500)
-
-    stub.restore()
-    await fastify.close()
 })

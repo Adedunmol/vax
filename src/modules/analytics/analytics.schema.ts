@@ -68,39 +68,27 @@ const expenseQuerySchema = z.object({
     type: z.enum(['total', 'category', 'trend', 'ratio'])
 })
 
-const totalExpenseResponse = z.object({
-    ...responseCore,
-    data: z.object({ total: z.number() })
+const totalExpenseCore = z.object({ total: z.number() })
+
+const categoryExpenseCore = z.object({
+    total: z.number(),
+    category: z.string()
 })
 
-const categoryExpenseResponse = z.object({
-    ...responseCore,
-    data: z.object({
-        total: z.number(),
-        category: z.string()
-    })
+const trendExpenseCore = z.object({
+    total: z.number(),
+    month: z.string()
 })
 
-const trendExpenseResponse = z.object({
-    ...responseCore,
-    data: z.object({
-        total: z.number(),
-        month: z.string()
-    })
-})
-
-const ratioExpenseResponse = z.object({
-    ...responseCore,
-    data: z.object({ ratio: z.number() })
-})
+const ratioExpenseCore = z.object({ ratio: z.number() })
 
 const expenseResponse = z.object({
     ...responseCore,
     data: z.union([
-        totalExpenseResponse,
-        categoryExpenseResponse,
-        trendExpenseResponse,
-        ratioExpenseResponse
+        totalExpenseCore,
+        categoryExpenseCore,
+        trendExpenseCore,
+        ratioExpenseCore
     ])
 })
 

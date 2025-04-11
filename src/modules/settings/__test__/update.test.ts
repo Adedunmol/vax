@@ -32,7 +32,16 @@ test('✅ Should update user settings successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(SettingsService, 'update', { id: userId, ...payload });
 
-  fastify.decorateRequest('user', null);
+
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -42,9 +51,6 @@ test('✅ Should update user settings successfully', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data, { ...payload });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should allow partial update of user settings', async (t) => {
@@ -56,7 +62,16 @@ test('✅ Should allow partial update of user settings', async (t) => {
 
   const stub = ImportMock.mockFunction(SettingsService, 'update', { id: userId, ...payload });
 
-  fastify.decorateRequest('user', null);
+
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -66,9 +81,6 @@ test('✅ Should allow partial update of user settings', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data, { currency: 'EUR' });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 for invalid payload (bad currency length)', async (t) => {
@@ -78,7 +90,15 @@ test('❌ Should return 400 for invalid payload (bad currency length)', async (t
     currency: 'US' // too short
   };
 
-  fastify.decorateRequest('user', null);
+
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -88,8 +108,6 @@ test('❌ Should return 400 for invalid payload (bad currency length)', async (t
 
   t.equal(res.statusCode, 400);
   t.match(res.json().message, /currency/i);
-
-  fastify.close();
 });
 
 test('❌ Should return 400 for invalid payload (negative notify_before)', async (t) => {
@@ -99,7 +117,14 @@ test('❌ Should return 400 for invalid payload (negative notify_before)', async
     notify_before: -1
   };
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -109,8 +134,6 @@ test('❌ Should return 400 for invalid payload (negative notify_before)', async
 
   t.equal(res.statusCode, 400);
   t.match(res.json().message, /notify_before/i);
-
-  fastify.close();
 });
 
 test('❌ Should return 500 if service throws error', async (t) => {
@@ -123,7 +146,15 @@ test('❌ Should return 500 if service throws error', async (t) => {
   const stub = ImportMock.mockFunction(SettingsService, 'update');
   stub.rejects(new Error('Something went wrong'));
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -133,7 +164,4 @@ test('❌ Should return 500 if service throws error', async (t) => {
 
   t.equal(res.statusCode, 500);
   t.match(res.json().message ?? res.json().error, /something went wrong/i);
-
-  stub.restore();
-  fastify.close();
 });

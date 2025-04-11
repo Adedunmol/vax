@@ -29,9 +29,9 @@ test('✅ Should create a payment successfully', async (t) => {
         await fastify.close()
       })
     
-      if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-      }
+    //   if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
       
       fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
@@ -64,9 +64,9 @@ test('❌ Should return 400 if invoice_id is not provided', async (t) => {
         await fastify.close()
       })
     
-      if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-      }
+    //   if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
       
       fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
@@ -97,9 +97,9 @@ test('❌ Should return 400 if amount is less than or equal to 0', async (t) => 
         await fastify.close()
       })
     
-      if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-      }
+    //   if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
       
       fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
@@ -131,9 +131,9 @@ test('❌ Should return 400 if payment_method is missing', async (t) => {
         await fastify.close()
       })
     
-    if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-    }
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
       
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
@@ -164,9 +164,9 @@ test('❌ Should return 400 if payment_date is in invalid format', async (t) => 
         await fastify.close()
       })
     
-    if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-      }
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
       
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
@@ -201,9 +201,9 @@ test('❌ Should return 404 if invoice does not exist', async (t) => {
         await fastify.close()
       })
     
-    if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-      }
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
       
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
@@ -240,9 +240,9 @@ test('❌ Should return 500 if PaymentService.create throws an error', async (t)
         await fastify.close()
       })
     
-      if (!fastify.hasRequestDecorator('user')) {
-        fastify.decorateRequest('user', null)
-      }
+    //   if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    //   }
       
       fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser

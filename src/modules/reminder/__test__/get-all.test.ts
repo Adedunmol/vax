@@ -21,7 +21,15 @@ test('✅ Should successfully fetch all reminders for a user', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'getAll', reminders)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -40,9 +48,6 @@ test('✅ Should successfully fetch all reminders for a user', async (t) => {
             reminders
         }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('✅ Should return empty list if user has no reminders', async (t) => {
@@ -50,7 +55,15 @@ test('✅ Should return empty list if user has no reminders', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'getAll', [])
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -69,9 +82,6 @@ test('✅ Should return empty list if user has no reminders', async (t) => {
             reminders: []
         }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 500 if service throws an error', async (t) => {
@@ -79,7 +89,15 @@ test('❌ Should return 500 if service throws an error', async (t) => {
 
     const stub = ImportMock.mockFunction(ReminderService, 'getAll', Promise.reject(new Error('DB Failure')))
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -92,7 +110,4 @@ test('❌ Should return 500 if service throws an error', async (t) => {
     })
 
     t.equal(res.statusCode, 500)
-
-    stub.restore()
-    await fastify.close()
 })

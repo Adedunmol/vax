@@ -29,7 +29,15 @@ test('✅ Should retrieve all payments successfully', async (t) => {
 
     const stub = ImportMock.mockFunction(PaymentService, 'getAll', payments)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -46,9 +54,6 @@ test('✅ Should retrieve all payments successfully', async (t) => {
         message: 'Payments retrieved successfully',
         data: { expenses: payments }
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 500 if PaymentService.getAll throws an error', async (t) => {
@@ -58,7 +63,15 @@ test('❌ Should return 500 if PaymentService.getAll throws an error', async (t)
         throw new Error('Something went wrong')
     })
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -72,9 +85,6 @@ test('❌ Should return 500 if PaymentService.getAll throws an error', async (t)
 
     t.equal(res.statusCode, 500)
     t.match(res.json(), { message: 'Something went wrong' })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 200 with an empty array when no payments are found', async (t) => {
@@ -82,7 +92,15 @@ test('❌ Should return 200 with an empty array when no payments are found', asy
 
     const stub = ImportMock.mockFunction(PaymentService, 'getAll', [])
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+    })
+    
+    // if (!fastify.hasRequestDecorator('user')) {
+    //     fastify.decorateRequest('user', null)
+    // }
+    
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -99,7 +117,4 @@ test('❌ Should return 200 with an empty array when no payments are found', asy
         message: 'Payments retrieved successfully',
         data: { expenses: [] }
     })
-
-    stub.restore()
-    await fastify.close()
 })

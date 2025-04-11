@@ -31,13 +31,13 @@ export async function registerPlugins(server: FastifyInstance) {
 
   const serverAdapter = new FastifyAdapter()
 
-  await server.register(fastifyCors);
-  await server.register(fastifyHelmet);
-  await server.register(fastifyCompress);
+  server.register(fastifyCors);
+  server.register(fastifyHelmet);
+  server.register(fastifyCompress);
   // await server.register(fastifyGracefulShutdown);
   
-  await server.register(fastifyJwt, { secret: env.JWT_SECRET })
-    createBullBoard({
+  server.register(fastifyJwt, { secret: env.JWT_SECRET })
+  createBullBoard({
       queues: [new BullMQAdapter(emailQueue)],
       serverAdapter
   })
@@ -47,11 +47,11 @@ export async function registerPlugins(server: FastifyInstance) {
     return next()
   })
 
-  await server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
+  server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
   
-  await server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '/bull-board' })
+  server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '/bull-board' })
   
-  await server.register(
+  server.register(
     swagger, 
     withRefResolver({ 
       openapi: {
@@ -77,7 +77,7 @@ export async function registerPlugins(server: FastifyInstance) {
       }
     })
   )
-  await server.register(swaggerUI, {
+  server.register(swaggerUI, {
     routePrefix: '/docs',
     staticCSP: true
   })
@@ -91,7 +91,7 @@ export async function registerPlugins(server: FastifyInstance) {
   server.register(remindersRoutes, { prefix: 'api/v1/reminders' })
   server.register(settingsRoutes, { prefix: 'api/v1/settings' })
 
-  await server.register(fastifyCookie, {
+  server.register(fastifyCookie, {
     secret: 'your-secret-key',
     // hook: 'onRequest',
   })

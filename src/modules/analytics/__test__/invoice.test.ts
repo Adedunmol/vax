@@ -37,9 +37,9 @@ test('✅ Should return late payment invoices', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
 
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -69,9 +69,9 @@ test('✅ Should return unpaid invoices', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
@@ -92,9 +92,9 @@ test('❌ Should return 400 for unknown invoice type', async (t) => {
     await fastify.close()
   })
 
-  if (!fastify.hasRequestDecorator('user')) {
-    fastify.decorateRequest('user', null)
-  }
+  // if (!fastify.hasRequestDecorator('user')) {
+  //   fastify.decorateRequest('user', null)
+  // }
     
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;

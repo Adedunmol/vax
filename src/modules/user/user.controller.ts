@@ -40,7 +40,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
 
         if (!user) return reply.code(401).send({ message: 'invalid credentials' })
 
-        const match = await bcrypt.compare(body.password, user.password)
+        const match = await UserService.comparePassword(body.password, user.password)
 
         if (!match) return reply.code(401).send({ message: 'invalid credentials' })
 

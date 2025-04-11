@@ -1,33 +1,79 @@
 Initializing Redis Client...
 TAP version 14
+connected to redis
 # Subtest: ✅ Should return total revenue
-    not ok 1 - The decorator 'user' has already been added!
+    not ok 1 - should be equal
       ---
-      stack: |
-        decorateConstructor (node_modules/fastify/lib/decorate.js:41:11)
-        Object.decorateRequest (node_modules/fastify/lib/decorate.js:123:3)
-        fastifyJwt (node_modules/@fastify/jwt/jwt.js:186:13)
-        Plugin.exec (node_modules/avvio/lib/plugin.js:125:28)
-        Boot._loadPlugin (node_modules/avvio/boot.js:432:10)
+      compare: ===
       at:
-        fileName: node_modules\fastify\lib\decorate.js
-        lineNumber: 41
-        columnNumber: 11
-        functionName: decorateConstructor
-      type: FastifyError
-      code: FST_ERR_DEC_ALREADY_PRESENT
-      statusCode: 500
-      tapCaught: uncaughtException
-      source: >2
-          const instance = konstructor.prototype
-          if (Object.prototype.hasOwnProperty.call(instance, name) || hasKey(konstructor, name)) {
-            throw new FST_ERR_DEC_ALREADY_PRESENT(name)
-        ----------^
-          }
+        fileName: src\modules\analytics\__test__\revenue.test.ts
+        lineNumber: 47
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/analytics/__test__/revenue.test.ts
+          lineNumber: 57
+          columnNumber: 7
+      stack: |
+        src/modules/analytics/__test__/revenue.test.ts:47:7
+        Generator.next
+        fulfilled (src/modules/analytics/__test__/revenue.test.ts:5:58)
+      source: "  t.match(res.json(), { data: { revenue: { total: 5000 } } });\r
+      
+        });\r
+      
+        \r
+      
+        test('✅ Should return monthly revenue', async (t) => {\r
+      
+        \  const fastify = build();\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -200
+        +404
       ...
     
-    1..1
-not ok 1 - ✅ Should return total revenue # time=256.095ms
+    not ok 2 - should match pattern
+      ---
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,7 +1,2 @@
+         Object {
+        -  "data": Object {
+        -    "revenue": Object {
+        -      "total": 5000,
+        -    },
+        -  },
+         }
+      at:
+        fileName: src\modules\analytics\__test__\revenue.test.ts
+        lineNumber: 48
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/analytics/__test__/revenue.test.ts
+          lineNumber: 58
+          columnNumber: 7
+      stack: |
+        src/modules/analytics/__test__/revenue.test.ts:48:7
+        Generator.next
+        fulfilled (src/modules/analytics/__test__/revenue.test.ts:5:58)
+      source: "});\r
+      
+        \r
+      
+        test('✅ Should return monthly revenue', async (t) => {\r
+      
+        ------^
+      
+        \  const fastify = build();\n"
+      ...
+    
+    1..2
+not ok 1 - ✅ Should return total revenue # time=2404.234ms
   ---
   at:
     fileName: src\modules\analytics\__test__\revenue.test.ts
@@ -38,14 +84,98 @@ not ok 1 - ✅ Should return total revenue # time=256.095ms
       fileName: src/modules/analytics/__test__/revenue.test.ts
       lineNumber: 42
       columnNumber: 16
-  source: "    req.user = authUser;\r
+  source: "    await fastify.close()\r
   
-    \    done();\r
-  
-    \  });\r
+    \  })\r
   
     \r
   
-    \  const res = await injectWithAuth(fastify, 'total');\n"
+    \  // if (!fastify.hasRequestDecorator('user')) {\r
+  
+    \  //   fastify.decorateRequest('user', null)\n"
+  ...
+
+# Subtest: ✅ Should return monthly revenue
+    not ok 1 - should be equal
+      ---
+      compare: ===
+      at:
+        fileName: src\modules\analytics\__test__\revenue.test.ts
+        lineNumber: 68
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/analytics/__test__/revenue.test.ts
+          lineNumber: 78
+          columnNumber: 7
+      stack: |
+        src/modules/analytics/__test__/revenue.test.ts:68:7
+        Generator.next
+        fulfilled (src/modules/analytics/__test__/revenue.test.ts:5:58)
+      source: "    req.user = authUser;\r
+      
+        \    done();\r
+      
+        \  });\r
+      
+        \r
+      
+        \  const res = await injectWithAuth(fastify, 'monthly');\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -200
+        +404
+      ...
+    
+    not ok 2 - Cannot read properties of undefined (reading 'revenue')
+      ---
+      stack: |
+        src/modules/analytics/__test__/revenue.test.ts:86:5
+        Generator.next (<anonymous>)
+        fulfilled (src/modules/analytics/__test__/revenue.test.ts:6:28)
+      at:
+        fileName: src\modules\analytics\__test__\revenue.test.ts
+        lineNumber: 86
+        columnNumber: 5
+      type: TypeError
+      tapCaught: returnedPromiseRejection
+      source: "    stub.restore()\r
+      
+        \    await fastify.close()\r
+      
+        \  })\r
+      
+        ----^
+      
+        \r
+      
+        \  // if (!fastify.hasRequestDecorator('user')) {\n"
+      ...
+    
+    1..2
+# error thrown in teardown
+not ok 2 - ✅ Should return monthly revenue # time=1379.789ms
+  ---
+  at:
+    fileName: src\modules\analytics\__test__\revenue.test.ts
+    lineNumber: 50
+    columnNumber: 16
+    typeName: Object
+    generated:
+      fileName: src/modules/analytics/__test__/revenue.test.ts
+      lineNumber: 60
+      columnNumber: 16
+  source: "test('✅ Should return monthly revenue', async (t) => {\r
+  
+    \  const fastify = build();\r
+  
+    \r
+  
+    \  const stub = ImportMock.mockFunction(RevenueAnalytics.prototype,
+    'monthlyRevenue', [\r
+  
+    \    { month: '2025-03', total: 2500 },\n"
   ...
 

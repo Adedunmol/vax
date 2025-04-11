@@ -1,33 +1,68 @@
 Initializing Redis Client...
 TAP version 14
+connected to redis
 # Subtest: ✅ Should return late payment invoices
-    not ok 1 - The decorator 'user' has already been added!
+    not ok 1 - should be equal
       ---
-      stack: |
-        decorateConstructor (node_modules/fastify/lib/decorate.js:41:11)
-        Object.decorateRequest (node_modules/fastify/lib/decorate.js:123:3)
-        fastifyJwt (node_modules/@fastify/jwt/jwt.js:186:13)
-        Plugin.exec (node_modules/avvio/lib/plugin.js:125:28)
-        Boot._loadPlugin (node_modules/avvio/boot.js:432:10)
+      compare: ===
       at:
-        fileName: node_modules\fastify\lib\decorate.js
-        lineNumber: 41
-        columnNumber: 11
-        functionName: decorateConstructor
-      type: FastifyError
-      code: FST_ERR_DEC_ALREADY_PRESENT
-      statusCode: 500
-      tapCaught: uncaughtException
-      source: >2
-          const instance = konstructor.prototype
-          if (Object.prototype.hasOwnProperty.call(instance, name) || hasKey(konstructor, name)) {
-            throw new FST_ERR_DEC_ALREADY_PRESENT(name)
-        ----------^
-          }
+        fileName: src\modules\analytics\__test__\invoice.test.ts
+        lineNumber: 54
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/analytics/__test__/invoice.test.ts
+          lineNumber: 64
+          columnNumber: 7
+      stack: |
+        src/modules/analytics/__test__/invoice.test.ts:54:7
+        Generator.next
+        fulfilled (src/modules/analytics/__test__/invoice.test.ts:5:58)
+      source: "  t.same(res.json().data.invoice.length, 1);\r
+      
+        \  t.match(res.json().data.invoice[0], {\r
+      
+        \    id: 1,\r
+      
+        ------^
+      
+        \    amountPaid: 1500\r
+      
+        \  });\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -200
+        +401
       ...
     
-    1..1
-not ok 1 - ✅ Should return late payment invoices # time=271.497ms
+    not ok 2 - Cannot read properties of undefined (reading 'invoice')
+      ---
+      stack: |
+        src/modules/analytics/__test__/invoice.test.ts:64:23
+        Generator.next (<anonymous>)
+        fulfilled (src/modules/analytics/__test__/invoice.test.ts:6:28)
+      at:
+        fileName: src\modules\analytics\__test__\invoice.test.ts
+        lineNumber: 64
+        columnNumber: 23
+      type: TypeError
+      tapCaught: returnedPromiseRejection
+      source: "  const stub = ImportMock.mockFunction(InvoiceAnalytics.prototype,
+        'unpaidInvoices', [\r
+      
+        \    { invoiceId: 201 },\r
+      
+        \    { invoiceId: 202 }\r
+      
+        ----------------------^
+      
+        \  ]);\n"
+      ...
+    
+    1..2
+not ok 1 - ✅ Should return late payment invoices # time=2471.029ms
   ---
   at:
     fileName: src\modules\analytics\__test__\invoice.test.ts
@@ -49,5 +84,89 @@ not ok 1 - ✅ Should return late payment invoices # time=271.497ms
     \      amountPaid: 1500\r
   
     \    }\n"
+  ...
+
+# Subtest: ✅ Should return unpaid invoices
+    not ok 1 - should be equal
+      ---
+      compare: ===
+      at:
+        fileName: src\modules\analytics\__test__\invoice.test.ts
+        lineNumber: 79
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/analytics/__test__/invoice.test.ts
+          lineNumber: 89
+          columnNumber: 7
+      stack: |
+        src/modules/analytics/__test__/invoice.test.ts:79:7
+        Generator.next
+        fulfilled (src/modules/analytics/__test__/invoice.test.ts:5:58)
+      source: "    req.user = authUser;\r
+      
+        \    done();\r
+      
+        \  });\r
+      
+        \r
+      
+        \  const res = await injectWithAuth(fastify, 'unpaid');\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -200
+        +401
+      ...
+    
+    not ok 2 - Cannot read properties of undefined (reading 'invoice')
+      ---
+      stack: |
+        src/modules/analytics/__test__/invoice.test.ts:97:7
+        Generator.next (<anonymous>)
+        fulfilled (src/modules/analytics/__test__/invoice.test.ts:6:28)
+      at:
+        fileName: src\modules\analytics\__test__\invoice.test.ts
+        lineNumber: 97
+        columnNumber: 7
+      type: TypeError
+      tapCaught: returnedPromiseRejection
+      source: "  // if (!fastify.hasRequestDecorator('user')) {\r
+      
+        \  //   fastify.decorateRequest('user', null)\r
+      
+        \  // }\r
+      
+        ------^
+      
+        \    \r
+      
+        \  fastify.addHook('preHandler', (req, _reply, done) => {\n"
+      ...
+    
+    1..2
+# error thrown in teardown
+not ok 2 - ✅ Should return unpaid invoices # time=1210.616ms
+  ---
+  at:
+    fileName: src\modules\analytics\__test__\invoice.test.ts
+    lineNumber: 61
+    columnNumber: 16
+    typeName: Object
+    generated:
+      fileName: src/modules/analytics/__test__/invoice.test.ts
+      lineNumber: 71
+      columnNumber: 16
+  source: "test('✅ Should return unpaid invoices', async (t) => {\r
+  
+    \  const fastify = build();\r
+  
+    \r
+  
+    \  const stub = ImportMock.mockFunction(InvoiceAnalytics.prototype,
+    'unpaidInvoices', [\r
+  
+    \    { invoiceId: 201 },\n"
   ...
 
