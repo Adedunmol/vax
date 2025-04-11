@@ -28,7 +28,15 @@ test('✅ Should get an expense successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'get', mockExpense);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -41,15 +49,19 @@ test('✅ Should get an expense successfully', async (t) => {
     message: 'Expense retrieved successfully',
     data: { id: mockExpense.id, category: 'Groceries' }
   });
-
-  stub.restore();
-  await fastify.close();
 });
 
 test('❌ Should return 400 if expenseId param is missing', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -64,7 +76,6 @@ test('❌ Should return 400 if expenseId param is missing', async (t) => {
   });
 
   t.equal(res.statusCode, 404); // Because missing route param falls through route match
-  await fastify.close();
 });
 
 test('❌ Should return 404 if no expense found', async (t) => {
@@ -72,7 +83,15 @@ test('❌ Should return 404 if no expense found', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'get', null);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -84,9 +103,6 @@ test('❌ Should return 404 if no expense found', async (t) => {
 
   t.equal(res.statusCode, 404);
   t.match(res.json(), { message: 'No expense found with the id' });
-
-  stub.restore();
-  await fastify.close();
 });
 
 test('🧨 Should handle internal server error', async (t) => {
@@ -96,7 +112,15 @@ test('🧨 Should handle internal server error', async (t) => {
     throw new Error('Unexpected DB error');
   });
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -106,7 +130,4 @@ test('🧨 Should handle internal server error', async (t) => {
 
   t.equal(res.statusCode, 500);
   t.match(res.json(), { message: 'Unexpected DB error' });
-
-  stub.restore();
-  await fastify.close();
 });

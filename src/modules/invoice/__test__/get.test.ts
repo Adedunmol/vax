@@ -21,7 +21,15 @@ test('✅ Should retrieve invoice successfully', async (t) => {
 
   const invoiceStub = ImportMock.mockFunction(InvoiceService, 'get', invoice)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    invoiceStub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -38,15 +46,19 @@ test('✅ Should retrieve invoice successfully', async (t) => {
     message: 'Invoice retrieved successfully',
     data: invoice
   })
-
-  invoiceStub.restore()
-  await fastify.close()
 })
 
 test('❌ Should return 400 if invoiceId is not provided', async (t) => {
   const fastify = build()
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -60,8 +72,6 @@ test('❌ Should return 400 if invoiceId is not provided', async (t) => {
 
   t.equal(res.statusCode, 400)
   t.match(res.json(), { message: 'invoiceId is required' })
-
-  await fastify.close()
 })
 
 test('❌ Should return 404 if no invoice found with the id', async (t) => {
@@ -69,7 +79,15 @@ test('❌ Should return 404 if no invoice found with the id', async (t) => {
 
   const invoiceStub = ImportMock.mockFunction(InvoiceService, 'get', null)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    invoiceStub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -83,9 +101,6 @@ test('❌ Should return 404 if no invoice found with the id', async (t) => {
 
   t.equal(res.statusCode, 404)
   t.match(res.json(), { message: 'No invoice found with the id' })
-
-  invoiceStub.restore()
-  await fastify.close()
 })
 
 test('❌ Should return 500 if InvoiceService.get throws error', async (t) => {
@@ -93,7 +108,15 @@ test('❌ Should return 500 if InvoiceService.get throws error', async (t) => {
 
   const invoiceStub = ImportMock.mockFunction(InvoiceService, 'get', Promise.reject(new Error('DB Error')))
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    invoiceStub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -107,7 +130,4 @@ test('❌ Should return 500 if InvoiceService.get throws error', async (t) => {
 
   t.equal(res.statusCode, 500)
   t.match(res.json(), { message: /DB Error/ })
-
-  invoiceStub.restore()
-  await fastify.close()
 })

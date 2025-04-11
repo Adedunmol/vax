@@ -1,8 +1,8 @@
 {
-  "date": "2025-03-24T13:58:28.960Z",
+  "date": "2025-04-11T08:23:07.126Z",
   "argv": [
     "C:\\Program Files\\nodejs\\node.exe",
-    "C:\\Users\\USER\\vax\\src\\modules\\user\\__test__\\reset-password.test.ts"
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\__test__\\logout.test.ts"
   ],
   "execArgv": [
     "--import=file:///C:/Users/USER/vax/node_modules/@tapjs/typescript/dist/esm/import.mjs",
@@ -13,12 +13,12 @@
   ],
   "NODE_OPTIONS": "\"--import=file:///C:/Users/USER/vax/node_modules/@tapjs/processinfo/dist/esm/import.mjs\"",
   "cwd": "C:\\Users\\USER\\vax",
-  "pid": 13420,
-  "ppid": 10216,
+  "pid": 21344,
+  "ppid": 17708,
   "parent": null,
-  "uuid": "f4b06f18-6898-4ea8-9c4c-d7d4aeffb6e0",
+  "uuid": "539809ee-ee88-44c6-b9fb-073f6fef854a",
   "files": [
-    "C:\\Users\\USER\\vax\\src\\modules\\user\\__test__\\reset-password.test.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\__test__\\logout.test.ts",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\typescript\\dist\\esm\\import.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@isaacs\\ts-node-temp-fork-for-pr-2009\\import.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@isaacs\\ts-node-temp-fork-for-pr-2009\\import-loader.mjs",
@@ -32,8 +32,8 @@
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\resolve-mock-entry-point.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\service-key.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\call-site-like.js",
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditional-values.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\require-resolve.js",
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditional-values.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditions.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-unique-condition-sets.js",
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\resolve-all-exports.js",
@@ -67,15 +67,69 @@
     "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\escape.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\unescape.js",
     "C:\\Users\\USER\\vax\\node_modules\\path-scurry\\dist\\esm\\index.js",
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\pattern.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\walker.js",
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js",
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\pattern.js",
+    "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\minipass\\dist\\esm\\index.js",
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\processor.js",
-    "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js",
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\loader.mjs",
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\hooks.mjs",
-    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\mock-service-client.js"
+    "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\mock\\dist\\esm\\mock-service-client.js",
+    "C:\\Users\\USER\\vax\\src\\app.ts",
+    "C:\\Users\\USER\\vax\\src\\utils\\register-plugins.ts",
+    "C:\\Users\\USER\\vax\\src\\env.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\redis.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\email\\producer.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\email\\worker.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\index.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\index.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\users.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\profiles.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\settings.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\clients.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\invoices.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\reminders.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\items.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\expenses.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\payments.ts",
+    "C:\\Users\\USER\\vax\\src\\db\\schema\\user-otp-verifications.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\user.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\user.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\user.service.ts",
+    "C:\\Users\\USER\\vax\\src\\queues\\index.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\user\\user.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\errors\\schema-base.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\payment\\payment.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\payment\\payment.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\payment\\payment.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\payment\\payment.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\invoice\\invoice.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\invoice\\invoice.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\invoice\\invoice.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\invoice\\invoice.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\reminder\\reminder.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\reminder\\reminder.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\reminder\\reminder.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\settings\\settings.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\expenses\\expenses.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\expenses\\expenses.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\expenses\\expenses.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\expenses\\expenses.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\client\\client.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\client\\client.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\client\\client.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\client\\client.service.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\reminder\\reminder.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\settings\\settings.route.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\settings\\settings.schema.ts",
+    "C:\\Users\\USER\\vax\\src\\modules\\settings\\settings.controller.ts",
+    "C:\\Users\\USER\\vax\\src\\middlewares\\error.ts",
+    "C:\\Users\\USER\\vax\\src\\utils\\logger.ts"
   ],
   "sources": {
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\typescript\\dist\\esm\\import.mjs": [
@@ -111,11 +165,11 @@
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\call-site-like.js": [
       "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\src\\call-site-like.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditional-values.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-all-conditional-values.ts"
-    ],
     "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\dist\\esm\\require-resolve.js": [
       "C:\\Users\\USER\\vax\\node_modules\\@tapjs\\stack\\src\\require-resolve.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditional-values.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-all-conditional-values.ts"
     ],
     "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\dist\\esm\\get-all-conditions.js": [
       "C:\\Users\\USER\\vax\\node_modules\\resolve-import\\src\\get-all-conditions.ts"
@@ -216,14 +270,14 @@
     "C:\\Users\\USER\\vax\\node_modules\\path-scurry\\dist\\esm\\index.js": [
       "C:\\Users\\USER\\vax\\node_modules\\path-scurry\\src\\index.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\pattern.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\pattern.ts"
-    ],
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\walker.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\walker.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\brace-expressions.ts"
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\pattern.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\pattern.ts"
+    ],
+    "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\src\\index.ts"
     ],
     "C:\\Users\\USER\\vax\\node_modules\\minipass\\dist\\esm\\index.js": [
       "C:\\Users\\USER\\vax\\node_modules\\minipass\\src\\index.ts"
@@ -231,13 +285,47 @@
     "C:\\Users\\USER\\vax\\node_modules\\glob\\dist\\esm\\processor.js": [
       "C:\\Users\\USER\\vax\\node_modules\\glob\\src\\processor.ts"
     ],
-    "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\dist\\esm\\index.js": [
-      "C:\\Users\\USER\\vax\\node_modules\\lru-cache\\src\\index.ts"
+    "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\dist\\esm\\brace-expressions.js": [
+      "C:\\Users\\USER\\vax\\node_modules\\glob\\node_modules\\minimatch\\src\\brace-expressions.ts"
     ]
   },
-  "root": "f4b06f18-6898-4ea8-9c4c-d7d4aeffb6e0",
-  "externalID": "src/modules/user/__test__/reset-password.test.ts",
-  "code": 0,
+  "root": "539809ee-ee88-44c6-b9fb-073f6fef854a",
+  "externalID": "src/modules/user/__test__/logout.test.ts",
+  "code": 1,
   "signal": null,
-  "runtime": 3446.4121999999998
+  "runtime": 28328.9877,
+  "globalsAdded": [
+    "__extends",
+    "__assign",
+    "__rest",
+    "__decorate",
+    "__param",
+    "__esDecorate",
+    "__runInitializers",
+    "__propKey",
+    "__setFunctionName",
+    "__metadata",
+    "__awaiter",
+    "__generator",
+    "__exportStar",
+    "__createBinding",
+    "__values",
+    "__read",
+    "__spread",
+    "__spreadArrays",
+    "__spreadArray",
+    "__await",
+    "__asyncGenerator",
+    "__asyncDelegator",
+    "__asyncValues",
+    "__makeTemplateObject",
+    "__importStar",
+    "__importDefault",
+    "__classPrivateFieldGet",
+    "__classPrivateFieldSet",
+    "__classPrivateFieldIn",
+    "__addDisposableResource",
+    "__disposeResources",
+    "__rewriteRelativeImportExtension"
+  ]
 }

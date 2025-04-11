@@ -27,7 +27,15 @@ test('✅ Should update expense successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'update', updatedExpense)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
@@ -45,16 +53,20 @@ test('✅ Should update expense successfully', async (t) => {
     message: 'Expense updated successfully',
     data: updatedExpense
   })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('🚫 Should return 400 if expenseId is missing in params', async (t) => {
   const fastify = build()
 
-  fastify.decorateRequest('user', null)
-  fastify.addHook('preHandler', (req, _res, done) => {
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
+    fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
   })
@@ -67,7 +79,6 @@ test('🚫 Should return 400 if expenseId is missing in params', async (t) => {
   })
 
   t.equal(res.statusCode, 404) // Fastify will treat missing param as 404 route not found
-  await fastify.close()
 })
 
 test('🧨 Should return 500 if ExpenseService.update throws an error', async (t) => {
@@ -77,7 +88,15 @@ test('🧨 Should return 500 if ExpenseService.update throws an error', async (t
     throw new Error('DB failed')
   })
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
@@ -92,9 +111,6 @@ test('🧨 Should return 500 if ExpenseService.update throws an error', async (t
 
   t.equal(res.statusCode, 500)
   t.match(res.json(), { message: 'DB failed' })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('✅ Should allow partial updates (only category)', async (t) => {
@@ -111,7 +127,15 @@ test('✅ Should allow partial updates (only category)', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'update', mockResponse)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
@@ -129,7 +153,4 @@ test('✅ Should allow partial updates (only category)', async (t) => {
     message: 'Expense updated successfully',
     data: mockResponse
   })
-
-  stub.restore()
-  await fastify.close()
 })

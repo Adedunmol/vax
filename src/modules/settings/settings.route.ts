@@ -11,7 +11,8 @@ async function settingsRoutes(server: FastifyInstance) {
             schema: {
                 response: {
                     200: $ref('settingsResponse')
-                }
+                },
+                tags: ['settings']
             }
         },
         getSettingsHandler

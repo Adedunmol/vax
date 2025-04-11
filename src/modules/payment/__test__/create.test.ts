@@ -24,8 +24,16 @@ test('✅ Should create a payment successfully', async (t) => {
 
     const stub = ImportMock.mockFunction(PaymentService, 'create', payment)
 
-    fastify.decorateRequest('user', null)
-    fastify.addHook('preHandler', (req, _, done) => {
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+      })
+    
+      if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+      }
+      
+      fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
     })
@@ -47,16 +55,20 @@ test('✅ Should create a payment successfully', async (t) => {
         message: 'Payment created successfully',
         data: payment
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 400 if invoice_id is not provided', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
-    fastify.addHook('preHandler', (req, _, done) => {
+    t.teardown(async () => {
+        await fastify.close()
+      })
+    
+      if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+      }
+      
+      fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
     })
@@ -76,15 +88,20 @@ test('❌ Should return 400 if invoice_id is not provided', async (t) => {
     t.match(res.json(), {
         message: 'invoice_id is required'
     })
-
-    await fastify.close()
 })
 
 test('❌ Should return 400 if amount is less than or equal to 0', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
-    fastify.addHook('preHandler', (req, _, done) => {
+    t.teardown(async () => {
+        await fastify.close()
+      })
+    
+      if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+      }
+      
+      fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
     })
@@ -105,14 +122,19 @@ test('❌ Should return 400 if amount is less than or equal to 0', async (t) => 
     t.match(res.json(), {
         message: 'amount must be greater than 0'
     })
-
-    await fastify.close()
 })
 
 test('❌ Should return 400 if payment_method is missing', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+      })
+    
+    if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+    }
+      
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -133,14 +155,19 @@ test('❌ Should return 400 if payment_method is missing', async (t) => {
     t.match(res.json(), {
         message: 'payment_method of payment is required'
     })
-
-    await fastify.close()
 })
 
 test('❌ Should return 400 if payment_date is in invalid format', async (t) => {
     const fastify = build()
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        await fastify.close()
+      })
+    
+    if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+      }
+      
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -162,8 +189,6 @@ test('❌ Should return 400 if payment_date is in invalid format', async (t) => 
     t.match(res.json(), {
         message: 'Invalid payment_date format'
     })
-
-    await fastify.close()
 })
 
 test('❌ Should return 404 if invoice does not exist', async (t) => {
@@ -171,7 +196,15 @@ test('❌ Should return 404 if invoice does not exist', async (t) => {
 
     const stub = ImportMock.mockFunction(PaymentService, 'create', null)
 
-    fastify.decorateRequest('user', null)
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+      })
+    
+    if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+      }
+      
     fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
@@ -193,9 +226,6 @@ test('❌ Should return 404 if invoice does not exist', async (t) => {
     t.match(res.json(), {
         message: 'Invoice not found'
     })
-
-    stub.restore()
-    await fastify.close()
 })
 
 test('❌ Should return 500 if PaymentService.create throws an error', async (t) => {
@@ -205,8 +235,16 @@ test('❌ Should return 500 if PaymentService.create throws an error', async (t)
         throw new Error('Something went wrong')
     })
 
-    fastify.decorateRequest('user', null)
-    fastify.addHook('preHandler', (req, _, done) => {
+    t.teardown(async () => {
+        stub.restore()
+        await fastify.close()
+      })
+    
+      if (!fastify.hasRequestDecorator('user')) {
+        fastify.decorateRequest('user', null)
+      }
+      
+      fastify.addHook('preHandler', (req, _, done) => {
         req.user = authUser
         done()
     })
@@ -225,7 +263,4 @@ test('❌ Should return 500 if PaymentService.create throws an error', async (t)
 
     t.equal(res.statusCode, 500)
     t.match(res.json(), { message: 'Something went wrong' })
-
-    stub.restore()
-    await fastify.close()
 })

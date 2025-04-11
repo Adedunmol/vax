@@ -22,7 +22,15 @@ test('✅ Should delete expense successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'delete', deletedExpense)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -39,15 +47,19 @@ test('✅ Should delete expense successfully', async (t) => {
     message: 'Expense deleted successfully',
     data: deletedExpense
   })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('🚫 Should return 400 if expenseId param is missing', async (t) => {
   const fastify = build()
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -60,7 +72,6 @@ test('🚫 Should return 400 if expenseId param is missing', async (t) => {
   })
 
   t.equal(res.statusCode, 404) // Route not matched
-  await fastify.close()
 })
 
 test('🧨 Should return 500 if ExpenseService.delete throws error', async (t) => {
@@ -70,7 +81,15 @@ test('🧨 Should return 500 if ExpenseService.delete throws error', async (t) =
     throw new Error('DB delete failed')
   })
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -84,7 +103,4 @@ test('🧨 Should return 500 if ExpenseService.delete throws error', async (t) =
 
   t.equal(res.statusCode, 500)
   t.match(res.json(), { message: 'DB delete failed' })
-
-  stub.restore()
-  await fastify.close()
 })

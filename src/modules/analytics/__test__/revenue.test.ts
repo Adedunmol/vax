@@ -25,7 +25,15 @@ test('✅ Should return total revenue', async (t) => {
 
   const stub = ImportMock.mockFunction(RevenueAnalytics.prototype, 'totalRevenue', { total: 5000 });
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -35,9 +43,6 @@ test('✅ Should return total revenue', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json(), { data: { revenue: { total: 5000 } } });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return monthly revenue', async (t) => {
@@ -48,7 +53,15 @@ test('✅ Should return monthly revenue', async (t) => {
     { month: '2025-04', total: 1500 },
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+    
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -58,9 +71,6 @@ test('✅ Should return monthly revenue', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.same(res.json().data.revenue.length, 2);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return outstanding revenue', async (t) => {
@@ -70,7 +80,15 @@ test('✅ Should return outstanding revenue', async (t) => {
     totalOutstanding: 1200,
   });
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -80,9 +98,6 @@ test('✅ Should return outstanding revenue', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data.revenue, { totalOutstanding: 1200 });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return average revenue', async (t) => {
@@ -92,7 +107,15 @@ test('✅ Should return average revenue', async (t) => {
     avgRevenue: 1350,
   });
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -102,9 +125,6 @@ test('✅ Should return average revenue', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data.revenue, { avgRevenue: 1350 });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return top clients revenue', async (t) => {
@@ -115,7 +135,15 @@ test('✅ Should return top clients revenue', async (t) => {
     { client: 'Jane Smith', totalSpent: 1800 },
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -125,9 +153,6 @@ test('✅ Should return top clients revenue', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.same(res.json().data.revenue.length, 2);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return payment methods revenue', async (t) => {
@@ -138,7 +163,15 @@ test('✅ Should return payment methods revenue', async (t) => {
     { method: 'paypal', total: 1000 },
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -148,15 +181,19 @@ test('✅ Should return payment methods revenue', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.same(res.json().data.revenue.length, 2);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 for unknown revenue type', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -166,6 +203,4 @@ test('❌ Should return 400 for unknown revenue type', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { message: 'Revenue type is unknown' });
-
-  fastify.close();
 });

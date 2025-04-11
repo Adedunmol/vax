@@ -37,7 +37,15 @@ test('✅ Should update client successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ClientService, 'update', mockClient);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -48,15 +56,19 @@ test('✅ Should update client successfully', async (t) => {
   t.equal(res.statusCode, 200);
   t.equal(res.json().message, 'Client updated successfully');
   t.same(res.json().data, mockClient);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 if clientId param is missing', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -66,14 +78,19 @@ test('❌ Should return 400 if clientId param is missing', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json().message, /clientId is required/);
-
-  fastify.close();
 });
 
 test('❌ Should return 400 if payload has invalid email', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -86,8 +103,6 @@ test('❌ Should return 400 if payload has invalid email', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json().message, /email/);
-
-  fastify.close();
 });
 
 test('❌ Should return 500 if service throws error', async (t) => {
@@ -95,7 +110,15 @@ test('❌ Should return 500 if service throws error', async (t) => {
 
   const stub = ImportMock.mockFunction(ClientService, 'update').rejects(new Error('Something broke'));
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -105,7 +128,4 @@ test('❌ Should return 500 if service throws error', async (t) => {
 
   t.equal(res.statusCode, 500);
   t.match(res.body, /Something broke/);
-
-  stub.restore();
-  fastify.close();
 });

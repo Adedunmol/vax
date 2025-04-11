@@ -23,8 +23,16 @@ test('✅ Should return total expenses', async (t) => {
   const fastify = build();
 
   const stub = ImportMock.mockFunction(ExpenseAnalytics.prototype, 'totalExpenses', { total: 3500 });
+  
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
 
-  fastify.decorateRequest('user', null);
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -34,9 +42,6 @@ test('✅ Should return total expenses', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data.expense, { total: 3500 });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return category expenses', async (t) => {
@@ -47,7 +52,14 @@ test('✅ Should return category expenses', async (t) => {
     { category: 'Software', total: 2300 }
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -57,9 +69,6 @@ test('✅ Should return category expenses', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.same(res.json().data.expense.length, 2);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return expense trend', async (t) => {
@@ -70,7 +79,15 @@ test('✅ Should return expense trend', async (t) => {
     { month: '2025-04', total: 2000 }
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -80,9 +97,6 @@ test('✅ Should return expense trend', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.same(res.json().data.expense.length, 2);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return revenue-to-expense ratio', async (t) => {
@@ -94,8 +108,17 @@ test('✅ Should return revenue-to-expense ratio', async (t) => {
   const stub = ImportMock.mockFunction(ExpenseAnalytics.prototype, 'ratioExpenses', {
     ratio: 0.25,
   });
+  t.teardown(async () => {
+    stub.restore()
+    totalRevenueStub.restore()
+    totalExpensesStub.restore()
+    await fastify.close()
+  })
 
-  fastify.decorateRequest('user', null);
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -105,17 +128,19 @@ test('✅ Should return revenue-to-expense ratio', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.match(res.json().data.expense, { ratio: 0.25 });
-
-  stub.restore();
-  totalRevenueStub.restore();
-  totalExpensesStub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 for unknown expense type', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -125,6 +150,4 @@ test('❌ Should return 400 for unknown expense type', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { message: 'Group by query is unknown' });
-
-  fastify.close();
 });

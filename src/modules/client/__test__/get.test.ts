@@ -31,7 +31,15 @@ test('✅ Should retrieve a client successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ClientService, 'get', mockClient);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -42,15 +50,19 @@ test('✅ Should retrieve a client successfully', async (t) => {
   t.equal(res.statusCode, 200);
   t.same(res.json().data, mockClient);
   t.equal(res.json().message, 'Client retrieved successfully');
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 if clientId is not provided', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }  
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -60,8 +72,6 @@ test('❌ Should return 400 if clientId is not provided', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.same(res.json(), { message: 'clientId is required' });
-
-  fastify.close();
 });
 
 test('❌ Should return 404 if client is not found', async (t) => {
@@ -69,7 +79,15 @@ test('❌ Should return 404 if client is not found', async (t) => {
 
   const stub = ImportMock.mockFunction(ClientService, 'get', null);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -79,9 +97,6 @@ test('❌ Should return 404 if client is not found', async (t) => {
 
   t.equal(res.statusCode, 404);
   t.same(res.json(), { message: 'No client found with the id' });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 500 on unexpected server error', async (t) => {
@@ -89,7 +104,15 @@ test('❌ Should return 500 on unexpected server error', async (t) => {
 
   const stub = ImportMock.mockFunction(ClientService, 'get').rejects(new Error('Unexpected DB error'));
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -99,7 +122,4 @@ test('❌ Should return 500 on unexpected server error', async (t) => {
 
   t.equal(res.statusCode, 500);
   t.match(res.body, /Unexpected DB error/);
-
-  stub.restore();
-  fastify.close();
 });

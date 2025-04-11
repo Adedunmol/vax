@@ -23,7 +23,15 @@ test('✅ Should delete invoice successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(InvoiceService, 'delete', deletedInvoice)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -40,15 +48,19 @@ test('✅ Should delete invoice successfully', async (t) => {
     message: 'Invoice deleted successfully',
     data: deletedInvoice
   })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('❌ Should return 400 if invoiceId is missing', async (t) => {
   const fastify = build()
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -62,8 +74,6 @@ test('❌ Should return 400 if invoiceId is missing', async (t) => {
 
   t.equal(res.statusCode, 400)
   t.match(res.json(), { message: 'invoiceId is required' })
-
-  await fastify.close()
 })
 
 test('❌ Should return 404 if invoice is not found', async (t) => {
@@ -71,7 +81,15 @@ test('❌ Should return 404 if invoice is not found', async (t) => {
 
   const stub = ImportMock.mockFunction(InvoiceService, 'delete', null) // Simulating invoice not found
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -85,9 +103,6 @@ test('❌ Should return 404 if invoice is not found', async (t) => {
 
   t.equal(res.statusCode, 404)
   t.match(res.json(), { message: 'No invoice found with the id' })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('❌ Should return 500 if InvoiceService.delete throws an error', async (t) => {
@@ -95,7 +110,15 @@ test('❌ Should return 500 if InvoiceService.delete throws an error', async (t)
 
   const invoiceStub = ImportMock.mockFunction(InvoiceService, 'delete', Promise.reject(new Error('DB Error')))
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    invoiceStub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -109,7 +132,4 @@ test('❌ Should return 500 if InvoiceService.delete throws an error', async (t)
 
   t.equal(res.statusCode, 500)
   t.match(res.json(), { message: /DB Error/ })
-
-  invoiceStub.restore()
-  await fastify.close()
 })

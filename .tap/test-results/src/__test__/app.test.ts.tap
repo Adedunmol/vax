@@ -4,7 +4,7 @@ connected to redis
 # Subtest: GET /healthcheck should return 200
     ok 1 - should be equal
     1..1
-ok 1 - GET /healthcheck should return 200 # time=725.876ms
+ok 1 - GET /healthcheck should return 200 # time=2622.44ms
 
 not ok 2 - timeout!
   ---

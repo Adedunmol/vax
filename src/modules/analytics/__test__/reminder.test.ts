@@ -25,7 +25,15 @@ test('✅ Should return total sent reminders', async (t) => {
     count: 5
   });
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -35,9 +43,6 @@ test('✅ Should return total sent reminders', async (t) => {
 
   t.equal(res.statusCode, 200);
   t.same(res.json().data.reminder.count, 5);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return invoice reminders', async (t) => {
@@ -50,7 +55,15 @@ test('✅ Should return invoice reminders', async (t) => {
     { id: 2, invoiceId: fakeInvoiceId, sentAt: '2025-04-05T12:00:00Z' }
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+   
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -61,15 +74,19 @@ test('✅ Should return invoice reminders', async (t) => {
   t.equal(res.statusCode, 200);
   t.same(res.json().data.reminder.length, 2);
   t.match(res.json().data.reminder[0], { invoiceId: fakeInvoiceId });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 if invoice type is used without invoiceId', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -79,14 +96,19 @@ test('❌ Should return 400 if invoice type is used without invoiceId', async (t
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { message: 'invoiceId is required' });
-
-  fastify.close();
 });
 
 test('❌ Should return 400 for unknown reminder type', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -96,6 +118,4 @@ test('❌ Should return 400 for unknown reminder type', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { message: 'Group by query is unknown' });
-
-  fastify.close();
 });

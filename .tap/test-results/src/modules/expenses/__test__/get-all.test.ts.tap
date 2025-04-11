@@ -1,0 +1,53 @@
+Initializing Redis Client...
+TAP version 14
+# Subtest: ✅ Should get all expenses successfully
+    not ok 1 - The decorator 'user' has already been added!
+      ---
+      stack: |
+        decorateConstructor (node_modules/fastify/lib/decorate.js:41:11)
+        Object.decorateRequest (node_modules/fastify/lib/decorate.js:123:3)
+        fastifyJwt (node_modules/@fastify/jwt/jwt.js:186:13)
+        Plugin.exec (node_modules/avvio/lib/plugin.js:125:28)
+        Boot._loadPlugin (node_modules/avvio/boot.js:432:10)
+      at:
+        fileName: node_modules\fastify\lib\decorate.js
+        lineNumber: 41
+        columnNumber: 11
+        functionName: decorateConstructor
+      type: FastifyError
+      code: FST_ERR_DEC_ALREADY_PRESENT
+      statusCode: 500
+      tapCaught: uncaughtException
+      source: >2
+          const instance = konstructor.prototype
+          if (Object.prototype.hasOwnProperty.call(instance, name) || hasKey(konstructor, name)) {
+            throw new FST_ERR_DEC_ALREADY_PRESENT(name)
+        ----------^
+          }
+      ...
+    
+    1..1
+not ok 1 - ✅ Should get all expenses successfully # time=237.41ms
+  ---
+  at:
+    fileName: src\modules\expenses\__test__\get-all.test.ts
+    lineNumber: 22
+    columnNumber: 16
+    typeName: Object
+    generated:
+      fileName: src/modules/expenses/__test__/get-all.test.ts
+      lineNumber: 32
+      columnNumber: 16
+  source: "    },\r
+  
+    \    {\r
+  
+    \      id: faker.number.int(),\r
+  
+    ---------------^
+  
+    \      category: 'Transport',\r
+  
+    \      amount: '10.50',\n"
+  ...
+

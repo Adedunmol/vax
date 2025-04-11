@@ -29,7 +29,15 @@ test('✅ Should create an expense successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'create', mockExpense);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -46,8 +54,6 @@ test('✅ Should create an expense successfully', async (t) => {
   t.equal(res.statusCode, 201);
   t.match(res.json().data, { id: mockExpense.id, category: 'Utilities', amount: '100.00' });
 
-  stub.restore();
-  await fastify.close();
 });
 
 test('❌ Should fail if category is missing', async (t) => {
@@ -58,7 +64,14 @@ test('❌ Should fail if category is missing', async (t) => {
     expense_date: new Date().toISOString()
   };
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -68,8 +81,6 @@ test('❌ Should fail if category is missing', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { error: "category is required" });
-
-  await fastify.close();
 });
 
 test('❌ Should fail if amount is missing', async (t) => {
@@ -80,7 +91,14 @@ test('❌ Should fail if amount is missing', async (t) => {
     expense_date: new Date().toISOString()
   };
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -103,7 +121,14 @@ test('❌ Should fail if expense_date is invalid', async (t) => {
     expense_date: 'invalid-date'
   };
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -113,8 +138,6 @@ test('❌ Should fail if expense_date is invalid', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { error: "Invalid expense_date format" });
-
-  await fastify.close();
 });
 
 test('🧨 Should handle internal server error', async (t) => {
@@ -130,7 +153,15 @@ test('🧨 Should handle internal server error', async (t) => {
     expense_date: new Date().toISOString()
   };
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser;
     done();
@@ -140,7 +171,4 @@ test('🧨 Should handle internal server error', async (t) => {
 
   t.equal(res.statusCode, 500);
   t.match(res.json(), { message: 'DB connection failed' });
-
-  stub.restore();
-  await fastify.close();
 });

@@ -39,8 +39,16 @@ test('✅ Should return all clients', async (t) => {
   const fastify = build();
 
   const stub = ImportMock.mockFunction(ClientService, 'getAll', mockClients);
+  
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
 
-  fastify.decorateRequest('user', null);
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -51,9 +59,6 @@ test('✅ Should return all clients', async (t) => {
   t.equal(res.statusCode, 200);
   t.equal(res.json().message, 'Clients retrieved successfully');
   t.same(res.json().data.clients, mockClients);
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 500 if service throws', async (t) => {
@@ -61,7 +66,15 @@ test('❌ Should return 500 if service throws', async (t) => {
 
   const stub = ImportMock.mockFunction(ClientService, 'getAll').rejects(new Error('Something went wrong'));
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -71,7 +84,4 @@ test('❌ Should return 500 if service throws', async (t) => {
 
   t.equal(res.statusCode, 500);
   t.match(res.body, /Something went wrong/);
-
-  stub.restore();
-  fastify.close();
 });

@@ -34,7 +34,7 @@ export async function registerPlugins(server: FastifyInstance) {
   await server.register(fastifyCors);
   await server.register(fastifyHelmet);
   await server.register(fastifyCompress);
-  await server.register(fastifyGracefulShutdown);
+  // await server.register(fastifyGracefulShutdown);
   
   await server.register(fastifyJwt, { secret: env.JWT_SECRET })
     createBullBoard({

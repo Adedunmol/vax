@@ -22,7 +22,15 @@ test('✅ Should update invoice successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(InvoiceService, 'update', updatedInvoice)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -40,15 +48,19 @@ test('✅ Should update invoice successfully', async (t) => {
     message: 'Invoice updated successfully',
     data: updatedInvoice
   })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('❌ Should return 400 if invoiceId is missing', async (t) => {
   const fastify = build()
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -63,12 +75,14 @@ test('❌ Should return 400 if invoiceId is missing', async (t) => {
 
   t.equal(res.statusCode, 400)
   t.match(res.json(), { message: 'invoiceId is required' })
-
-  await fastify.close()
 })
 
 test('❌ Should return 400 if expense_date is invalid (not a date)', async (t) => {
   const fastify = build()
+
+  t.teardown(async () => {
+    await fastify.close()
+  })
 
   const res = await fastify.inject({
     method: 'PATCH',
@@ -79,12 +93,14 @@ test('❌ Should return 400 if expense_date is invalid (not a date)', async (t) 
 
   t.equal(res.statusCode, 400)
   t.match(res.json(), { message: 'invalid due_date format' })
-
-  await fastify.close()
 })
 
 test('❌ Should return 400 if expense_date is in the past', async (t) => {
   const fastify = build()
+
+  t.teardown(async () => {
+    await fastify.close()
+  })
 
   const pastDate = new Date(new Date().setDate(new Date().getDate() - 1)) // Yesterday
 
@@ -98,7 +114,6 @@ test('❌ Should return 400 if expense_date is in the past', async (t) => {
   t.equal(res.statusCode, 400)
   t.match(res.json(), { message: 'due_date must be in the future' })
 
-  await fastify.close()
 })
 
 test('❌ Should return 500 if InvoiceService.update throws an error', async (t) => {
@@ -106,7 +121,15 @@ test('❌ Should return 500 if InvoiceService.update throws an error', async (t)
 
   const invoiceStub = ImportMock.mockFunction(InvoiceService, 'update', Promise.reject(new Error('DB Error')))
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    invoiceStub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _, done) => {
     req.user = authUser
     done()
@@ -121,7 +144,4 @@ test('❌ Should return 500 if InvoiceService.update throws an error', async (t)
 
   t.equal(res.statusCode, 500)
   t.match(res.json(), { message: /DB Error/ })
-
-  invoiceStub.restore()
-  await fastify.close()
 })

@@ -32,7 +32,15 @@ test('✅ Should return late payment invoices', async (t) => {
     }
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -46,9 +54,6 @@ test('✅ Should return late payment invoices', async (t) => {
     id: 1,
     amountPaid: 1500
   });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('✅ Should return unpaid invoices', async (t) => {
@@ -59,7 +64,15 @@ test('✅ Should return unpaid invoices', async (t) => {
     { invoiceId: 202 }
   ]);
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -70,15 +83,19 @@ test('✅ Should return unpaid invoices', async (t) => {
   t.equal(res.statusCode, 200);
   t.same(res.json().data.invoice.length, 2);
   t.match(res.json().data.invoice[1], { invoiceId: 202 });
-
-  stub.restore();
-  fastify.close();
 });
 
 test('❌ Should return 400 for unknown invoice type', async (t) => {
   const fastify = build();
 
-  fastify.decorateRequest('user', null);
+  t.teardown(async () => {
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+    
   fastify.addHook('preHandler', (req, _reply, done) => {
     req.user = authUser;
     done();
@@ -88,6 +105,4 @@ test('❌ Should return 400 for unknown invoice type', async (t) => {
 
   t.equal(res.statusCode, 400);
   t.match(res.json(), { message: 'Group by query is unknown' });
-
-  fastify.close();
 });

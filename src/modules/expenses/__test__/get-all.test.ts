@@ -29,7 +29,15 @@ test('✅ Should get all expenses successfully', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'getAll', mockExpenses)
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
@@ -50,9 +58,6 @@ test('✅ Should get all expenses successfully', async (t) => {
       expenses: mockExpenses
     }
   })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('✅ Should return empty array if user has no expenses', async (t) => {
@@ -60,7 +65,15 @@ test('✅ Should return empty array if user has no expenses', async (t) => {
 
   const stub = ImportMock.mockFunction(ExpenseService, 'getAll', [])
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
@@ -77,9 +90,6 @@ test('✅ Should return empty array if user has no expenses', async (t) => {
   t.equal(res.statusCode, 200)
   t.same(res.json().data.expenses, [])
   t.match(res.json(), { message: 'Expenses retrieved successfully' })
-
-  stub.restore()
-  await fastify.close()
 })
 
 test('🧨 Should handle internal server error', async (t) => {
@@ -89,7 +99,15 @@ test('🧨 Should handle internal server error', async (t) => {
     throw new Error('Database failure')
   })
 
-  fastify.decorateRequest('user', null)
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
+
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null)
+  }
+  
   fastify.addHook('preHandler', (req, _res, done) => {
     req.user = authUser
     done()
@@ -105,7 +123,4 @@ test('🧨 Should handle internal server error', async (t) => {
 
   t.equal(res.statusCode, 500)
   t.match(res.json(), { message: 'Database failure' })
-
-  stub.restore()
-  await fastify.close()
 })
