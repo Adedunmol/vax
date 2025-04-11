@@ -24,15 +24,15 @@ const validClientResponse = {
   lastName: faker.person.lastName(),
   email: faker.internet.email(),
   phoneNumber: faker.phone.number(),
-  updated_at: new Date(),
-  created_at: new Date(),
-  deleted_at: new Date(),
+  updated_at: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  deleted_at: new Date().toISOString(),
   id: 1,
   createdBy: authUser.id
 };
 
-const injectWithAuth = (fastify: any, token: string, data: any) =>
-  fastify.inject({
+const injectWithAuth = async (fastify: any, token: string, data: any) =>
+  await fastify.inject({
   method: 'POST',
   url: '/api/v1/clients',
   headers: {
@@ -41,40 +41,40 @@ const injectWithAuth = (fastify: any, token: string, data: any) =>
   payload: data === null ? validClientData : data,
 });
 
-test('✅ Should create a new client successfully', async (t) => {
+test('Should create a new client successfully', async (t) => {
   const fastify = await build();
+  await fastify.ready()
 
   const createdClient = { id: 1, ...validClientData };
   const stub = ImportMock.mockFunction(ClientService, 'create', validClientResponse);
 
-  t.teardown(async () => {
+  t.teardown(() => {
     stub.restore()
-    await fastify.close()
+    fastify.close()
   })
 
   const res = await injectWithAuth(fastify, fastify.jwt.sign(authUser), null)
-
-  console.log("data: ", res.json())
 
   t.equal(res.statusCode, 201);
   t.same(res.json().data, validClientResponse);
   t.equal(res.json().message, 'Client created successfully');
 });
 
-// test('❌ Should return 400 if required field is missing', async (t) => {
-//   const fastify = await build();
+test('Should return 400 if required field is missing', async (t) => {
+  const fastify = await build();
+  await fastify.ready()
 
-//   t.teardown(async () => {
-//     await fastify.close()
-//   })
+  t.teardown(() => {
+    fastify.close()
+  })
 
-//   const { first_name, ...invalidData } = validClientData;
+  const { first_name, ...invalidData } = validClientData;
 
-//   const res = await injectWithAuth(fastify, fastify.jwt.sign(authUser), invalidData)
+  const res = await injectWithAuth(fastify, fastify.jwt.sign(authUser), invalidData)
 
-//   t.equal(res.statusCode, 400);
-//   t.match(res.json(), { error: /first_name is required/i });
-// });
+  t.equal(res.statusCode, 400);
+  t.same(res.json(), { status: 'validation error', message: "body must have required property 'first_name'" });
+});
 
 // test('❌ Should return 409 if email already exists', async (t) => {
 //   const fastify = await build();
@@ -86,9 +86,9 @@ test('✅ Should create a new client successfully', async (t) => {
 
 //   const stub = ImportMock.mockFunction(ClientService, 'create').rejects(err);
 
-//   t.teardown(async () => {
+//   t.teardown(() => {
 //     stub.restore()
-//     await fastify.close()
+//     fastify.close()
 //   })
 
 //   const res = await injectWithAuth(fastify, fastify.jwt.sign(authUser), null)

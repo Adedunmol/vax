@@ -25,11 +25,10 @@ import fastifyCors from '@fastify/cors'
 import fastifyHelmet from '@fastify/helmet'
 import fastifyCompress from '@fastify/compress'
 import fastifyGracefulShutdown from 'fastify-graceful-shutdown'
+import invoiceQueue from '../queues/invoice/producer'
 
 
 export async function registerPlugins(server: FastifyInstance) {
-
-  const serverAdapter = new FastifyAdapter()
 
   server.register(fastifyCors);
   server.register(fastifyHelmet);
@@ -37,20 +36,30 @@ export async function registerPlugins(server: FastifyInstance) {
   // await server.register(fastifyGracefulShutdown);
   
   server.register(fastifyJwt, { secret: env.JWT_SECRET })
+
+  const serverAdapter = new FastifyAdapter()
+  serverAdapter.setBasePath('/bull-board')
+  
   createBullBoard({
-      queues: [new BullMQAdapter(emailQueue)],
+      queues: [new BullMQAdapter(emailQueue), new BullMQAdapter(invoiceQueue)],
       serverAdapter
   })
+
+  server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '' })
 
   server.addHook('preHandler', (req, reply, next) => {
     req.jwt = server.jwt
     return next()
   })
 
-  server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
-  
-  server.register(serverAdapter.registerPlugin(), { prefix: '/bull-board', basePath: '/bull-board' })
-  
+  // server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
+  server.register(fastifyRedis, {
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
+    password: env.REDIS_PASSWORD,
+    maxRetriesPerRequest: null,
+  })
+    
   server.register(
     swagger, 
     withRefResolver({ 

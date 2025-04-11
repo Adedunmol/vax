@@ -2,8 +2,8 @@ import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
 export const errorSchema = z.object({
-    statusCode: z.number(),
-    error: z.string(),
+    // statusCode: z.number(),
+    status: z.string(),
     message: z.string()
 })
 
