@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
+const responseCore = {
+    status: z.string(),
+    message: z.string()
+}
+
 const createClientSchema = z.object({
     first_name: z.string({ required_error: "Client's first_name is required" }),
     last_name: z.string({ required_error: "Client's last_name is required" }),
@@ -8,7 +13,7 @@ const createClientSchema = z.object({
     phone_number: z.string({ required_error: "Client's phone_number is required" })
 })
 
-const clientResponse = z.object({
+const clientCore = z.object({
     email: z.string(),
     id: z.number(),
     firstName: z.string(),
@@ -20,9 +25,19 @@ const clientResponse = z.object({
     createdBy: z.number()
 })
 
-const allClientsResponse = z.array(clientResponse)
+const clientResponse = z.object({
+    ...responseCore,
+    data: clientCore
+})
 
-const invoiceResponse = z.array(
+const allClientsCore = z.array(clientResponse)
+
+const allClientsResponse = z.object({
+    ...responseCore,
+    data: allClientsCore
+})
+
+const invoiceCore = z.array(
     z.object({
         status: z.enum(["unpaid", "partially_paid", "paid", "overdue"]),
         id: z.number(),
@@ -35,6 +50,11 @@ const invoiceResponse = z.array(
         amountPaid: z.number()
     })
 )
+
+const invoiceResponse = z.object({
+    ...responseCore,
+    data: invoiceCore
+})
 
 const getClientParam = z.object({
     clientId: z.number()

@@ -16,7 +16,7 @@ const injectWithAuth = (fastify: any, type: string, token: string) =>
     headers: {
       'Authorization': `Bearer ${token}`
     },
-  });
+});
 
 test('✅ Should return total expenses', async (t) => {
   const fastify = await build();
@@ -35,24 +35,24 @@ test('✅ Should return total expenses', async (t) => {
   t.match(res.json().data, { total: 3500 });
 });
 
-// test('✅ Should return category expenses', async (t) => {
-//   const fastify = await build();
+test('✅ Should return category expenses', async (t) => {
+  const fastify = await build();
 
-//   const stub = ImportMock.mockFunction(ExpenseAnalytics.prototype, 'categoryExpenses', [
-//     { category: 'Travel', total: 1200 },
-//     { category: 'Software', total: 2300 }
-//   ]);
+  const stub = ImportMock.mockFunction(expenseAnalytics, 'categoryExpenses', [
+    { category: 'Travel', total: 1200 },
+    { category: 'Software', total: 2300 }
+  ]);
 
-//   t.teardown(async () => {
-//     stub.restore()
-//     await fastify.close()
-//   })
+  t.teardown(async () => {
+    stub.restore()
+    await fastify.close()
+  })
 
-//   const res = await injectWithAuth(fastify, 'category', fastify.jwt.sign(authUser));
+  const res = await injectWithAuth(fastify, 'category', fastify.jwt.sign(authUser));
 
-//   t.equal(res.statusCode, 200);
-//   t.same(res.json().data.expense.length, 2);
-// });
+  t.equal(res.statusCode, 200);
+  t.same(res.json().data.length, 2);
+});
 
 // test('✅ Should return expense trend', async (t) => {
 //   const fastify = await build();

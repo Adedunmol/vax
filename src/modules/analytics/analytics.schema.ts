@@ -10,57 +10,40 @@ const revenueQuerySchema = z.object({
     type: z.enum(['total', 'monthly', 'outstanding', 'average', 'top-clients', 'payment-method'])
 })
 
-const totalRevenueResponse = z.object({
-    ...responseCore,
-    data: z.object({ total: z.number() })
+const totalRevenueCore = z.object({ total: z.number() })
+
+const monthlyRevenueCore = z.object({
+    total: z.number(),
+    month: z.string()
 })
 
-const monthlyRevenueResponse = z.object({
-    ...responseCore,
-    data: z.object({
+const outstandingRevenueCore = z.object({ totalOutstanding: z.number() })
+
+const averageRevenueCore = z.object({ avgRevenue: z.number() })
+
+const topClientsRevenueCore = z.array(
+    z.object({
+        totalSpent: z.number(),
+        client: z.string()
+})
+)
+
+const paymentMethodsRevenueCore = z.array(
+    z.object({
         total: z.number(),
-        month: z.string()
-    })
-})
-
-const outstandingRevenueResponse = z.object({
-    ...responseCore,
-    data: z.object({ totalOutstanding: z.number() })
-})
-
-const averageRevenueResponse = z.object({
-    ...responseCore,
-    data: z.object({ avgRevenue: z.number() })
-})
-
-const topClientsRevenueResponse = z.object({ 
-    ...responseCore,
-    data: z.array(
-        z.object({
-            totalSpent: z.number(),
-            client: z.string()
+        method: z.string()
     })
 )
-})
-const paymentMethodsRevenueResponse = z.object({
-    ...responseCore,
-    data: z.array(
-        z.object({
-            total: z.number(),
-            method: z.string()
-        })
-    )
-})
 
 const revenueResponse = z.object({
     ...responseCore,
     data: z.union([
-        totalRevenueResponse, 
-        monthlyRevenueResponse, 
-        outstandingRevenueResponse, 
-        averageRevenueResponse,
-        topClientsRevenueResponse,
-        paymentMethodsRevenueResponse
+        totalRevenueCore, 
+        monthlyRevenueCore, 
+        outstandingRevenueCore, 
+        averageRevenueCore,
+        topClientsRevenueCore,
+        paymentMethodsRevenueCore
     ])
 })
 
@@ -166,8 +149,8 @@ const reminderResponse = z.object({
 const dashboardResponse = z.object({
     ...responseCore,
     data: z.object({
-        revenue: totalRevenueResponse,
-        outstandingRevenue: outstandingRevenueResponse,
+        revenue: totalRevenueCore,
+        outstandingRevenue: outstandingRevenueCore,
         expenses: expenseResponse,
         unpaidInvoices: unpaidInvoicesResponse,
         remindersSent: z.object({ count: z.number() })

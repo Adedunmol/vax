@@ -13,7 +13,7 @@ export async function createClientHandler(request: FastifyRequest<{ Body: Create
 
         const data = await ClientService.create(input)
 
-        return reply.code(201).send({ message: 'Client created successfully', data })
+        return reply.code(201).send({ status: 'success', message: 'Client created successfully', data })
     } catch (err: any) {
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)

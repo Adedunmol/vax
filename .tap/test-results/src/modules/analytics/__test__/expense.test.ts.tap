@@ -2,18 +2,131 @@ Initializing Redis Client...
 TAP version 14
 connected to redis
 expense:  { total: [33m3500[39m }
-data:  {
-  status: [32m'success'[39m,
-  message: [32m'Expense retrieved successfully'[39m,
-  data: { total: [33m3500[39m }
-}
 # Subtest: ✅ Should return total expenses
     ok 1 - should be equal
     ok 2 - should match pattern
     1..2
-ok 1 - ✅ Should return total expenses # time=1869.213ms
+ok 1 - ✅ Should return total expenses # time=1731.039ms
 
-not ok 2 - timeout!
+expense:  [
+  { category: [32m'Travel'[39m, total: [33m1200[39m },
+  { category: [32m'Software'[39m, total: [33m2300[39m }
+]
+{"level":50, 2025-04-11T14:34:31.308Z,"pid":8852,"hostname":"[Redacted]","err":{"type":"TypeError","message":"The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition.","stack":"TypeError: The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition.\n    at anonymous0 (eval at build (C:\\Users\\USER\\vax\\node_modules\\fast-json-stringify\\index.js:207:23), <anonymous>:242:16)\n    at serialize (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:960:12)\n    at preSerializationHookEnd (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:538:17)\n    at preSerializationHook (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:522:5)\n    at _Reply.Reply.send (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:223:7)\n    at Object.<anonymous> (C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts:73:32)\n    at Generator.next (<anonymous>)\n    at fulfilled (C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts:6:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)","serialization":{"url":"/api/v1/analytics/expenses","method":"GET"}},"msg":"The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition."}
+# Subtest: ✅ Should return category expenses
+    not ok 1 - should be equal
+      ---
+      compare: ===
+      at:
+        fileName: src\modules\analytics\__test__\expense.test.ts
+        lineNumber: 52
+        columnNumber: 7
+        isToplevel: true
+        generated:
+          fileName: src/modules/analytics/__test__/expense.test.ts
+          lineNumber: 62
+          columnNumber: 7
+      stack: |
+        src/modules/analytics/__test__/expense.test.ts:52:7
+        Generator.next
+        fulfilled (src/modules/analytics/__test__/expense.test.ts:5:58)
+      source: "\r
+      
+        \  const res = await injectWithAuth(fastify, 'category',
+        fastify.jwt.sign(authUser));\r
+      
+        \r
+      
+        \  t.equal(res.statusCode, 200);\r
+      
+        \  t.same(res.json().data.length, 2);\n"
+      diff: |
+        --- expected
+        +++ actual
+        @@ -1,1 +1,1 @@
+        -200
+        +500
+      ...
+    
+    not ok 2 - Cannot read properties of undefined (reading 'length')
+      ---
+      stack: |
+        src/modules/analytics/__test__/expense.test.ts:67:1
+        Generator.next (<anonymous>)
+        fulfilled (src/modules/analytics/__test__/expense.test.ts:6:28)
+      at:
+        fileName: src\modules\analytics\__test__\expense.test.ts
+        lineNumber: 67
+        columnNumber: 1
+      type: TypeError
+      tapCaught: returnedPromiseRejection
+      source: "//   t.teardown(async () => {\r
+      
+        //     stub.restore()\r
+      
+        //     await fastify.close()\r
+      
+        ^
+      
+        //   })\n"
+      ...
+    
+    1..2
+# error thrown in teardown
+not ok 2 - ✅ Should return category expenses # time=1180.886ms
+  ---
+  at:
+    fileName: src\modules\analytics\__test__\expense.test.ts
+    lineNumber: 41
+    columnNumber: 16
+    typeName: Object
+    generated:
+      fileName: src/modules/analytics/__test__/expense.test.ts
+      lineNumber: 51
+      columnNumber: 16
+  source: "  const fastify = await build();\r
+  
+    \r
+  
+    \  const stub = ImportMock.mockFunction(expenseAnalytics, 'categoryExpenses',
+    [\r
+  
+    ---------------^
+  
+    \    { category: 'Travel', total: 1200 },\r
+  
+    \    { category: 'Software', total: 2300 }\n"
+  ...
+
+not ok 3 - Connection is closed.
+  ---
+  stack: |
+    EventEmitter.sendCommand (node_modules/ioredis/built/Redis.js:332:28)
+    EventEmitter.quit (node_modules/ioredis/built/utils/Commander.js:90:25)
+    Object.close (node_modules/@fastify/redis/index.js:126:24)
+    Object._encapsulateTwoParam (node_modules/avvio/boot.js:558:13)
+    Boot.closeWithCbOrNextTick (node_modules/avvio/boot.js:531:7)
+    Task.release (node_modules/fastq/queue.js:171:16)
+    worked (node_modules/fastq/queue.js:223:10)
+    node_modules/fastify/fastify.js:479:15
+  at:
+    fileName: node_modules\ioredis\built\Redis.js
+    lineNumber: 332
+    columnNumber: 28
+    typeName: EventEmitter
+    methodName: sendCommand
+    functionName: EventEmitter.sendCommand
+  test: ✅ Should return category expenses
+  source: |2
+            }
+            if (this.status === "end") {
+                command.reject(new Error(utils_1.CONNECTION_CLOSED_ERROR_MSG));
+    ---------------------------^
+                return command.promise;
+            }
+  ...
+
+not ok 4 - timeout!
   ---
   signal: null
   handles:
@@ -33,4 +146,4 @@ not ok 2 - timeout!
   test: TAP
   ...
 
-1..2
+1..4

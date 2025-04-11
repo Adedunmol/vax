@@ -60,6 +60,8 @@ export async function expenseHandler(request: FastifyRequest<{ Querystring: Expe
                 return reply.code(400).send({ status: 'error', message: 'Group by query is unknown' })
         }
 
+        console.log('expense: ', expense)
+
         return reply.code(200).send({ status: 'success', message: 'Expense retrieved successfully', data: expense })
     } catch (err) {
         return reply.code(500).send(err)
