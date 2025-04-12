@@ -39,8 +39,8 @@ $ docker-compose -f docker-compose.dev.yml up --build -d
 
 4. Migrate the database:
 ```bash
-$ npm run db:generate
-$ npm run db:migrate
+$ docker exec -d vax-app npm run db:generate
+$ docker exec -d vax-app npm run db:migrate
 ```
 
 5. Navigate to this endpoint `http://localhost:{PORT}/docs` to access the docs. PORT is the port defined in the `.env` file.
