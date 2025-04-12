@@ -43,10 +43,11 @@ $ docker exec -d vax-app npm run db:generate
 $ docker exec -d vax-app npm run db:migrate
 ```
 
-5. Navigate to this endpoint `http://localhost:{PORT}/docs` to access the docs. PORT is the port defined in the `.env` file.
-   
+5. Navigate to this endpoint `127.0.01:{PORT}/docs` to access the docs. PORT is the port defined in the `.env` file.
 
-6. To stop the running containers, use:
+6. Navigate to this endpoint `127.0.0.1:{PORT}/bull-board` to check the queues. PORT is the port defined in the `.env` file. 
+
+7. To stop the running containers, use:
 ```bash
 $ docker-compose down
 ```
