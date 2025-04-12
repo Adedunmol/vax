@@ -12,6 +12,10 @@ FROM base AS development
 
 COPY . .
 
+# RUN npm run db:generate
+
+# RUN npm run db:migrate
+
 # Testing
 FROM development AS testing
 
@@ -28,3 +32,7 @@ RUN npm run build
 FROM base AS production
 
 COPY --from=build /app/dist /app
+
+# RUN npm run db:generate
+
+# RUN npm run db:migrate

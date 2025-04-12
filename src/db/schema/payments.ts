@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, boolean, integer, timestamp, decimal } from 'drizzle-orm/pg-core'
 import users from './users'
 import { relations } from 'drizzle-orm'
-import invoices from './invoices'
+import { invoices } from './invoices'
 
 const timestamps = {
     updated_at: timestamp(),

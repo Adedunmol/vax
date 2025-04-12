@@ -1,6 +1,6 @@
 import { pgTable, serial, varchar, boolean, integer, timestamp, decimal } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import invoices from './invoices'
+import { invoices } from './invoices'
 
 export const items = pgTable('items', {
     id: serial('id').primaryKey(),

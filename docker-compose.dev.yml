@@ -6,13 +6,6 @@ services:
     container_name: vax-app
     ports:
       - "${PORT}:3000"
-    environment:
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_USER=${DB_USER}
-      - DB_NAME=${DB_NAME}
-      - DB_HOST=${DB_HOST}
-      - PORT=${PORT}
-      - DB_URL=${DB_URL}
     env_file:
       - ./.env
     depends_on:
@@ -20,8 +13,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    # networks:
-    #   - vax
     command: npm run dev
     volumes:
       - .:/app
