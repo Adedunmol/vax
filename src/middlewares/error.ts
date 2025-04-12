@@ -10,8 +10,15 @@ function errorHandler(err: any, req: FastifyRequest, reply: FastifyReply) {
     statusCode = 400;
     status = 'validation error'
     message = err.message;
-    logger.info(err);
-  } else {
+    logger.info({
+      type: 'ValidationError',
+      message: err.message,
+      validation: err.validation, // array of validation issues
+      context: err.validationContext,
+      url: req.raw.url,
+      method: req.raw.method,
+    });
+    } else {
     logger.error(err);
   }
 

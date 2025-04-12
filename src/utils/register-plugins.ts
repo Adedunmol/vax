@@ -9,7 +9,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { FastifyAdapter } from '@bull-board/fastify'
 import env from '../env'
 import { version } from '../../package.json'
-import { getRedisClient } from '../queues/redis'
 import emailQueue from '../queues/email/producer'
 import fastifyCookie from '@fastify/cookie'
 import userRoutes from '../modules/user/user.route'
@@ -24,8 +23,8 @@ import errorHandler from '../middlewares/error'
 import fastifyCors from '@fastify/cors'
 import fastifyHelmet from '@fastify/helmet'
 import fastifyCompress from '@fastify/compress'
-import fastifyGracefulShutdown from 'fastify-graceful-shutdown'
 import invoiceQueue from '../queues/invoice/producer'
+import { closeRedisClient, getRedisClient } from '../queues/redis'
 
 
 export async function registerPlugins(server: FastifyInstance) {
@@ -39,7 +38,7 @@ export async function registerPlugins(server: FastifyInstance) {
 
   const serverAdapter = new FastifyAdapter()
   serverAdapter.setBasePath('/bull-board')
-  
+
   createBullBoard({
       queues: [new BullMQAdapter(emailQueue), new BullMQAdapter(invoiceQueue)],
       serverAdapter
@@ -52,13 +51,7 @@ export async function registerPlugins(server: FastifyInstance) {
     return next()
   })
 
-  // server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
-  server.register(fastifyRedis, {
-    host: env.REDIS_HOST,
-    port: env.REDIS_PORT,
-    password: env.REDIS_PASSWORD,
-    maxRetriesPerRequest: null,
-  })
+  server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
     
   server.register(
     swagger, 

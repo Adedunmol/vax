@@ -6,13 +6,13 @@ expense:  { total: [33m3500[39m }
     ok 1 - should be equal
     ok 2 - should match pattern
     1..2
-ok 1 - ✅ Should return total expenses # time=1731.039ms
+ok 1 - ✅ Should return total expenses # time=1651.827ms
 
 expense:  [
   { category: [32m'Travel'[39m, total: [33m1200[39m },
   { category: [32m'Software'[39m, total: [33m2300[39m }
 ]
-{"level":50, 2025-04-11T14:34:31.308Z,"pid":8852,"hostname":"[Redacted]","err":{"type":"TypeError","message":"The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition.","stack":"TypeError: The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition.\n    at anonymous0 (eval at build (C:\\Users\\USER\\vax\\node_modules\\fast-json-stringify\\index.js:207:23), <anonymous>:242:16)\n    at serialize (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:960:12)\n    at preSerializationHookEnd (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:538:17)\n    at preSerializationHook (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:522:5)\n    at _Reply.Reply.send (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:223:7)\n    at Object.<anonymous> (C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts:73:32)\n    at Generator.next (<anonymous>)\n    at fulfilled (C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts:6:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)","serialization":{"url":"/api/v1/analytics/expenses","method":"GET"}},"msg":"The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition."}
+{"level":50, 2025-04-12T07:36:12.991Z,"pid":16652,"hostname":"[Redacted]","err":{"type":"TypeError","message":"The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition.","stack":"TypeError: The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition.\n    at anonymous0 (eval at build (C:\\Users\\USER\\vax\\node_modules\\fast-json-stringify\\index.js:207:23), <anonymous>:242:16)\n    at serialize (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:960:12)\n    at preSerializationHookEnd (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:538:17)\n    at preSerializationHook (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:522:5)\n    at _Reply.Reply.send (C:\\Users\\USER\\vax\\node_modules\\fastify\\lib\\reply.js:223:7)\n    at Object.<anonymous> (C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts:73:32)\n    at Generator.next (<anonymous>)\n    at fulfilled (C:\\Users\\USER\\vax\\src\\modules\\analytics\\analytics.controller.ts:6:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)","serialization":{"url":"/api/v1/analytics/expenses","method":"GET"}},"msg":"The value of 'AnalyticsSchema#/properties/expenseResponse/properties/data' does not match schema definition."}
 # Subtest: ✅ Should return category expenses
     not ok 1 - should be equal
       ---
@@ -72,8 +72,7 @@ expense:  [
       ...
     
     1..2
-# error thrown in teardown
-not ok 2 - ✅ Should return category expenses # time=1180.886ms
+not ok 2 - ✅ Should return category expenses # time=1150.523ms
   ---
   at:
     fileName: src\modules\analytics\__test__\expense.test.ts
@@ -98,38 +97,34 @@ not ok 2 - ✅ Should return category expenses # time=1180.886ms
     \    { category: 'Software', total: 2300 }\n"
   ...
 
-not ok 3 - Connection is closed.
-  ---
-  stack: |
-    EventEmitter.sendCommand (node_modules/ioredis/built/Redis.js:332:28)
-    EventEmitter.quit (node_modules/ioredis/built/utils/Commander.js:90:25)
-    Object.close (node_modules/@fastify/redis/index.js:126:24)
-    Object._encapsulateTwoParam (node_modules/avvio/boot.js:558:13)
-    Boot.closeWithCbOrNextTick (node_modules/avvio/boot.js:531:7)
-    Task.release (node_modules/fastq/queue.js:171:16)
-    worked (node_modules/fastq/queue.js:223:10)
-    node_modules/fastify/fastify.js:479:15
-  at:
-    fileName: node_modules\ioredis\built\Redis.js
-    lineNumber: 332
-    columnNumber: 28
-    typeName: EventEmitter
-    methodName: sendCommand
-    functionName: EventEmitter.sendCommand
-  test: ✅ Should return category expenses
-  source: |2
-            }
-            if (this.status === "end") {
-                command.reject(new Error(utils_1.CONNECTION_CLOSED_ERROR_MSG));
-    ---------------------------^
-                return command.promise;
-            }
-  ...
-
-not ok 4 - timeout!
+not ok 3 - timeout!
   ---
   signal: null
   handles:
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
+    - type: Socket
+      events:
+        - close
+        - error
+        - prefinish
+        - finish
+        - drain
+        - data
+        - end
+        - readable
+        - connect
+        - timeout
     - type: Socket
       events:
         - close
@@ -146,4 +141,4 @@ not ok 4 - timeout!
   test: TAP
   ...
 
-1..4
+1..3
