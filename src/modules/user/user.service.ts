@@ -4,6 +4,7 @@ import { profiles, userOtpVerifications, users } from '../../db/schema'
 import { CreateUserInput } from './user.schema'
 import bcrypt from 'bcrypt'
 import { Profile } from '../../types/user'
+import moment from 'moment'
 
 const OTP_EXPIRATION = 3600000
 
@@ -62,7 +63,7 @@ class UserService {
     
         const hashedOTP = await bcrypt.hash(otp, 10)
     
-        const expiresAt = Date.now() + OTP_EXPIRATION
+        const expiresAt = moment(Date.now()).add(30, 'minutes').toDate()
 
         await db.insert(userOtpVerifications).values({
             userId: id,

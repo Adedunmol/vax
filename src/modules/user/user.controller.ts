@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import UserService from './user.service'
 import { CreateUserInput, LoginUserInput, ResendOTPInput, ResetPasswordInput, ResetPasswordRequestInput, UpdateUserInput, VerifyOTPInput } from './user.schema'
 import { sendToQueue } from '../../queues'
+import moment from 'moment'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const body = request.body
@@ -152,8 +153,8 @@ export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTP
         // user otp record exists
         const { expiresAt } = userOTPRecord
         const hashedOTP = userOTPRecord.otp
-    
-        if (expiresAt < Date.now()) {
+
+        if (moment(expiresAt).isBefore(new Date())) {
             await UserService.deleteUserOtp(request.body.userId)
             return reply.code(400).send({ message: 'Code has expired. Please request again.' })
         }
@@ -243,7 +244,7 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
         const { expiresAt } = userOTPRecord
         const hashedOTP = userOTPRecord.otp
     
-        if (expiresAt < Date.now()) {
+        if (moment(expiresAt).isBefore(new Date())) {
             await UserService.deleteUserOtp(user.id)
             return reply.code(400).send({ message: 'Code has expired. Please request again.' })
         }
@@ -256,7 +257,7 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
     
         const hashedPassword = await UserService.hashPassword(request.body.password.trim())
     
-        await UserService.update(user.id,{ password: hashedPassword })
+        await UserService.update(user.id, { password: hashedPassword })
     
         await UserService.deleteUserOtp(user.id)
     
