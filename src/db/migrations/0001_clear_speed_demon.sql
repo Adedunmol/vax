@@ -1,0 +1,1 @@
+ALTER TABLE "user_otp_verifications" ALTER COLUMN "otp" SET DATA TYPE varchar(255);

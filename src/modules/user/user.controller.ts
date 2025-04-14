@@ -21,12 +21,14 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
     
         await sendToQueue('emails', emailData)
 
-        return reply.code(201).send({ status: 'success', message: 'User created successfully', data: user })
+        const { firstName: first_name, lastName: last_name } = user
+
+        return reply.code(201).send({ status: 'success', message: 'User created successfully', data: { ...user, first_name, last_name } })
     } catch (err: any) {
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)
             const column = match ? match[1] : 'Field'
-            return reply.status(409).send({ error: `${column} already exists` })
+            return reply.status(409).send({ status: 'conflict error', message: `${column} already exists` })
         }
     
         return reply.code(500).send(err)
