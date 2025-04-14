@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
+const responseCore = {
+    status: z.string(),
+    message: z.string()
+}
+
 const userCore = {
     email: z.string({ 
         required_error: 'email is required', 
@@ -24,8 +29,11 @@ const createUserSchema = z.object({
 })
 
 const createUserResponseSchema = z.object({
-    ...userCore,
-    id: z.number()
+    ...responseCore,
+    data: z.object({
+        ...userCore,
+        id: z.number()
+    })
 })
 
 const loginSchema = z.object({
@@ -37,8 +45,10 @@ const loginSchema = z.object({
 })
 
 const loginResponseSchema = z.object({
-    access_token: z.string(),
-    expires_in: z.number()
+    ...responseCore,
+    data: z.object({
+        access_token: z.string(),
+    })
 })
 
 const userResponse = z.object({
@@ -52,11 +62,6 @@ const userResponse = z.object({
     email: z.string(),
     verified: z.boolean(),
 })
-
-const responseCore = {
-    status: z.string(),
-    message: z.string()
-}
 
 const genericResponse = z.object({
     ...responseCore
@@ -94,8 +99,7 @@ const verifyOTPResponse = z.object({
 const refreshTokenResponse = z.object({
     ...responseCore,
     data: z.object({
-        accessToken: z.string(),
-        expiresIn: z.number()
+        access_token: z.string()
     })
 })
 

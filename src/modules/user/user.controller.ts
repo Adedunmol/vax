@@ -21,7 +21,7 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
     
         await sendToQueue('emails', emailData)
 
-        return reply.code(201).send(user)
+        return reply.code(201).send({ status: 'success', message: 'User created successfully', data: user })
     } catch (err: any) {
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)
@@ -39,11 +39,11 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
     try {
         const user = await UserService.findByEmail(body.email)
 
-        if (!user) return reply.code(401).send({ message: 'invalid credentials' })
+        if (!user) return reply.code(401).send({ status: 'error', message: 'invalid credentials' })
 
         const match = await UserService.comparePassword(body.password, user.password)
 
-        if (!match) return reply.code(401).send({ message: 'invalid credentials' })
+        if (!match) return reply.code(401).send({ status: 'error', message: 'invalid credentials' })
 
         // update user's last login
         await UserService.updateProfile({ userId: user.id, lastLogin: new Date() })
@@ -53,7 +53,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         await UserService.update(user.id, { refreshToken })
 
         reply.setCookie('jwt', refreshToken, { httpOnly: true, maxAge: 15 * 60 * 1000, sameSite: 'none' })
-        return { accessToken: request.jwt.sign({ id: user.id, email: user.email }) }
+        return reply.code(200).send({ status: 'success', message: 'User logged in succesfully', data: { access_token: request.jwt.sign({ id: user.id, email: user.email }) } })
     } catch (err) {
         // server.log.error(err)
 
@@ -89,7 +89,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
         const cookie = request.cookies
     
         if (!cookie?.jwt) {
-            return reply.code(401).send({ message: 'You are not authorized to access this route' })
+            return reply.code(401).send({ status: 'error', message: 'You are not authorized to access this route' })
         }
 
         const refreshToken = cookie.jwt
@@ -103,7 +103,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
                 refreshToken,
                 async (err, data) => {
                     if (err) {
-                        return reply.code(403).send({ message: 'bad token for reuse' })
+                        return reply.code(403).send({ status: 'error', message: 'Bad token for reuse' })
                     }
                     const user = await UserService.findByEmail(data?.email)
                 
@@ -113,7 +113,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
                 }
             )
 
-            return reply.code(401).send({ message: 'Token reuse' })
+            return reply.code(401).send({ status: 'error', message: 'Token reuse' })
         }
 
         request.jwt.verify(
@@ -123,7 +123,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
                     await UserService.update(data.id, { refreshToken: '' })
                 }
                 if (err || data?.email !== user.email) {
-                    return reply.code(403).send({ message: 'bad token' })
+                    return reply.code(403).send({ status: 'error', message: 'Bad token' })
                 }
 
                 const accessToken = request.jwt.sign({ id: user.id, email: user.email })
@@ -134,7 +134,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
 
                 reply.cookie('jwt', newRefreshToken, {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
-                return reply.code(200).send({ status: 'success', message: '', data: { accessToken, expiresIn: 15 * 60 * 1000 }})
+                return reply.code(200).send({ status: 'success', message: 'Access token refresh successfully', data: { access_token: accessToken }})
             }
         )
     } catch(err) {
@@ -147,7 +147,7 @@ export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTP
         const userOTPRecord = await UserService.findUserWithOtp(request.body.userId)
 
         if (!userOTPRecord) {
-            return reply.code(403).send({ message: "Account record doesn't exist or has been verified already. Please sign up or log in." })
+            return reply.code(403).send({ status: 'error', message: "Account record doesn't exist or has been verified already. Please sign up or log in." })
         }
     
         // user otp record exists
@@ -156,13 +156,13 @@ export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTP
 
         if (moment(expiresAt).isBefore(new Date())) {
             await UserService.deleteUserOtp(request.body.userId)
-            return reply.code(400).send({ message: 'Code has expired. Please request again.' })
+            return reply.code(400).send({ status: 'error', message: 'Code has expired. Please request again.' })
         }
     
         const validOTP = await UserService.compareOtp(request.body.otp, hashedOTP)
     
         if (!validOTP) {
-            return reply.code(400).send({ message: 'Invalid code passed. Check your inbox.' })
+            return reply.code(400).send({ status: 'error', message: 'Invalid code passed. Check your inbox.' })
         }
     
         const user = await UserService.update(request.body.userId, { verfied: true })
@@ -181,7 +181,7 @@ export async function resendOTPHandler(request: FastifyRequest<{ Body: ResendOTP
 
         const user = await UserService.findById(request.body.userId)
     
-        if (!user) return reply.code(404).send({ message: 'No user found with this id' })
+        if (!user) return reply.code(404).send({ status: 'error', message: 'No user found with this id' })
     
         const otp = await UserService.generateOTP(user.id, user.email)
         
@@ -202,9 +202,9 @@ export async function resetPasswordRequestHandler(request: FastifyRequest<{ Body
     try {
         const user = await UserService.findByEmail(request.body.email.trim())
 
-        if (!user) return reply.code(404).send({ message: 'No user found with this email' })
+        if (!user) return reply.code(404).send({ status: 'error', message: 'No user found with this email' })
     
-        if (!user.verified) return reply.code(400).send({ message: "Email hasn't been verified yet. Check your inbox." })
+        if (!user.verified) return reply.code(400).send({ status: 'error', message: "Email hasn't been verified yet. Check your inbox." })
     
         const otpDetails = {
             email: request.body.email.trim(),
@@ -232,12 +232,12 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
     try {
         const user = await UserService.findByEmail(request.body.email.trim())
 
-        if (!user) return reply.code(404).send({ message: 'No user found with this email' })
+        if (!user) return reply.code(404).send({ status: 'error', message: 'No user found with this email' })
     
         const userOTPRecord = await UserService.findUserWithOtp(user.id)
     
         if (!userOTPRecord) {
-            return reply.code(400).send({ message: 'Password reset request has not been made.' })
+            return reply.code(400).send({ status: 'error', message: 'Password reset request has not been made.' })
         }
     
         // user otp record exists
@@ -246,13 +246,13 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
     
         if (moment(expiresAt).isBefore(new Date())) {
             await UserService.deleteUserOtp(user.id)
-            return reply.code(400).send({ message: 'Code has expired. Please request again.' })
+            return reply.code(400).send({ status: 'error', message: 'Code has expired. Please request again.' })
         }
     
         const validOTP = await bcrypt.compare(request.body.otp.trim(), hashedOTP)
     
         if (!validOTP) {
-            return reply.code(400).send({ message: 'Invalid code passed. Check your inbox.' })
+            return reply.code(400).send({ status: 'error', message: 'Invalid code passed. Check your inbox.' })
         }
     
         const hashedPassword = await UserService.hashPassword(request.body.password.trim())
@@ -273,7 +273,7 @@ export async function updateUserHandler(request: FastifyRequest<{ Body: UpdateUs
 
         const user = await UserService.update(userId, request.body)
 
-        return reply.code(200).send({ message: "User updated successfully", data: { ...user } })
+        return reply.code(200).send({ status: 'success', message: "User updated successfully", data: { ...user } })
     } catch (err: any) {
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)
