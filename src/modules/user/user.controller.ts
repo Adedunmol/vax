@@ -142,6 +142,8 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
         const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email });
     
         await UserService.update(user.id, { refreshToken: newRefreshToken });
+
+        await UserService.updateProfile({ userId: user.id, lastLogin: new Date() })
     
         reply.setCookie('jwt', newRefreshToken, {
             maxAge: 24 * 60 * 60 * 1000,
