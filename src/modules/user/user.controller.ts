@@ -5,6 +5,7 @@ import { CreateUserInput, LoginUserInput, ResendOTPInput, ResetPasswordInput, Re
 import { sendToQueue } from '../../queues'
 import moment from 'moment'
 import { logger } from '../../utils/logger'
+import { FastifyJWT } from '@fastify/jwt'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const body = request.body
@@ -70,78 +71,89 @@ export async function logoutHandler(request: FastifyRequest, reply: FastifyReply
     try {
         const refreshToken = request.cookies.jwt;
 
-        if (!refreshToken) return reply.code(204)
+        if (!refreshToken) return reply.code(204).send()
 
         const foundUser = await UserService.findUserWithToken(refreshToken)
 
         if (!foundUser) {
             reply.clearCookie('jwt', { httpOnly: true, maxAge: 24 * 60 * 60, sameSite: 'none' })
-            return reply.code(204)
+            return reply.code(204).send()
         }
 
         await UserService.update(foundUser.id, { refreshToken: '' })
 
+        await UserService.updateProfile({ userId: foundUser.id, lastLogin: new Date() })
+
         reply.clearCookie('jwt', {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
-        return reply.code(204)
+        return reply.code(204).send()
     } catch (err: any) {
-        return reply.code(500)
+        return reply.code(500).send(err)
     }
 }
 
 export async function refreshTokenHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
         const cookie = request.cookies
-    
+        
         if (!cookie?.jwt) {
             return reply.code(401).send({ status: 'error', message: 'You are not authorized to access this route' })
         }
-
-        const refreshToken = cookie.jwt
-        reply.clearCookie('jwt', {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
-
-        const user = await UserService.findUserWithToken(refreshToken)
-
         //reuse detected
+        const refreshToken = cookie.jwt;
+        reply.clearCookie('jwt', {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: 'none',
+        });
+    
+        const user = await UserService.findUserWithToken(refreshToken);
+    
+        // Token reuse detected
         if (!user) {
-            request.jwt.verify(
-                refreshToken,
-                async (err, data) => {
-                    if (err) {
-                        return reply.code(403).send({ status: 'error', message: 'Bad token for reuse' })
-                    }
-                    const user = await UserService.findByEmail(data?.email)
-                
-                    if (user) {
-                        await UserService.update(data.id, { refreshToken: '' })
-                    }
+            try {
+                const decoded = request.jwt.verify<FastifyJWT['user']>(refreshToken);
+                const reusedUser = await UserService.findByEmail(decoded?.email);
+    
+                if (reusedUser) {
+                    await UserService.update(decoded.id, { refreshToken: '' });
                 }
-            )
-
-            return reply.code(401).send({ status: 'error', message: 'Token reuse' })
+            } catch (err) {
+                return reply.code(403).send({ status: 'error', message: 'Bad token for reuse' });
+            }
+    
+            return reply.code(401).send({ status: 'error', message: 'Token reuse' });
         }
 
-        request.jwt.verify(
-            refreshToken,
-            async (err, data) => {
-                if (err) {
-                    await UserService.update(data.id, { refreshToken: '' })
-                }
-                if (err || data?.email !== user.email) {
-                    return reply.code(403).send({ status: 'error', message: 'Bad token' })
-                }
 
-                const accessToken = request.jwt.sign({ id: user.id, email: user.email })
-
-                const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email })
-            
-                await UserService.update(data.id, { refreshToken: '' })
-
-                reply.cookie('jwt', newRefreshToken, {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
-
-                return reply.code(200).send({ status: 'success', message: 'Access token refresh successfully', data: { access_token: accessToken }})
-            }
-        )
+        let decoded;
+        try {
+            decoded = await request.jwt.verify(refreshToken);
+        } catch (err) {
+            await UserService.update(user.id, { refreshToken: '' });
+            return reply.code(403).send({ status: 'error', message: 'Bad token' });
+        }
+    
+        if (decoded.email !== user.email) {
+            return reply.code(403).send({ status: 'error', message: 'Bad token' });
+        }
+    
+        const accessToken = request.jwt.sign({ id: user.id, email: user.email });
+        const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email });
+    
+        await UserService.update(user.id, { refreshToken: newRefreshToken });
+    
+        reply.setCookie('jwt', newRefreshToken, {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: 'none',
+        });
+    
+        return reply.code(200).send({
+            status: 'success',
+            message: 'Access token refreshed successfully',
+            data: { access_token: accessToken },
+        });
     } catch(err) {
         return reply.code(500).send(err)
     }
