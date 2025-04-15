@@ -3,11 +3,13 @@ import { getRedisClient } from '../redis'
 import db from '../../db';
 import { reminders } from '../../db/schema';
 import { eq } from 'drizzle-orm';
+import { logger } from '../../utils/logger';
 
 const emailWorker = new Worker('emails', async job => {
     try {
         const { invoiceId, invoicePath, isReminder } = job.data;
     
+        logger.info('sending mail to: ')
         // Send invoice via email
         // await sendEmailWithTemplates(invoiceId, invoicePath)
 

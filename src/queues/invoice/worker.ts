@@ -2,10 +2,13 @@ import { Worker } from 'bullmq'
 import { getRedisClient } from '../redis'
 import PDFInvoice from '../../utils/generate-invoice';
 import { sendToQueue } from '..';
+import { logger } from '../../utils/logger';
 
 const invoiceWorker = new Worker('invoices', async job => {
     try {
         const { invoiceId } = job.data;
+
+        logger.info('generating invoice for: ', invoiceId)
     
         // Generate the invoice
         const data = {

@@ -4,6 +4,7 @@ import UserService from './user.service'
 import { CreateUserInput, LoginUserInput, ResendOTPInput, ResetPasswordInput, ResetPasswordRequestInput, UpdateUserInput, VerifyOTPInput } from './user.schema'
 import { sendToQueue } from '../../queues'
 import moment from 'moment'
+import { logger } from '../../utils/logger'
 
 export async function registerUserHandler(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const body = request.body
@@ -20,6 +21,8 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
         }
     
         await sendToQueue('emails', emailData)
+
+        await UserService.createProfile(user.id)
 
         const { firstName: first_name, lastName: last_name } = user
 
@@ -41,21 +44,21 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
     try {
         const user = await UserService.findByEmail(body.email)
 
-        if (!user) return reply.code(401).send({ status: 'error', message: 'invalid credentials' })
+        if (!user.users) return reply.code(401).send({ status: 'error', message: 'invalid credentials' })
 
-        const match = await UserService.comparePassword(body.password, user.password)
+        const match = await UserService.comparePassword(body.password, user.users.password)
 
         if (!match) return reply.code(401).send({ status: 'error', message: 'invalid credentials' })
 
         // update user's last login
-        await UserService.updateProfile({ userId: user.id, lastLogin: new Date() })
+        await UserService.updateProfile({ userId: user.users.id, lastLogin: new Date() })
 
-        const refreshToken = request.jwt.sign({ id: user.id, email: user.email })
+        const refreshToken = request.jwt.sign({ id: user.users.id, email: user.users.email })
 
-        await UserService.update(user.id, { refreshToken })
+        await UserService.update(user.users.id, { refreshToken })
 
         reply.setCookie('jwt', refreshToken, { httpOnly: true, maxAge: 15 * 60 * 1000, sameSite: 'none' })
-        return reply.code(200).send({ status: 'success', message: 'User logged in succesfully', data: { access_token: request.jwt.sign({ id: user.id, email: user.email }) } })
+        return reply.code(200).send({ status: 'success', message: 'User logged in succesfully', data: { access_token: request.jwt.sign({ id: user.users.id, email: user.users.email }) } })
     } catch (err) {
         // server.log.error(err)
 
@@ -206,25 +209,25 @@ export async function resetPasswordRequestHandler(request: FastifyRequest<{ Body
 
         if (!user) return reply.code(404).send({ status: 'error', message: 'No user found with this email' })
     
-        if (!user.verified) return reply.code(400).send({ status: 'error', message: "Email hasn't been verified yet. Check your inbox." })
+        if (!user.users.verified) return reply.code(400).send({ status: 'error', message: "Email hasn't been verified yet. Check your inbox." })
     
         const otpDetails = {
             email: request.body.email.trim(),
-            _id: user.id
+            _id: user.users.id
         }
     
-        await UserService.deleteUserOtp(user.id)
+        await UserService.deleteUserOtp(user.users.id)
     
-        const otp = await UserService.generateOTP(user.id, user.email)
+        const otp = await UserService.generateOTP(user.users.id, user.users.email)
         
         const emailData = {
             template: "forgot-password",
             locals: { otp },
-            to: user.email
+            to: user.users.email
         }
         await sendToQueue('emails', emailData) // send verification mail to user
     
-        return reply.code(200).send({ status: "success", message: "otp has been sent to the provided email", data: { userId: user.id, email: user.email, otp } }) // userOTPVerification.otp
+        return reply.code(200).send({ status: "success", message: "otp has been sent to the provided email", data: { userId: user.users.id, email: user.users.email, otp } }) // userOTPVerification.otp
     } catch (err) {
         return reply.code(500).send(err)
     }
@@ -236,7 +239,7 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
 
         if (!user) return reply.code(404).send({ status: 'error', message: 'No user found with this email' })
     
-        const userOTPRecord = await UserService.findUserWithOtp(user.id)
+        const userOTPRecord = await UserService.findUserWithOtp(user.users.id)
     
         if (!userOTPRecord) {
             return reply.code(400).send({ status: 'error', message: 'Password reset request has not been made.' })
@@ -247,7 +250,7 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
         const hashedOTP = userOTPRecord.otp
     
         if (moment(expiresAt).isBefore(new Date())) {
-            await UserService.deleteUserOtp(user.id)
+            await UserService.deleteUserOtp(user.users.id)
             return reply.code(400).send({ status: 'error', message: 'Code has expired. Please request again.' })
         }
     
@@ -259,9 +262,9 @@ export async function resetPasswordHandler(request: FastifyRequest<{ Body: Reset
     
         const hashedPassword = await UserService.hashPassword(request.body.password.trim())
     
-        await UserService.update(user.id, { password: hashedPassword })
+        await UserService.update(user.users.id, { password: hashedPassword })
     
-        await UserService.deleteUserOtp(user.id)
+        await UserService.deleteUserOtp(user.users.id)
     
         return reply.status(200).send({ status: "success", message: "Password changed successfully", data: null })
     } catch (err) {

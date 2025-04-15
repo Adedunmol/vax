@@ -22,12 +22,7 @@ class UserService {
     async findByEmail(email: string) {
         // find and return user by email
         // const user = await db.select().from(users).where(eq(users.email, email))
-        const user = db.query.users.findFirst({
-            where: eq(users.email, email),
-            with: {
-                profiles: true
-            }
-        })
+        const [user] = await db.select().from(users).where(eq(users.email, email)).leftJoin(profiles, eq(users.id, profiles.userId))
     
         return user
     }
@@ -104,6 +99,12 @@ class UserService {
 
     async hashPassword(password: string) {
         return bcrypt.hash(password, 10)
+    }
+
+    async createProfile(userId: number) {
+        const [profile] = await db.insert(profiles).values({ userId }).returning()
+    
+        return profile
     }
 }
 
