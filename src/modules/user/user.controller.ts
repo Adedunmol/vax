@@ -184,7 +184,7 @@ export async function verifyOtpHandler(request: FastifyRequest<{ Body: VerifyOTP
             return reply.code(400).send({ status: 'error', message: 'Invalid code passed. Check your inbox.' })
         }
     
-        const user = await UserService.update(request.body.userId, { verfied: true })
+        const user = await UserService.update(request.body.userId, { verified: true })
     
         await UserService.deleteUserOtp(request.body.userId)
         
@@ -202,12 +202,12 @@ export async function resendOTPHandler(request: FastifyRequest<{ Body: ResendOTP
     
         if (!user) return reply.code(404).send({ status: 'error', message: 'No user found with this id' })
     
-        const otp = await UserService.generateOTP(user.id, user.email)
+        const otp = await UserService.generateOTP(user.users.id, user.users.email)
         
         const emailData = {
             template: "verification",
-            locals: { username: user.username, otp },
-            to: user.email
+            locals: { username: user.users.username, otp },
+            to: user.users.email
         }
         await sendToQueue('emails', emailData) // send verification mail to user
     

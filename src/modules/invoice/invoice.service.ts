@@ -1,7 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreateInvoiceInput, UpdateInvoiceInput } from './invoice.schema'
-import invoices from '../../db/schema/invoices'
+import { invoices } from '../../db/schema/invoices'
 import { items, reminders } from '../../db/schema'
 
 
@@ -34,7 +34,7 @@ class InvoiceService {
         const invoice = db.query.invoices.findFirst({ 
             where: and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)),
             with: {
-                clients: true
+                client: true
             }
         })
     
@@ -45,7 +45,7 @@ class InvoiceService {
         const invoicesData = db.query.invoices.findMany({ 
             where: and(eq(invoices.createdBy, userId), isNull(invoices.deleted_at)),
             with: {
-                clients: true
+                client: true
             }
         })
     

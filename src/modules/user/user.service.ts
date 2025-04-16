@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { eq, InferSelectModel } from 'drizzle-orm'
 import db from '../../db'
 import { profiles, userOtpVerifications, users } from '../../db/schema'
 import { CreateUserInput } from './user.schema'
@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt'
 import { Profile } from '../../types/user'
 import moment from 'moment'
 
-const OTP_EXPIRATION = 3600000
+type UserDetails = Partial<InferSelectModel<typeof users>>
 
 class UserService {
 
@@ -30,17 +30,12 @@ class UserService {
     async findById(id: number) {
         // find and return user by email
         // const user = await db.select().from(users).where(eq(users.email, email))
-        const user = db.query.users.findFirst({
-            where: eq(users.id, id),
-            with: {
-                profiles: true
-            }
-        })
+        const [user] = await db.select().from(users).where(eq(users.id, id)).leftJoin(profiles, eq(users.id, profiles.userId))
     
         return user
     }
 
-    async update(userId: number, updateUserObj: any) {
+    async update(userId: number, updateUserObj: UserDetails) {
 
         const [user] = await db.update(users).set({ ...updateUserObj, updated_at: new Date() }).where(eq(users.id, userId)).returning()
 
@@ -77,9 +72,7 @@ class UserService {
 
     async findUserWithOtp(userId: number) {
         const otpRecord = await db.query.userOtpVerifications.findFirst({
-            where: and(
-                eq(userOtpVerifications.userId, userId),
-            )
+            where: eq(userOtpVerifications.userId, userId)
         });
 
         return otpRecord
