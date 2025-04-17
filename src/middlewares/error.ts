@@ -18,8 +18,16 @@ function errorHandler(err: any, req: FastifyRequest, reply: FastifyReply) {
       url: req.raw.url,
       method: req.raw.method,
     });
+    } else if (err.code === 'FST_JWT_NO_AUTHORIZATION_IN_HEADER' || err.code === 'FST_JWT_AUTHORIZATION_TOKEN_EXPIRED' || err.code === 'FST_JWT_AUTHORIZATION_TOKEN_INVALID') {
+      statusCode = 401;
+      status = 'error'
+      message = err.message;
+    } else if (err.code === 'FST_JWT_BAD_REQUEST') {
+      statusCode = 400;
+      status = 'error'
+      message = err.message;
     } else {
-    logger.error(err);
+      logger.error(err);
   }
 
   const response = {

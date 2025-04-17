@@ -134,7 +134,8 @@ async function userRoutes(server: FastifyInstance) {
                     409: $errorRef('errorSchema'),
                 },
                 tags: ['users']
-            }
+            },
+            preHandler: [server.authenticate]
         },
         updateUserHandler
     )

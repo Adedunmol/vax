@@ -297,7 +297,7 @@ export async function updateUserHandler(request: FastifyRequest<{ Body: UpdateUs
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)
             const column = match ? match[1] : 'Field'
-            return reply.status(409).send({ error: `${column} already exists` })
+            return reply.status(409).send({ status: 'conflict error', message: `${column} already exists` })
         }
     
         return reply.code(500).send(err)
