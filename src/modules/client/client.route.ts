@@ -48,7 +48,8 @@ async function clientRoutes(server: FastifyInstance) {
                     400: $errorRef('errorSchema')
                 },
                 tags: ['clients']
-            }
+            },
+            preHandler: [server.authenticate]
         },
         getClientInvoicesHandler
     )

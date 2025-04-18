@@ -30,7 +30,7 @@ const clientResponse = z.object({
     data: clientCore
 })
 
-const allClientsCore = z.array(clientResponse)
+const allClientsCore = z.array(clientCore)
 
 const allClientsResponse = z.object({
     ...responseCore,

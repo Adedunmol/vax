@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import ClientService from './client.service'
 import { CreateClientInput, UpdateClientInput } from './client.schema'
+import { logger } from '../../utils/logger'
 
 export async function createClientHandler(request: FastifyRequest<{ Body: CreateClientInput }>, reply: FastifyReply) {
     try {
@@ -18,7 +19,7 @@ export async function createClientHandler(request: FastifyRequest<{ Body: Create
         if (err.code === '23505' && err.detail) {
             const match = err.detail.match(/\((.*?)\)=/)
             const column = match ? match[1] : 'Field'
-            return reply.status(409).send({ error: `${column} already exists` })
+            return reply.status(409).send({ status: "error", error: `${column} already exists` })
         }
         
         return reply.code(500).send(err)
@@ -35,7 +36,7 @@ export async function getClientHandler(request: FastifyRequest<{ Params: { clien
 
         if (!client) return reply.code(404).send({ message: 'No client found with the id' })
 
-        return reply.code(200).send({ message: "Client retrieved successfully", data: { ...client } })
+        return reply.code(200).send({ status: 'success', message: "Client retrieved successfully", data: { ...client } })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -47,7 +48,7 @@ export async function getAllClientsHandler(request: FastifyRequest, reply: Fasti
 
         const clients = await ClientService.getAll(userId)
 
-        return reply.code(200).send({ message: "Clients retrieved successfully", data: { clients } })
+        return reply.code(200).send({ status: 'success', message: "Clients retrieved successfully", data: clients })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -61,7 +62,7 @@ export async function getClientInvoicesHandler(request: FastifyRequest<{ Params:
 
         const invoices = await ClientService.getInvoices(request.params.clientId, userId)
 
-        return reply.code(200).send({ message: "Invoices retrieved successfully", data: { invoices } })
+        return reply.code(200).send({ status: 'success', message: "Invoices retrieved successfully", data: invoices })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -75,7 +76,7 @@ export async function updateClientHandler(request: FastifyRequest<{ Body: Update
 
         const client = await ClientService.update(request.params.clientId, userId, request.body)
 
-        return reply.code(200).send({ message: "Client updated successfully", data: { ...client } })
+        return reply.code(200).send({ status: 'success', message: "Client updated successfully", data: client })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -89,7 +90,7 @@ export async function deleteClientHandler(request: FastifyRequest<{ Params: { cl
 
         const client = await ClientService.delete(request.params.clientId, userId)
 
-        return reply.code(200).send({ message: "Client deleted successfully", data: { ...client } })
+        return reply.code(200).send({ status: 'success', message: "Client deleted successfully", data: client })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
