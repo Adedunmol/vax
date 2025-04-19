@@ -32,7 +32,17 @@ const invoiceCore = z.object({
     createdBy: z.number(),
     createdFor: z.number(),
     totalAmount: z.number(),
-    amountPaid: z.number()
+    amountPaid: z.number(),
+    description: z.string(),
+    dueDate: z.date(),
+    items: z.array(z.object({
+        id: z.number(),
+        description: z.string(),
+        invoiceId: z.number(),
+        units: z.number(),
+        rate: z.string(),
+        total: z.string(),
+    })).optional()
 })
 
 const clientCore = z.object({ 

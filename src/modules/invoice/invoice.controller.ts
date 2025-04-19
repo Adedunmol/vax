@@ -60,7 +60,8 @@ export async function getInvoiceHandler(request: FastifyRequest<{ Params: { invo
 
         if (!invoice) return reply.code(404).send({ status: 'success', message: 'No invoice found with the id' })
 
-        return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: { invoice: invoice.invoices, client: invoice.clients } })
+
+        return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: invoice })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
