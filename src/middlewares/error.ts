@@ -3,7 +3,7 @@ import { logger } from '../utils/logger'
 
 function errorHandler(err: any, req: FastifyRequest, reply: FastifyReply) {
   let statusCode = 500;
-  let message = "internal server error hmm";
+  let message = "internal server error";
   let status = "error"
 
   if (err instanceof Fastify.errorCodes.FST_ERR_VALIDATION || err.code === 'FST_ERR_VALIDATION') {

@@ -4,7 +4,7 @@ import { CreateInvoiceInput, UpdateInvoiceInput } from './invoice.schema'
 import { createReminder } from '../reminder/reminder.controller'
 import SettingsService from '../settings/settings.service'
 import moment from "moment";
-
+import { logger } from '../../utils/logger'
 
 export const WeeklyInterval = 7
 
@@ -14,9 +14,15 @@ export async function createInvoiceHandler(request: FastifyRequest<{ Body: Creat
 
         const settings = await SettingsService.get(userId)
 
-        if (!settings) return reply.code(400).send({ message: 'No settings associated with user' })
+        if (!settings) return reply.code(400).send({ status: 'error', message: 'No settings associated with user' })
 
-        const invoice = await InvoiceService.create({ ...request.body, userId })
+        if (!moment(request.body.due_date).isValid()) return reply.code(400).send({ status: 'error', message: 'due_date is invalid' })
+
+        if (moment(request.body.due_date).isBefore(new Date())) return reply.code(400).send({ status: 'error', message: 'due_date must be in the future' })
+
+        const dueDate = moment(request.body.due_date).toDate()
+
+        const invoice = await InvoiceService.create({ ...request.body, userId, due_date: dueDate })
 
         const recurrentReminderData = {
             dueDate: invoice.dueDate || new Date(),
@@ -38,7 +44,7 @@ export async function createInvoiceHandler(request: FastifyRequest<{ Body: Creat
 
         await createReminder(beforeDueReminderData)
 
-        return reply.code(201).send({ message: 'Invoice created successfully', data: { ...invoice } })
+        return reply.code(201).send({ status: 'success', message: 'Invoice created successfully', data: invoice })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -46,15 +52,15 @@ export async function createInvoiceHandler(request: FastifyRequest<{ Body: Creat
 
 export async function getInvoiceHandler(request: FastifyRequest<{ Params: { invoiceId: number } }>, reply: FastifyReply) {
     try {
-        if (!request.params.invoiceId) return reply.code(400).send({ message: 'invoiceId is required' })
+        if (!request.params.invoiceId) return reply.code(400).send({ status: 'error', message: 'invoiceId is required' })
 
         const userId = request.user.id
 
         const invoice = await InvoiceService.get(request.params.invoiceId, userId)
 
-        if (!invoice) return reply.code(404).send({ message: 'No invoice found with the id' })
+        if (!invoice) return reply.code(404).send({ status: 'success', message: 'No invoice found with the id' })
 
-        return reply.code(200).send({ message: "Invoice retrieved successfully", data: { ...invoice } })
+        return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: { invoice: invoice.invoices, client: invoice.clients } })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -66,7 +72,7 @@ export async function getAllInvoicesHandler(request: FastifyRequest, reply: Fast
 
         const invoices = await InvoiceService.getAll(userId)
 
-        return reply.code(200).send({ message: "Invoices retrieved successfully", data: { invoices } })
+        return reply.code(200).send({ status: 'success', message: "Invoices retrieved successfully", data: invoices })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -76,11 +82,11 @@ export async function updateInvoiceHandler(request: FastifyRequest<{ Body: Updat
     try {
         const userId = request.user.id
 
-        if (!request.params.invoiceId) return reply.code(400).send({ message: 'invoiceId is required' })
+        if (!request.params.invoiceId) return reply.code(400).send({ status: 'error', message: 'invoiceId is required' })
        
         const invoice = await InvoiceService.update(request.params.invoiceId, userId, request.body)
 
-        return reply.code(200).send({ message: "Invoice updated successfully", data: { ...invoice } })
+        return reply.code(200).send({ status: 'success', message: "Invoice updated successfully", data: invoice })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -88,14 +94,16 @@ export async function updateInvoiceHandler(request: FastifyRequest<{ Body: Updat
 
 export async function deleteInvoiceHandler(request: FastifyRequest<{ Params: { invoiceId: number } }>, reply: FastifyReply) {
     try {
-        if (!request.params.invoiceId) return reply.code(400).send({ message: 'invoiceId is required' })
+        if (!request.params.invoiceId) return reply.code(400).send({ status: 'error', message: 'invoiceId is required' })
 
         const userId = request.user.id
 
         const invoice = await InvoiceService.delete(request.params.invoiceId, userId)
 
-        return reply.code(200).send({ message: "Invoice deleted successfully", data: { ...invoice } })
+        if (!invoice) return reply.code(404).send({ status: 'success', message: 'No invoice found with the id' })
+
+        return reply.code(200).send({ status: 'success', message: "Invoice deleted successfully", data: invoice })
     } catch (err: any) {
-        return reply.code(500).send(err)
+        return reply.code(500).send({ status: 'error', message: err })
     }
 }

@@ -2,7 +2,7 @@ import { eq, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreateInvoiceInput, UpdateInvoiceInput } from './invoice.schema'
 import { invoices } from '../../db/schema/invoices'
-import { items, reminders } from '../../db/schema'
+import { clients, items, reminders } from '../../db/schema'
 
 
 class InvoiceService {
@@ -31,23 +31,17 @@ class InvoiceService {
     }
 
     async get(invoiceId: number, userId: number) {
-        const invoice = db.query.invoices.findFirst({ 
-            where: and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)),
-            with: {
-                client: true
-            }
-        })
+        const [invoice] = await db.select().from(invoices).where(
+            and(eq(invoices.id, invoiceId), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)),
+        ).innerJoin(clients, eq(clients.id, invoices.createdFor))
     
         return invoice
     }
 
     async getAll(userId: number) {
-        const invoicesData = db.query.invoices.findMany({ 
-            where: and(eq(invoices.createdBy, userId), isNull(invoices.deleted_at)),
-            with: {
-                client: true
-            }
-        })
+        const invoicesData = await db.select().from(invoices).where(
+            and(eq(invoices.createdBy, userId), isNull(invoices.deleted_at))
+        )
     
         return invoicesData
     }

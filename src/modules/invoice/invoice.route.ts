@@ -27,7 +27,7 @@ async function invoiceRoutes(server: FastifyInstance) {
             schema: {
                 params: $ref('invoiceParam'),
                 response: {
-                    200: $ref('invoiceResponse'),
+                    200: $ref('invoiceWithClientResponse'),
                     400: $errorRef('errorSchema')
                 },
                 tags: ['invoices']
