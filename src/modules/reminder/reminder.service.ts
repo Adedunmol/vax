@@ -21,7 +21,7 @@ class RemindersService {
 
     async getDueReminders() {
         // fetch the remidners in chunks
-        const pendingReminders: RemindersWithUsers[] = await db.query.reminders.findMany({
+        const pendingReminders = await db.query.reminders.findMany({ 
             where: and(
                 eq(reminders.reminderStatus, 'pending'), // Not sent
                 eq(reminders.canceled, false), // Not canceled

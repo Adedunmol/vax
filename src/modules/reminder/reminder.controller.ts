@@ -5,16 +5,16 @@ import { ZodError } from 'zod'
 
 export async function createReminder(data: CreateReminderInput) {
     try {
-        const validData = createReminderSchema.parse(data)
+        // const validData = createReminderSchema.parse(data)
 
-        const result = await ReminderService.create(validData)
+        const result = await ReminderService.create(data)
 
         return result
     } catch (err: any) {
         // handle if zod error
-        if (err instanceof ZodError) {
-            console.error(err.issues)
-        }
+        // if (err instanceof ZodError) {
+        //     console.error(err.issues)
+        // }
 
         console.error(err)
     }
