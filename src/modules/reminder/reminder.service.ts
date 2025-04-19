@@ -21,19 +21,17 @@ class RemindersService {
 
     async getDueReminders() {
         // fetch the remidners in chunks
-        const pendingReminders = await db.query.reminders.findMany({ 
-            where: and(
+        const pendingReminders = await db.select().from(reminders).where(
+            and(
                 eq(reminders.reminderStatus, 'pending'), // Not sent
                 eq(reminders.canceled, false), // Not canceled
                 lte(reminders.dueDate, new Date()),
                 isNull(reminders.deleted_at)
-            ),
-            with: {
-                user: true,
-                client: true,
-                invoice: true
-            } 
-        })
+            )
+        )
+        .innerJoin(users, eq(users.id, reminders.userId))
+        .innerJoin(clients, eq(clients.id, reminders.clientId))
+        .innerJoin(invoices, eq(invoices.id, reminders.invoiceId))
 
         return pendingReminders
     }

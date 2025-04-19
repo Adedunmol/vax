@@ -10,24 +10,24 @@ export const enqueueReminders = async () => {
 
     const reminderPromises = dueReminders.map(async (reminder) => {
         try {
-            if (!reminder.canceled || reminder.invoice.status !== 'paid') {
+            if (!reminder.reminders.canceled || reminder.invoices.status !== 'paid') {
                 const emailData = {
                     template: 'reminder',
-                    locals: { firstName: reminder.user.firstName },
-                    to: reminder.client.email
+                    locals: { firstName: reminder.clients.firstName },
+                    to: reminder.clients.email
                 };
     
                 await sendToQueue('invoices', emailData);
 
-                const nextReminderDate = moment(reminder.dueDate).add(reminder.intervalDays, 'days').toDate()
+                const nextReminderDate = moment(reminder.reminders.dueDate).add(reminder.reminders.intervalDays, 'days').toDate()
                 
                 await Promise.all([
-                    db.update(reminders).set({ reminderStatus: 'scheduled' }).where(eq(reminders.id, reminder.id)),
+                    db.update(reminders).set({ reminderStatus: 'scheduled' }).where(eq(reminders.id, reminder.reminders.id)),
                     db.insert(reminders).values({ ...reminder, dueDate: nextReminderDate })
                 ])
             }
         } catch (error) {
-            console.error(`Failed to enqueue reminder for ${reminder.client.email}:`, error);
+            console.error(`Failed to enqueue reminder for ${reminder.clients.email}:`, error);
         }
     });
 
