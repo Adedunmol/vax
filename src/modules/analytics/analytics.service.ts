@@ -1,6 +1,6 @@
 import db from "../../db";
 import { invoices, payments, expenses, clients, reminders, users } from "../../db/schema";  
-import { eq, and, sum, count, avg, sql } from "drizzle-orm";
+import { eq, and, sum, count, avg, sql, isNull } from "drizzle-orm";
 
 class RevenueAnalytics {
     async totalRevenue(userId: number) {
@@ -79,7 +79,7 @@ class RevenueAnalytics {
 
 class ExpenseAnalytics {
     async totalExpenses(userId: number) {
-        const [expensesData] = await db.select({ total: sum(expenses.amount).mapWith(Number) }).from(expenses).where(eq(expenses.userId, userId))
+        const [expensesData] = await db.select({ total: sum(expenses.amount).mapWith(Number) }).from(expenses).where(and(eq(expenses.userId, userId), isNull(expenses.deleted_at)))
 
         return expensesData
     }
@@ -90,7 +90,7 @@ class ExpenseAnalytics {
                                         total: sum(expenses.amount).mapWith(Number)
                                     })
                                     .from(expenses)
-                                    .where(eq(expenses.userId, userId))
+                                    .where(and(eq(expenses.userId, userId), isNull(expenses.deleted_at)))
                                     .groupBy(expenses.category)
 
         return expensesData
@@ -102,7 +102,7 @@ class ExpenseAnalytics {
                                         total: sum(expenses.amount).mapWith(Number)
                                     })
                                     .from(expenses)
-                                    .where(eq(expenses.userId, userId))
+                                    .where(and(eq(expenses.userId, userId), isNull(expenses.deleted_at)))
                                     .groupBy(sql`TO_CHAR(${expenses.expenseDate}, 'YYYY-MM')`)
                                     .orderBy(sql`month DESC`)
 
@@ -132,7 +132,8 @@ class InvoiceAnalytics {
                                 .where(
                                     and(
                                         sql`${payments.paymentDate} > ${invoices.dueDate}`,
-                                        eq(invoices.createdBy, userId)
+                                        eq(invoices.createdBy, userId),
+                                        isNull(invoices.deleted_at)
                                     )
                                 )
 
@@ -142,7 +143,7 @@ class InvoiceAnalytics {
     async unpaidInvoices(userId: number) {
         const invoicesData = await db.select({ invoiceId: invoices.id })
                                     .from(invoices)
-                                    .where(and(eq(invoices.status, "unpaid"), eq(invoices.createdBy, userId)))
+                                    .where(and(eq(invoices.status, "unpaid"), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)))
 
         return invoicesData
     }
