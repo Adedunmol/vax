@@ -11,7 +11,11 @@ const timestamps = {
     deleted_at: timestamp(),
 }
 
-export const invoiceStatus = pgEnum("invoice_status", ["unpaid", "partially_paid", "paid", "overdue"])
+export const invoiceStatusValues = ["unpaid", "partially_paid", "paid", "overdue"] as const
+
+export type Status = typeof invoiceStatusValues[number]
+
+export const invoiceStatus = pgEnum("invoice_status", invoiceStatusValues)
 
 export const invoices = pgTable('invoices', {
     id: serial('id').primaryKey(),
