@@ -8,7 +8,7 @@ export async function updateSettingsHandler(request: FastifyRequest<{ Body: Upda
 
         const settings = await SettingsService.update(userId, request.body)
 
-        return reply.code(200).send({ message: "User updated successfully", data: settings })
+        return reply.code(200).send({ status: 'success', message: 'User updated successfully', data: settings })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
@@ -20,7 +20,7 @@ export async function getSettingsHandler(request: FastifyRequest, reply: Fastify
 
         const settings = await SettingsService.get(userId)
 
-        return reply.code(200).send({ message: "User retrieved successfully", data: settings })
+        return reply.code(200).send({ status: 'success', message: 'User retrieved successfully', data: settings })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
