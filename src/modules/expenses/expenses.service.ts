@@ -2,6 +2,7 @@ import { eq, and, isNull } from 'drizzle-orm'
 import db from '../../db'
 import { CreateExpenseInput, UpdateExpenseInput } from './expenses.schema'
 import expenses from '../../db/schema/expenses'
+import { logger } from '../../utils/logger'
 
 class ExpensesService {
 

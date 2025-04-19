@@ -1,13 +1,20 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
+const responseCore = {
+    status: z.string(),
+    message: z.string()
+}
+
 const createExpenseSchema = z.object({
     category: z.string({ required_error: "category is required" }),
     amount: z.number({ required_error: "amount is required" }),
-    expense_date: z.string().refine((str) => !isNaN(Date.parse(str)), { message: "Invalid expense_date format" }).transform((str) => new Date(str))
+    expense_date: z.string()
+                .regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Date must be in YYYY-MM-DD format" })
+                .transform((str) => new Date(str)) 
 })
 
-const expenseResponse = z.object({
+const expenseCore = z.object({
     id: z.number(),
     updated_at: z.date(),
     created_at: z.date(),
@@ -18,7 +25,15 @@ const expenseResponse = z.object({
     expenseDate: z.date()
 })
 
-const allExpensesResponse = z.array(expenseResponse)
+const expenseResponse = z.object({
+    ...responseCore,
+    data: expenseCore
+})
+
+const allExpensesResponse = z.object({
+    ...responseCore,
+    data: z.array(expenseCore)
+})
 
 const expenseParam = z.object({
     expenseId: z.number()
@@ -27,7 +42,7 @@ const expenseParam = z.object({
 const updateExpenseSchema = z.object({
     category: z.string().optional(),
     amount: z.number().optional(),
-    expense_date: z.string().transform((str) => (str ? new Date(str) : undefined)).optional()
+    expense_date: z.coerce.date().optional() // z.string().transform((str) => (str ? new Date(str) : undefined)).optional()
 })
 
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>
