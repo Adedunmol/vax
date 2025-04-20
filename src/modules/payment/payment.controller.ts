@@ -13,6 +13,8 @@ export async function createPaymentHandler(request: FastifyRequest<{ Body: Creat
 
         const data = await PaymentService.create({ ...request.body, userId, payment_date: paymentDate })
 
+        if (!data) return reply.code(400).send({ status: 'error', message: 'no invoice found with id' })
+
         return reply.code(201).send({ status: 'success', message: 'Payment created successfully', data })
     } catch (err: any) {
         return reply.code(500).send(err)
