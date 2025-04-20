@@ -1,6 +1,6 @@
 import { eq, sql, and, isNull } from 'drizzle-orm'
 import db from '../../db'
-import { CreatePaymentInput } from './payment.schema'
+import { CreatePaymentInput, UpdatePaymentInput } from './payment.schema'
 import { payments, invoices, reminders, invoiceStatus, Status } from '../../db/schema'
 
 class PaymentService {
@@ -54,19 +54,19 @@ class PaymentService {
         return paymentsData
     }
 
-    async update(paymentId: number, userId: number, updateObj: any) {
+    async update(paymentId: number, userId: number, updateObj: UpdatePaymentInput) {
         // if the amount field is being modified, update the amount_paid in the invoices table
 
-        const [payment] = await db.update(payments).set({ ...updateObj, updated_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(reminders.deleted_at))).returning()
+        const [payment] = await db.update(payments).set({ paymentMethod: updateObj.payment_method, paymentDate: updateObj.payment_date, updated_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(payments.deleted_at))).returning()
 
         return payment
     }
 
     async delete(paymentId: number, userId: number) {
-        const [payment] = await db.update(payments).set({ deleted_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(reminders.deleted_at))).returning()
+        const [payment] = await db.update(payments).set({ deleted_at: new Date() }).where(and(eq(payments.id, paymentId), eq(payments.userId, userId), isNull(payments.deleted_at))).returning()
 
         if (payment) {
-            await db.update(invoices).set({ amountPaid: (Number(invoices.amountPaid) - Number(payment?.amount)).toFixed(2) }).where(and(eq(invoices.id, payment.invoiceId!), eq(invoices.createdBy, userId)))
+            await db.update(invoices).set({ amountPaid: (Number(invoices.amountPaid) - Number(payment?.amount)).toFixed(2) }).where(and(eq(invoices.id, payment.invoiceId!), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)))
         }
     
         return payment

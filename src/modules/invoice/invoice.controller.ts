@@ -62,9 +62,9 @@ export async function getInvoiceHandler(request: FastifyRequest<{ Params: { invo
 
         const invoice = await InvoiceService.get(request.params.invoiceId, userId)
 
-        await request.redis.set(`cache:invoices:${request.params.invoiceId}`, JSON.stringify(invoice))
+        if (!invoice) return reply.code(404).send({ status: 'error', message: 'No invoice found with the id' })
 
-        if (!invoice) return reply.code(404).send({ status: 'success', message: 'No invoice found with the id' })
+        await request.redis.set(`cache:invoices:${request.params.invoiceId}`, JSON.stringify(invoice))
 
         return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: invoice })
     } catch (err: any) {

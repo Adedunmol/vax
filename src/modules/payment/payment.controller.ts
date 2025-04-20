@@ -27,9 +27,15 @@ export async function getPaymentHandler(request: FastifyRequest<{ Params: { paym
 
         const userId = request.user.id
 
+        const cachedPayment = await request.redis.get(`cache:payments:${request.params.paymentId}`)
+
+        if (cachedPayment) return reply.code(200).send({ status: 'success', message: "Payment retrieved successfully", data: JSON.parse(cachedPayment) })
+
         const payment = await PaymentService.get(request.params.paymentId, userId)
 
         if (!payment) return reply.code(404).send({ status: 'error', message: 'No payment found with the id' })
+
+        await request.redis.set(`cache:payments:${request.params.paymentId}`, JSON.stringify(payment))
 
         return reply.code(200).send({ status: 'success', message: "Payment retrieved successfully", data: payment })
     } catch (err: any) {
@@ -41,9 +47,15 @@ export async function getAllPaymentsHandler(request: FastifyRequest, reply: Fast
     try {
         const userId = request.user.id
 
-        const expenses = await PaymentService.getAll(userId)
+        const cachedPayments = await request.redis.get(`cache:payments:${userId}`)
 
-        return reply.code(200).send({ status: 'success', message: "Payments retrieved successfully", data: expenses })
+        if (cachedPayments) return reply.code(200).send({ status: 'success', message: "Payments retrieved successfully", data: JSON.parse(cachedPayments) })
+
+        const payments = await PaymentService.getAll(userId)
+
+        if (payments.length > 0) await request.redis.set(`cache:payments:${userId}`, JSON.stringify(payments))
+
+        return reply.code(200).send({ status: 'success', message: "Payments retrieved successfully", data: payments })
     } catch (err: any) {
         return reply.code(500).send(err)
     }
