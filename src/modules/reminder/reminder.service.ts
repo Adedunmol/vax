@@ -14,7 +14,7 @@ class RemindersService {
     }
 
     async update(reminderId: number, userId: number, updateObj: UpdateReminderInput) {
-        const [reminder] = await db.update(reminders).set(updateObj).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId), isNull(reminders.deleted_at))).returning()
+        const [reminder] = await db.update(reminders).set({ ...updateObj, canceled: updateObj.cancel, updated_at: new Date() }).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId), isNull(reminders.deleted_at))).returning()
 
         return reminder
     }
@@ -37,7 +37,7 @@ class RemindersService {
     }
 
     async get(reminderId: number, userId: number) {
-        const reminder = db.query.invoices.findFirst({ 
+        const reminder = db.query.reminders.findFirst({ 
             where: and(eq(reminders.id, reminderId), eq(reminders.userId, userId), isNull(reminders.deleted_at)),
         })
     
@@ -45,7 +45,7 @@ class RemindersService {
     }
 
     async getAll(userId: number) {
-        const remindersData = db.query.invoices.findMany({ 
+        const remindersData = db.query.reminders.findMany({ 
             where: and(
                 eq(reminders.userId, userId), 
                 isNull(reminders.deleted_at),
@@ -56,7 +56,7 @@ class RemindersService {
     }
 
     async delete(reminderId: number, userId: number) {
-        const reminder = db.update(reminders).set({ deleted_at: new Date(), reminderStatus: 'canceled' }).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
+        const [reminder] = await db.update(reminders).set({ deleted_at: new Date(), reminderStatus: 'canceled' }).where(and(eq(reminders.id, reminderId), eq(reminders.userId, userId))).returning()
     
         return reminder
     }

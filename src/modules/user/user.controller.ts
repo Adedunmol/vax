@@ -23,7 +23,7 @@ export async function registerUserHandler(request: FastifyRequest<{ Body: Create
     
         await sendToQueue('emails', emailData)
 
-        await UserService.createProfile(user.id)
+        await UserService.createSettings(user.id)
 
         const { firstName: first_name, lastName: last_name } = user
 
@@ -52,7 +52,7 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         if (!match) return reply.code(401).send({ status: 'error', message: 'invalid credentials' })
 
         // update user's last login
-        await UserService.updateProfile({ userId: user.users.id, lastLogin: new Date() })
+        await UserService.updateSettings({ userId: user.users.id, lastLogin: new Date() })
 
         const refreshToken = request.jwt.sign({ id: user.users.id, email: user.users.email })
 
@@ -82,7 +82,7 @@ export async function logoutHandler(request: FastifyRequest, reply: FastifyReply
 
         await UserService.update(foundUser.id, { refreshToken: '' })
 
-        await UserService.updateProfile({ userId: foundUser.id, lastLogin: new Date() })
+        await UserService.updateSettings({ userId: foundUser.id, lastLogin: new Date() })
 
         reply.clearCookie('jwt', {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none'})
 
@@ -143,7 +143,7 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
     
         await UserService.update(user.id, { refreshToken: newRefreshToken });
 
-        await UserService.updateProfile({ userId: user.id, lastLogin: new Date() })
+        await UserService.updateSettings({ userId: user.id, lastLogin: new Date() })
     
         reply.setCookie('jwt', newRefreshToken, {
             maxAge: 24 * 60 * 60 * 1000,

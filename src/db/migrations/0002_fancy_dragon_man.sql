@@ -1,0 +1,1 @@
+ALTER TABLE "settings" RENAME COLUMN "lastLogin" TO "last_login";

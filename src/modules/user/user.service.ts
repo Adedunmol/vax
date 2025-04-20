@@ -1,6 +1,6 @@
 import { eq, InferSelectModel } from 'drizzle-orm'
 import db from '../../db'
-import { profiles, userOtpVerifications, users } from '../../db/schema'
+import { profiles, settings, userOtpVerifications, users } from '../../db/schema'
 import { CreateUserInput } from './user.schema'
 import bcrypt from 'bcrypt'
 import { Profile } from '../../types/user'
@@ -22,7 +22,7 @@ class UserService {
     async findByEmail(email: string) {
         // find and return user by email
         // const user = await db.select().from(users).where(eq(users.email, email))
-        const [user] = await db.select().from(users).where(eq(users.email, email)).leftJoin(profiles, eq(users.id, profiles.userId))
+        const [user] = await db.select().from(users).where(eq(users.email, email)).leftJoin(settings, eq(users.id, settings.userId))
     
         return user
     }
@@ -30,7 +30,7 @@ class UserService {
     async findById(id: number) {
         // find and return user by email
         // const user = await db.select().from(users).where(eq(users.email, email))
-        const [user] = await db.select().from(users).where(eq(users.id, id)).leftJoin(profiles, eq(users.id, profiles.userId))
+        const [user] = await db.select().from(users).where(eq(users.id, id)).leftJoin(settings, eq(users.id, settings.userId))
     
         return user
     }
@@ -42,9 +42,9 @@ class UserService {
         return user
     }
 
-    async updateProfile(updateObj: Profile) {
+    async updateSettings(updateObj: Profile) {
         const { userId, ...rest } = updateObj
-        await db.update(profiles).set(rest).where(eq(profiles.userId, userId)).returning()
+        await db.update(settings).set(rest).where(eq(settings.userId, userId)).returning()
     }
 
     async generateOTP(id: number, email: string) {
@@ -94,10 +94,10 @@ class UserService {
         return bcrypt.hash(password, 10)
     }
 
-    async createProfile(userId: number) {
-        const [profile] = await db.insert(profiles).values({ userId }).returning()
+    async createSettings(userId: number) {
+        const [settingsData] = await db.insert(settings).values({ userId, currency: 'NGN' }).returning()
     
-        return profile
+        return settingsData
     }
 }
 

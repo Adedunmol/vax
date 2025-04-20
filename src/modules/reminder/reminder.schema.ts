@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
+const responseCore = {
+    status: z.string(),
+    message: z.string()
+}
+
 export const createReminderSchema = z.object({
     invoiceId: z.number(),
     isRecurring: z.boolean(),
@@ -12,7 +17,7 @@ const reminderParam = z.object({
     reminderId: z.number()
 })
 
-const reminderResponse = z.object({
+const reminderCore = z.object({
     invoiceId: z.number(),
     isRecurring: z.boolean(),
     canceled: z.boolean(),
@@ -27,13 +32,19 @@ const reminderResponse = z.object({
     reminderStatus: z.enum(['pending', 'sent', 'scheduled', 'canceled'])
 })
 
-const allRemindersResponse = z.array(reminderResponse)
+const reminderResponse = z.object({
+    ...responseCore,
+    data: reminderCore
+})
+
+const allRemindersResponse = z.object({
+    ...responseCore,
+    data: z.array(reminderCore)
+})
 
 const updateReminderSchema = z.object({
-    invoiceId: z.number(),
     intervalDays: z.number().optional(),
     cancel: z.boolean().optional(),
-    dueDate: z.string().transform((str) => (str ? new Date(str) : undefined)).refine((date) => !date || date > new Date(), { message: "due_date must be in the future" }).optional()
 })
 
 export type CreateReminderInput = z.infer<typeof createReminderSchema>

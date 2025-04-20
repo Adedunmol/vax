@@ -16,7 +16,7 @@ const settings = pgTable('settings', {
     notify_before: integer('notify_before').default(0),
     recurrentReminders: boolean('recurrent_reminders').default(true),
     recurrentInterval: integer('recurrent_interval').default(0),
-    lastLogin: timestamp().defaultNow(),
+    lastLogin: timestamp('last_login').defaultNow(),
     ...timestamps
 })
 

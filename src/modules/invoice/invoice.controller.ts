@@ -28,7 +28,9 @@ export async function createInvoiceHandler(request: FastifyRequest<{ Body: Creat
             dueDate: invoice.dueDate || new Date(),
             isRecurring: settings?.recurrentReminders || true,
             intervalDays: settings?.recurrentInterval || WeeklyInterval,
-            invoiceId: invoice.id
+            invoiceId: invoice.id,
+            userId,
+            clientId: invoice.createdFor
         }
 
         await createReminder(recurrentReminderData)
@@ -39,7 +41,9 @@ export async function createInvoiceHandler(request: FastifyRequest<{ Body: Creat
             dueDate: notifyBefore,
             isRecurring: false,
             intervalDays: 0,
-            invoiceId: invoice.id
+            invoiceId: invoice.id,
+            userId,
+            clientId: invoice.createdFor
         }
 
         await createReminder(beforeDueReminderData)
