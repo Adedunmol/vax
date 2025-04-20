@@ -11,10 +11,12 @@ import { expenseSchemas } from './modules/expenses/expenses.schema'
 import { clientSchemas } from './modules/client/client.schema'
 import { analyticsSchemas } from './modules/analytics/analytics.schema'
 import { JWT } from '@fastify/jwt'
+import { FastifyRedis } from '@fastify/redis'
 
 declare module 'fastify' {
   interface FastifyRequest {
     jwt: JWT
+    redis: FastifyRedis
   }
 
   export interface FastifyInstance {

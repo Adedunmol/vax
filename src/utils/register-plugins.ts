@@ -48,6 +48,7 @@ export async function registerPlugins(server: FastifyInstance) {
 
   server.addHook('preHandler', (req, reply, next) => {
     req.jwt = server.jwt
+    req.redis = server.redis
     return next()
   })
 
