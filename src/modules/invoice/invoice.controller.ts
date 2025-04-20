@@ -76,7 +76,13 @@ export async function getAllInvoicesHandler(request: FastifyRequest, reply: Fast
     try {
         const userId = request.user.id
 
+        const cachedInvoices = await request.redis.get(`cache:invoices:${userId}`)
+
+        if (cachedInvoices) return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: JSON.parse(cachedInvoices) })
+
         const invoices = await InvoiceService.getAll(userId)
+
+        await request.redis.set(`cache:invoices:${userId}`, JSON.stringify(invoices))
 
         return reply.code(200).send({ status: 'success', message: "Invoices retrieved successfully", data: invoices })
     } catch (err: any) {
