@@ -84,25 +84,52 @@ export async function expenseHandler(request: FastifyRequest<{ Querystring: Expe
         const userId = request.user.id
 
         let expense: unknown
+        let cachedExpense: string | null
 
         switch (request.query.type) {
             case 'total':
+                cachedExpense = await request.redis.get(`cache:total-expense:${userId}`)
+
+                if (cachedExpense) return reply.code(200).send({ status: 'success', message: "Expense retrieved successfully", data: JSON.parse(cachedExpense) })
+
                 expense = await expenseAnalytics.totalExpenses(userId)
+
+                await request.redis.set(`cache:total-expense:${userId}`, JSON.stringify(expense))
+
                 break
             case 'category':
+                cachedExpense = await request.redis.get(`cache:category-expense:${userId}`)
+
+                if (cachedExpense) return reply.code(200).send({ status: 'success', message: "Expense retrieved successfully", data: JSON.parse(cachedExpense) })
+
                 expense = await expenseAnalytics.categoryExpenses(userId)
+
+                await request.redis.set(`cache:category-expense:${userId}`, JSON.stringify(expense))
+
                 break
             case 'trend':
+                cachedExpense = await request.redis.get(`cache:trend-expense:${userId}`)
+
+                if (cachedExpense) return reply.code(200).send({ status: 'success', message: "Expense retrieved successfully", data: JSON.parse(cachedExpense) })
+
                 expense = await expenseAnalytics.trendExpenses(userId)
+
+                await request.redis.set(`cache:trend-expense:${userId}`, JSON.stringify(expense))
+
                 break
-            case 'ratio':
-                expense = await expenseAnalytics.ratioExpenses(userId)
-                break
+            // case 'ratio':
+            //     cachedExpense = await request.redis.get(`cache:ratio-expense:${userId}`)
+
+            //     if (cachedExpense) return reply.code(200).send({ status: 'success', message: "Expense retrieved successfully", data: JSON.parse(cachedExpense) })
+
+            //     expense = await expenseAnalytics.ratioExpenses(userId)
+
+            //     await request.redis.set(`cache:ratio-expense:${userId}`, JSON.stringify(expense))
+
+            //     break
             default:
                 return reply.code(400).send({ status: 'error', message: 'Group by query is unknown' })
         }
-
-        console.log('expense: ', expense)
 
         return reply.code(200).send({ status: 'success', message: 'Expense retrieved successfully', data: expense })
     } catch (err) {

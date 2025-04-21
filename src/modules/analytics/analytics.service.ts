@@ -1,6 +1,7 @@
 import db from "../../db";
 import { invoices, payments, expenses, clients, reminders, users } from "../../db/schema";  
 import { eq, and, sum, count, avg, sql, isNull, inArray } from "drizzle-orm";
+import { logger } from "../../utils/logger";
 
 class RevenueAnalytics {
     async totalRevenue(userId: number) {
@@ -109,12 +110,13 @@ class ExpenseAnalytics {
         return expensesData
     }
 
-    async ratioExpenses(userId: number) {
+    // async ratioExpenses(userId: number) {
 
-        const totalRevenue = await new RevenueAnalytics().totalRevenue(userId)
-        const totalExpenses = await this.totalExpenses(userId);
-        return { ratio: Number(totalExpenses!) / (Number(totalRevenue!) || 1) };
-    }
+    //     const totalRevenue = await new RevenueAnalytics().totalRevenue(userId)
+    //     const totalExpenses = await this.totalExpenses(userId);
+
+    //     return { ratio: Number(totalExpenses.total!) / (Number(totalRevenue.total!) || 1) };
+    // }
 }
 
 class InvoiceAnalytics {

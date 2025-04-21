@@ -41,7 +41,7 @@ const revenueResponse = z.object({
 })
 
 const expenseQuerySchema = z.object({
-    type: z.enum(['total', 'category', 'trend', 'ratio'])
+    type: z.enum(['total', 'category', 'trend']) // , 'ratio'
 })
 
 const totalExpenseCore = z.object({ total: z.number() })
@@ -60,12 +60,7 @@ const ratioExpenseCore = z.object({ ratio: z.number() })
 
 const expenseResponse = z.object({
     ...responseCore,
-    data: z.union([
-        totalExpenseCore,
-        categoryExpenseCore,
-        trendExpenseCore,
-        ratioExpenseCore
-    ])
+    data: z.any()
 })
 
 const invoiceQuerySchema = z.object({
