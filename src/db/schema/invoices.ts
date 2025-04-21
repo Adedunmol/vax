@@ -24,7 +24,7 @@ export const invoices = pgTable('invoices', {
     createdBy: integer('created_by').references(() => users.id),
     createdFor: integer('created_for').references(() => clients.id),
     totalAmount: decimal('total_amount'),
-    amountPaid: decimal('amount_paid'),
+    amountPaid: decimal('amount_paid').default('0.00'),
     status: invoiceStatus().default('unpaid'),
     ...timestamps
 })

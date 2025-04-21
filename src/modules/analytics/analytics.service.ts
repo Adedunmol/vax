@@ -1,6 +1,6 @@
 import db from "../../db";
 import { invoices, payments, expenses, clients, reminders, users } from "../../db/schema";  
-import { eq, and, sum, count, avg, sql, isNull } from "drizzle-orm";
+import { eq, and, sum, count, avg, sql, isNull, inArray } from "drizzle-orm";
 
 class RevenueAnalytics {
     async totalRevenue(userId: number) {
@@ -27,16 +27,16 @@ class RevenueAnalytics {
     async outstandingRevenue(userId: number) {
 
         const [revenue] = await db
-                                .select({
-                                        totalOutstanding: sql<number>`COALESCE(SUM(${invoices.totalAmount} - ${invoices.amountPaid}), 0)`
-                                })
-                                .from(invoices)
-                                .where(
-                                    and(
-                                        sql`${invoices.status} IN ('pending', 'partially_paid', 'overdue')`,
-                                        eq(invoices.createdBy, userId)
-                                    )
-                                )
+                        .select({
+                            totalOutstanding: sql<number>`COALESCE(SUM(${invoices.totalAmount} - ${invoices.amountPaid}), 0)`
+                        })
+                        .from(invoices)
+                        .where(
+                            and(
+                            inArray(invoices.status, ['unpaid', 'partially_paid', 'overdue']),
+                            eq(invoices.createdBy, userId)
+                            )
+                        );
 
         return revenue
     }
@@ -52,13 +52,13 @@ class RevenueAnalytics {
     async topClientsRevenue(userId: number) {
         const revenue = await db.select({
                                 client: clients.firstName || ' ' || clients.lastName,
-                                totalSpent: sum(invoices.totalAmount).mapWith(Number)
+                                totalSpent: sql`SUM(${invoices.totalAmount})`.mapWith(Number).as('totalSpent'),
                             })
                             .from(invoices)
                             .innerJoin(clients, eq(invoices.createdFor, clients.id))
                             .where(eq(invoices.createdBy, userId))
                             .groupBy(clients.id)
-                            .orderBy(sql`totalSpent DESC`)
+                            .orderBy(sql`"totalSpent" DESC`)
                             .limit(5)
 
         return revenue

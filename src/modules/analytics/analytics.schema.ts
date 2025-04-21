@@ -12,10 +12,10 @@ const revenueQuerySchema = z.object({
 
 const totalRevenueCore = z.object({ total: z.number() })
 
-const monthlyRevenueCore = z.object({
+const monthlyRevenueCore = z.array(z.object({
     total: z.number(),
     month: z.string()
-})
+}))
 
 const outstandingRevenueCore = z.object({ totalOutstanding: z.number() })
 
@@ -37,14 +37,7 @@ const paymentMethodsRevenueCore = z.array(
 
 const revenueResponse = z.object({
     ...responseCore,
-    data: z.union([
-        totalRevenueCore, 
-        monthlyRevenueCore, 
-        outstandingRevenueCore, 
-        averageRevenueCore,
-        topClientsRevenueCore,
-        paymentMethodsRevenueCore
-    ])
+    data: z.any()
 })
 
 const expenseQuerySchema = z.object({

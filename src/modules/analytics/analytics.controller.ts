@@ -6,7 +6,7 @@ export async function revenueHandler(request: FastifyRequest<{ Querystring: Reve
     try {
         const userId = request.user.id
 
-        let revenue: unknown
+        let revenue: object
 
         switch (request.query.type) {
             case 'total':
@@ -28,10 +28,10 @@ export async function revenueHandler(request: FastifyRequest<{ Querystring: Reve
                 revenue = await revenueAnalytics.paymentMethodsRevenue(userId)
                 break
             default:
-                return reply.code(400).send({ message: 'Revenue type is unknown' })
+                return reply.code(400).send({ status: 'error', message: 'Revenue type is unknown' })
         }
 
-        return reply.code(200).send({ message: 'Total revenue retrieved successfully', data: revenue })
+        return reply.code(200).send({ status: 'success', message: 'Revenue retrieved successfully', data: revenue })
     } catch (err) {
         return reply.code(500).send(err)
     }  
@@ -103,7 +103,7 @@ export async function reminderHandler(request: FastifyRequest<{ Querystring: Rem
                 reminder = await reminderAnalytics.totalSentReminders(userId)
                 break
             case 'invoice':
-                if (!request.query.invoiceId) return reply.code(400).send({ message: 'invoiceId is required' })
+                if (!request.query.invoiceId) return reply.code(400).send({ status: 'error', message: 'invoiceId is required' })
                 reminder = await reminderAnalytics.invoiceReminders(request.query.invoiceId, userId)
                 break
             default:
