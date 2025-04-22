@@ -142,13 +142,28 @@ export async function invoiceHandler(request: FastifyRequest<{ Querystring: Invo
         const userId = request.user.id
 
         let invoice: unknown
+        let cachedInvoice: string | null
 
         switch (request.query.type) {
             case 'late':
+                cachedInvoice = await request.redis.get(`cache:late-invoice:${userId}`)
+
+                if (cachedInvoice) return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: JSON.parse(cachedInvoice) })
+
                 invoice = await invoiceAnalytics.latePaymentsInvoices(userId)
+
+                await request.redis.set(`cache:late-invoice:${userId}`, JSON.stringify(invoice))
+
                 break
             case 'unpaid':
+                cachedInvoice = await request.redis.get(`cache:unpaid-invoice:${userId}`)
+
+                if (cachedInvoice) return reply.code(200).send({ status: 'success', message: "Invoice retrieved successfully", data: JSON.parse(cachedInvoice) })
+
                 invoice = await invoiceAnalytics.unpaidInvoices(userId)
+
+                await request.redis.set(`cache:unpaid-invoice:${userId}`, JSON.stringify(invoice))
+
                 break
             default:
                 return reply.code(400).send({ status: 'error', message: 'Group by query is unknown' })
@@ -166,14 +181,30 @@ export async function reminderHandler(request: FastifyRequest<{ Querystring: Rem
         const userId = request.user.id
 
         let reminder: unknown
+        let cachedReminder
 
         switch (request.query.type) {
             case 'total-sent':
+                cachedReminder = await request.redis.get(`cache:total-reminder:${userId}`)
+
+                if (cachedReminder) return reply.code(200).send({ status: 'success', message: "Reminder retrieved successfully", data: JSON.parse(cachedReminder) })
+
                 reminder = await reminderAnalytics.totalSentReminders(userId)
+
+                await request.redis.set(`cache:total-reminder:${userId}`, JSON.stringify(reminder))
+
                 break
             case 'invoice':
                 if (!request.query.invoiceId) return reply.code(400).send({ status: 'error', message: 'invoiceId is required' })
+
+                cachedReminder = await request.redis.get(`cache:invoice-reminder:${request.query.invoiceId}`)
+
+                if (cachedReminder) return reply.code(200).send({ status: 'success', message: "Reminder retrieved successfully", data: JSON.parse(cachedReminder) })
+
                 reminder = await reminderAnalytics.invoiceReminders(request.query.invoiceId, userId)
+
+                await request.redis.set(`cache:invoice-reminder:${request.query.invoiceId}`, JSON.stringify(reminder))
+
                 break
             default:
                 return reply.code(400).send({ status: 'error', message: 'Group by query is unknown' })
@@ -189,9 +220,15 @@ export async function dashboardHandler(request: FastifyRequest, reply: FastifyRe
     try {
         const userId = request.user.id
 
+        const cachedDashboard = await request.redis.get(`cache:dashboard:${userId}`)
+
+        if (cachedDashboard) return reply.code(200).send({ status: 'success', message: "Dashboard report retrieved successfully", data: JSON.parse(cachedDashboard) })
+
         const dashboard = await reportAnalytics.dashboardReports(userId)
 
-        return reply.code(200).send({ status: 'success', message: 'Dashboard report retrived successfully', data: dashboard })
+        await request.redis.set(`cache:dashboard:${userId}`, JSON.stringify(dashboard))
+
+        return reply.code(200).send({ status: 'success', message: 'Dashboard report retrieved successfully', data: dashboard })
     } catch (err) {
         return reply.code(500).send(err)
     }

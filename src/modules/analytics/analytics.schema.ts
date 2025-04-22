@@ -92,15 +92,12 @@ const unpaidInvoicesResponse = z.object({
 
 const invoiceResponse = z.object({
     ...responseCore,
-    data: z.union([
-        latePaymentsResponse,
-        unpaidInvoicesResponse
-    ])
+    data: z.any()
 }) 
 
 const reminderQuerySchema = z.object({
     type: z.enum(['total-sent', 'invoice']),
-    invoiceId: z.number({ required_error: 'invoiceId is required' })
+    invoiceId: z.number().optional()
 })
 
 const totalRemindersResponse = z.object({
@@ -128,10 +125,7 @@ const invoiceRemindersResponse = z.object({
 
 const reminderResponse = z.object({
     ...responseCore,
-    data: z.union([
-        totalRemindersResponse,
-        invoiceRemindersResponse
-    ])
+    data: z.any()
 })
 
 const dashboardResponse = z.object({
@@ -139,8 +133,30 @@ const dashboardResponse = z.object({
     data: z.object({
         revenue: totalRevenueCore,
         outstandingRevenue: outstandingRevenueCore,
-        expenses: expenseResponse,
-        unpaidInvoices: unpaidInvoicesResponse,
+        expenses: z.object({
+            total: z.number()
+        }),
+        unpaidInvoices: z.array(z.object({
+            status: z.enum(["unpaid", "partially_paid", "paid", "overdue"]),
+            id: z.number(),
+            updated_at: z.date(),
+            created_at: z.date(),
+            deleted_at: z.date(),
+            createdBy: z.number(),
+            createdFor: z.number(),
+            totalAmount: z.number(),
+            amountPaid: z.number(),
+            description: z.string(),
+            dueDate: z.date(),
+            items: z.array(z.object({
+                id: z.number(),
+                description: z.string(),
+                invoiceId: z.number(),
+                units: z.number(),
+                rate: z.string(),
+                total: z.string(),
+            })).optional()
+        })),
         remindersSent: z.object({ count: z.number() })
     })
 })

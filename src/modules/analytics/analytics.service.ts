@@ -143,7 +143,7 @@ class InvoiceAnalytics {
     }
 
     async unpaidInvoices(userId: number) {
-        const invoicesData = await db.select({ invoiceId: invoices.id })
+        const invoicesData = await db.select()
                                     .from(invoices)
                                     .where(and(eq(invoices.status, "unpaid"), eq(invoices.createdBy, userId), isNull(invoices.deleted_at)))
 
@@ -154,7 +154,7 @@ class InvoiceAnalytics {
 class ReminderAnalytics {
     async totalSentReminders(userId: number) {
         const [remindersData] = await db.select({ count: count() })
-        .from(reminders).where(eq(reminders.userId, userId))
+                                        .from(reminders).where(eq(reminders.userId, userId))
 
         return remindersData
     }
