@@ -1,7 +1,7 @@
 import { eq, and, isNull, lte} from 'drizzle-orm'
 import db from '../../db'
 import { CreateReminderInput, UpdateReminderInput } from './reminder.schema'
-import { clients, invoices, reminders, users } from '../../db/schema'
+import { clients, invoices, items, reminders, settings, users } from '../../db/schema'
 
 type RemindersWithUsers = typeof reminders.$inferSelect & { user: typeof users.$inferSelect, client: typeof clients.$inferSelect, invoice: typeof invoices.$inferSelect };
 
@@ -29,11 +29,27 @@ class RemindersService {
                 isNull(reminders.deleted_at)
             )
         )
-        .innerJoin(users, eq(users.id, reminders.userId))
-        .innerJoin(clients, eq(clients.id, reminders.clientId))
         .innerJoin(invoices, eq(invoices.id, reminders.invoiceId))
 
         return pendingReminders
+    }
+
+    async getDetailedData(userId: number, clientId: number, invoiceId: number) {
+        const invoiceData = db.select().from(users).where(
+            and(
+                eq(users.id, userId),
+                isNull(users.deleted_at)
+            )
+        )
+        .innerJoin(clients, eq(clients.id, clientId))
+        .innerJoin(invoices, eq(invoices.id, invoiceId))
+        .leftJoin(settings, eq(settings.userId, userId))
+
+        const itemsData = db.select().from(items).where(eq(items.invoiceId, invoiceId))
+
+        const [[invoice], item] = await Promise.all([invoiceData, itemsData])
+
+        return { invoices: { ...invoice.invoices, items: item }, clients: invoice.clients, users: invoice.users, settings: invoice.settings }
     }
 
     async get(reminderId: number, userId: number) {

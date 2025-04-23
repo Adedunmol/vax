@@ -11,13 +11,14 @@ export const enqueueReminders = async () => {
     const reminderPromises = dueReminders.map(async (reminder) => {
         try {
             if (!reminder.reminders.canceled || reminder.invoices.status !== 'paid') {
-                const emailData = {
-                    template: 'reminder',
-                    locals: { firstName: reminder.clients.firstName },
-                    to: reminder.clients.email
+                const invoiceData = {
+                    reminderId: reminder.reminders.id,
+                    userId: reminder.reminders.userId,
+                    clientId: reminder.reminders.clientId,
+                    invoiceId: reminder.reminders.invoiceId
                 };
     
-                await sendToQueue('invoices', emailData);
+                await sendToQueue('invoices', invoiceData);
 
                 const nextReminderDate = moment(reminder.reminders.dueDate).add(reminder.reminders.intervalDays, 'days').toDate()
                 
@@ -27,7 +28,7 @@ export const enqueueReminders = async () => {
                 ])
             }
         } catch (error) {
-            console.error(`Failed to enqueue reminder for ${reminder.clients.email}:`, error);
+            console.error(`Failed to enqueue reminder for ${reminder.reminders.clientId}:`, error);
         }
     });
 

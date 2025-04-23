@@ -3,26 +3,38 @@ import { getRedisClient } from '../redis'
 import PDFInvoice from '../../utils/generate-invoice';
 import { sendToQueue } from '..';
 import { logger } from '../../utils/logger';
+import ReminderService from '../../modules/reminder/reminder.service';
+
+interface InvoiceData {
+    invoiceId: number
+    reminderId: number
+    userId: number
+    clientId: number
+}
 
 const invoiceWorker = new Worker('invoices', async job => {
     try {
-        const { invoiceId } = job.data;
+        const { userId, invoiceId, clientId } = job.data as InvoiceData;
 
         logger.info('generating invoice for: ', invoiceId)
-    
+        
+        const reminderData = await ReminderService.getDetailedData(userId, clientId, invoiceId)
+
+        if (!reminderData) throw new Error('error fetching reminder data for reminder')
+
         // Generate the invoice
         const data = {
-            logoUrl: "", // settings.customLogo
-            businessName: "", // user.username
-            invoiceId,
+            logoUrl: reminderData.settings?.customLogo || "", // settings.customLogo
+            businessName: reminderData.users.username,
+            invoiceId: reminderData.invoices.id,
             invoiceDate: (new Date()).toDateString(),
-            dueDate: (new Date()).toDateString(), // invoice.dueDate
+            dueDate: (reminderData.invoices.dueDate!).toDateString(),
             client: {
-                name: "", // client.firstName + client.lastName
-                email: "", //client.email
+                name: (reminderData.clients.firstName || '') + (reminderData.clients.lastName || ''), 
+                email: reminderData.clients.email,
                 address: "",
             },
-            items: [{  units: 1, description: "", rate: 10, total: 10}]
+            items: reminderData.invoices.items
         }
         const pdfBuffer = await PDFInvoice.generateInvoicePDF(data)
         const result = await PDFInvoice.uploadToCloudinary(pdfBuffer, `invoice_${invoiceId}`);
@@ -30,7 +42,7 @@ const invoiceWorker = new Worker('invoices', async job => {
         // Queue email job with invoice details
         await sendToQueue('emails', { invoiceId, invoiceUrl: result });
     } catch (err: any) {
-        console.error(err)
+        logger.error(err)
     }
 }, { connection: getRedisClient() })
 
