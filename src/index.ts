@@ -1,5 +1,6 @@
 import buildServer from './app'
 import env from './env'
+import { reminderJob } from './utils/cron-task'
 import { logger } from './utils/logger'
 
 const signals = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const
@@ -30,6 +31,11 @@ async function main() {
         signals.forEach(signal => {
             process.on(signal, () => gracefulShutdown({ signal, server }))
         })
+
+        server.ready().then(() => {
+            server.scheduler.addSimpleIntervalJob(reminderJob)
+        })
+    
     } catch (err) {
         server.log.error('error starting server')
         server.log.error(err)

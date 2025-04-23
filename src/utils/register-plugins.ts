@@ -25,6 +25,7 @@ import fastifyHelmet from '@fastify/helmet'
 import fastifyCompress from '@fastify/compress'
 import invoiceQueue from '../queues/invoice/producer'
 import { closeRedisClient, getRedisClient } from '../queues/redis'
+import fastifySchedule from '@fastify/schedule'
 
 
 export async function registerPlugins(server: FastifyInstance) {
@@ -53,7 +54,9 @@ export async function registerPlugins(server: FastifyInstance) {
   })
 
   server.register(fastifyRedis, { client: getRedisClient(), closeClient: true })
-    
+
+  server.register(fastifySchedule);
+  
   server.register(
     swagger, 
     withRefResolver({ 
