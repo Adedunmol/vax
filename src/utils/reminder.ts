@@ -4,6 +4,7 @@ import { reminders } from "../db/schema";
 import ReminderService from "../modules/reminder/reminder.service"
 import { sendToQueue } from "../queues"
 import moment from "moment";
+import { logger } from "./logger";
 
 export const enqueueReminders = async () => {
     const dueReminders = await ReminderService.getDueReminders();
@@ -11,6 +12,8 @@ export const enqueueReminders = async () => {
     const reminderPromises = dueReminders.map(async (reminder) => {
         try {
             if (!reminder.reminders.canceled || reminder.invoices.status !== 'paid') {
+                logger.info(`sending reminder to invoice queue: ${reminder.reminders.id}`)
+
                 const invoiceData = {
                     reminderId: reminder.reminders.id,
                     userId: reminder.reminders.userId,
@@ -28,7 +31,8 @@ export const enqueueReminders = async () => {
                 ])
             }
         } catch (error) {
-            console.error(`Failed to enqueue reminder for ${reminder.reminders.clientId}:`, error);
+            logger.error(`Failed to enqueue reminder for ${reminder.reminders.clientId}:`)
+            logger.error(error)
         }
     });
 

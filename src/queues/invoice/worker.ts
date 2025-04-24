@@ -14,9 +14,9 @@ interface InvoiceData {
 
 const invoiceWorker = new Worker('invoices', async job => {
     try {
-        const { userId, invoiceId, clientId } = job.data as InvoiceData;
+        const { userId, invoiceId, clientId, reminderId } = job.data as InvoiceData;
 
-        logger.info('generating invoice for: ', invoiceId)
+        logger.info(`generating invoice for: ${invoiceId}`)
         
         const reminderData = await ReminderService.getDetailedData(userId, clientId, invoiceId)
 
@@ -39,17 +39,28 @@ const invoiceWorker = new Worker('invoices', async job => {
         const pdfBuffer = await PDFInvoice.generateInvoicePDF(data)
         const result = await PDFInvoice.uploadToCloudinary(pdfBuffer, `invoice_${invoiceId}`);
     
+        const emailData = {
+            template: 'reminder',
+            locals: {
+                username: reminderData.users.firstName,
+                clientName: (reminderData.clients.firstName || '') + (reminderData.clients.lastName || ''),
+                dueDate: (Number(reminderData.invoices.totalAmount || 0)) - (Number(reminderData.invoices.amountPaid || 0)),
+                userEmail: reminderData.users.email,
+                invoice: result
+            }
+        }
+
         // Queue email job with invoice details
-        await sendToQueue('emails', { invoiceId, invoiceUrl: result });
+        await sendToQueue('emails', { emailData, invoiceId, invoiceUrl: result, isReminder: true, reminderId, });
     } catch (err: any) {
         logger.error(err)
     }
 }, { connection: getRedisClient() })
 
 invoiceWorker.on('completed', job => {
-    console.log(`${job.id} has completed`)
+    logger.info(`${job.id} has completed`)
 })
 
 invoiceWorker.on('failed', (job, err) => {
-    console.log(`${job!!.id} has failed due to ${err.message}`)
+    logger.info(`${job!!.id} has failed due to ${err.message}`)
 })

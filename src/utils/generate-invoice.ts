@@ -19,7 +19,7 @@ type Client = {
 type InvoiceData = {
   logoUrl: string;
   businessName: string;
-  invoiceId: string;
+  invoiceId: number;
   invoiceDate: string;
   dueDate: string;
   items: InvoiceItem[];
@@ -96,8 +96,8 @@ class PDFInvoice {
     let cursorY = itemsStartY - 20;
     data.items.forEach((item) => {
       page.drawText(item.units.toString(), { x: 50, y: cursorY, size: 10, font });
-      page.drawText(item.description, { x: 100, y: cursorY, size: 10, font });
-      page.drawText(item.rate.toFixed(2), { x: 350, y: cursorY, size: 10, font });
+      page.drawText(item.description || '', { x: 100, y: cursorY, size: 10, font });
+      page.drawText(item.rate!.toFixed(2), { x: 350, y: cursorY, size: 10, font });
       page.drawText(item.total.toFixed(2), { x: 450, y: cursorY, size: 10, font });
       cursorY -= 20;
     });

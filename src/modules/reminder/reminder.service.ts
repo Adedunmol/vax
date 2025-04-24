@@ -49,7 +49,16 @@ class RemindersService {
 
         const [[invoice], item] = await Promise.all([invoiceData, itemsData])
 
-        return { invoices: { ...invoice.invoices, items: item }, clients: invoice.clients, users: invoice.users, settings: invoice.settings }
+        const coercedItems = item.map(element => ({
+            id: element.id,
+            description: element.description || "",
+            invoiceId: element.invoiceId,
+            units: element.units,
+            rate: Number(element.rate || 0),
+            total: Number(element.total || 0),
+        }))
+
+        return { invoices: { ...invoice.invoices, items: coercedItems }, clients: invoice.clients, users: invoice.users, settings: invoice.settings }
     }
 
     async get(reminderId: number, userId: number) {
