@@ -47,12 +47,18 @@ const invoiceWorker = new Worker('invoices', async job => {
                 dueDate: (Number(reminderData.invoices.totalAmount || 0)) - (Number(reminderData.invoices.amountPaid || 0)),
                 userEmail: reminderData.users.email,
                 invoice: result
-            }
+            },
+            to: reminderData.clients.email,
+            invoiceId, 
+            invoiceUrl: result, 
+            isReminder: true, 
+            reminderId
         }
 
         // Queue email job with invoice details
-        await sendToQueue('emails', { emailData, invoiceId, invoiceUrl: result, isReminder: true, reminderId, });
+        await sendToQueue('emails', emailData);
     } catch (err: any) {
+        logger.info('error generating invoice: ')
         logger.error(err)
     }
 }, { connection: getRedisClient() })

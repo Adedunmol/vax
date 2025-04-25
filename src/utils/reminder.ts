@@ -9,6 +9,9 @@ import { logger } from "./logger";
 export const enqueueReminders = async () => {
     const dueReminders = await ReminderService.getDueReminders();
 
+    logger.info('dueReminders: ')
+    logger.info(dueReminders)
+
     const reminderPromises = dueReminders.map(async (reminder) => {
         try {
             if (!reminder.reminders.canceled || reminder.invoices.status !== 'paid') {

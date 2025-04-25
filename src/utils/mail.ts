@@ -1,15 +1,16 @@
 import path from 'path'
 import Email from "email-templates"
 import env from '../env'
+import { logger } from './logger'
 
 
-export const sendMailWithTemplates = async (template: string, locals: any,  to: string, invoicePath?: string, invoiceId?: string) => {
+export const sendMailWithTemplates = async (template: string, locals: any,  to: string) => {
     try {
         // server.log.info('from send mail with templates: ', invoicePath)
         const email = new Email({
             message: {
               from: env.EMAIL_FROM,
-              attachments: invoicePath ? [{ path: invoicePath, contentType: 'application/pdf', filename: `${invoiceId}.pdf`}] : []
+            //   attachments: invoicePath ? [{ path: invoicePath, contentType: 'application/pdf', filename: `${invoiceId}.pdf`}] : []
             },
             send: true,
             preview: false,
@@ -28,9 +29,10 @@ export const sendMailWithTemplates = async (template: string, locals: any,  to: 
             message: { to }, 
             locals,
         })
-        // server.log.info(`email sent to ${to}`)
+        
+        logger.info(`email sent to ${to}`)
     } catch (err: any) {
-        // server.log.error(`unable send mail to: ${to}`)
-        // server.log.error(err)
+        logger.error(`unable send mail to: ${to}`)
+        logger.error(err)
     }
 }

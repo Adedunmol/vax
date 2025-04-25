@@ -8,15 +8,15 @@ import { sendMailWithTemplates } from '../../utils/mail'
 
 const emailWorker = new Worker('emails', async job => {
     try {
-        const { emailData, invoiceId, invoicePath, isReminder, reminderId } = job.data;
-    
-        logger.info('sending mail to: ')
+        const emailData = job.data;
+        
+        logger.info(emailData)
+        logger.info(`sending mail to: ${emailData.to}`)
 
-        // Send invoice via email
-        await sendMailWithTemplates(emailData.template, invoiceId, invoicePath)
+        await sendMailWithTemplates(emailData.template, emailData.locals, emailData.to)
 
-        if (isReminder) {
-            await db.update(reminders).set({ reminderStatus: 'sent' }).where(eq(reminders.id, reminderId)) // reminder.id
+        if (emailData.isReminder) {
+            await db.update(reminders).set({ reminderStatus: 'sent' }).where(eq(reminders.id, emailData.reminderId)) // reminder.id
         }
 
     } catch (err: any) {
