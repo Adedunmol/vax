@@ -26,9 +26,9 @@ const emailWorker = new Worker('emails', async job => {
 }, { connection: getRedisClient() })
 
 emailWorker.on('completed', job => {
-    logger.info(`${job.id} has completed`)
+    logger.info(`email task ${job.id} has completed`)
 })
 
 emailWorker.on('failed', (job, err) => {
-    logger.info(`${job!!.id} has failed due to ${err.message}`)
+    logger.info(`email task${job!!.id} has failed due to ${err.message}`)
 })

@@ -24,7 +24,7 @@ const invoiceWorker = new Worker('invoices', async job => {
 
         // Generate the invoice
         const data = {
-            logoUrl: reminderData.settings?.customLogo || "", // settings.customLogo
+            logoUrl: reminderData.settings?.customLogo || "",
             businessName: reminderData.users.username,
             invoiceId: reminderData.invoices.id,
             invoiceDate: (new Date()).toDateString(),
@@ -55,6 +55,9 @@ const invoiceWorker = new Worker('invoices', async job => {
             reminderId
         }
 
+        logger.info('emailData: ')
+        logger.info(emailData)
+
         // Queue email job with invoice details
         await sendToQueue('emails', emailData);
     } catch (err: any) {
@@ -64,9 +67,9 @@ const invoiceWorker = new Worker('invoices', async job => {
 }, { connection: getRedisClient() })
 
 invoiceWorker.on('completed', job => {
-    logger.info(`${job.id} has completed`)
+    logger.info(`invoice task ${job.id} has completed`)
 })
 
 invoiceWorker.on('failed', (job, err) => {
-    logger.info(`${job!!.id} has failed due to ${err.message}`)
+    logger.info(`invoice task ${job!!.id} has failed due to ${err.message}`)
 })
