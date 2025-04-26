@@ -4,7 +4,7 @@ import env from '../env'
 import { logger } from './logger'
 
 
-export const sendMailWithTemplates = async (template: string, locals: any,  to: string) => {
+export const sendMailWithTemplates = async (template: string, locals: any, to: string) => {
     try {
         // server.log.info('from send mail with templates: ', invoicePath)
         const email = new Email({
@@ -24,8 +24,12 @@ export const sendMailWithTemplates = async (template: string, locals: any,  to: 
             },
         })
 
+        const templatePath = path.join(__dirname, '..', 'emails', template)
+
+        logger.info(`template path: ${templatePath}`)
+
         await email.send({ 
-            template: path.join(__dirname, '..', 'emails', template), 
+            template: templatePath, 
             message: { to }, 
             locals,
         })

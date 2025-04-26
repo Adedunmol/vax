@@ -46,7 +46,8 @@ const invoiceWorker = new Worker('invoices', async job => {
                 clientName: (reminderData.clients.firstName || '') + (reminderData.clients.lastName || ''),
                 dueDate: (Number(reminderData.invoices.totalAmount || 0)) - (Number(reminderData.invoices.amountPaid || 0)),
                 userEmail: reminderData.users.email,
-                invoice: result
+                invoice: result,
+                currency: reminderData.settings?.currency || '$'
             },
             to: reminderData.clients.email,
             invoiceId, 
