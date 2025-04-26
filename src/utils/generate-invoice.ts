@@ -50,17 +50,19 @@ class PDFInvoice {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   
     // Load logo from Cloudinary
-    const logoImageBytes = (await fetch(data.logoUrl).then(res => res.arrayBuffer()));
-    const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.15);
-  
-    // Draw logo
-    page.drawImage(logoImage, {
-      x: 50,
-      y: height - 80,
-      width: logoDims.width,
-      height: logoDims.height,
-    });
+    if (data.logoUrl) {
+      const logoImageBytes = (await fetch(data.logoUrl).then(res => res.arrayBuffer()));
+      const logoImage = await pdfDoc.embedPng(logoImageBytes);
+      const logoDims = logoImage.scale(0.15);
+
+      // Draw logo
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 80,
+        width: logoDims.width,
+        height: logoDims.height,
+      });
+    }
   
     // Business name
     page.drawText(data.businessName, {
