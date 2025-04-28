@@ -1,24 +1,16 @@
-//- h1 Hello #{clientName} 👋
+h1 Hello #[strong #{clientName}] 👋
 
-//- p This is a friendly reminder from #{username} regarding your outstanding invoice.
-//- p Here are the details of your invoice:
+body
+  p This is a friendly reminder from #[strong #{username}] regarding your outstanding invoice.
+  p Here are the details of your invoice:
 
-//- ul
-//-   li #[strong Invoice ID:] #{invoiceId}
-//-   li #[strong Amount Due:] #{currency}#{amountDue}
-//-   li #[strong Due Date:] #{dueDate}
-//-   li #[strong Invoice:] #{invoice}
+  ul
+    li #[strong Invoice ID:] #{invoiceId}
+    li #[strong Amount Due:] #{currency}#{amountDue}
+    li #[strong Due Date:] #{dueDate}
+    li #[strong Invoice:] #[a(href=invoice target="_blank") View Invoice]
 
-//- p Kindly ensure payment is made by the due date to avoid any late fees or service interruptions.
-
-//- p If you have already made the payment, please disregard this message.
-//- p Feel free to contact #{userEmail} if you have any questions.
-
-//- p Thank you for your prompt attention to this matter!
-
-h1 Dear #[strong random],
-
-body 
-    p Hope this email finds you well.
-    p This is a friendly reminder that Invoice: 1 was due today.
-    p If you have already paid this invoice, kindly ignore this reminder.
+  p Kindly ensure payment is made by the due date to avoid any late fees or service interruptions.
+  p If you have already made the payment, please disregard this message.
+  p Feel free to contact #[strong #{userEmail}] if you have any questions.
+  p Thank you for your prompt attention to this matter!
