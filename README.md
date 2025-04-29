@@ -49,5 +49,5 @@ $ docker exec -d vax-app npm run db:migrate
 
 7. To stop the running containers, use:
 ```bash
-$ docker-compose down
+$ docker-compose -f docker-compose.dev.yml down
 ```

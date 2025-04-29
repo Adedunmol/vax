@@ -24,8 +24,9 @@ import fastifyCors from '@fastify/cors'
 import fastifyHelmet from '@fastify/helmet'
 import fastifyCompress from '@fastify/compress'
 import invoiceQueue from '../queues/invoice/producer'
-import { closeRedisClient, getRedisClient } from '../queues/redis'
+import { getRedisClient } from '../queues/redis'
 import fastifySchedule from '@fastify/schedule'
+import fastifyMultipart from '@fastify/multipart'
 
 
 export async function registerPlugins(server: FastifyInstance) {
@@ -33,6 +34,12 @@ export async function registerPlugins(server: FastifyInstance) {
   server.register(fastifyCors);
   server.register(fastifyHelmet);
   server.register(fastifyCompress);
+  server.register(fastifyMultipart, {
+    limits: {
+      fileSize: 1 * 1024 * 1024, // 1MB
+      
+    }
+  })
   // await server.register(fastifyGracefulShutdown);
   
   server.register(fastifyJwt, { secret: env.JWT_SECRET })

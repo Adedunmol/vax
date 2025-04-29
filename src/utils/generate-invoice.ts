@@ -125,10 +125,10 @@ class PDFInvoice {
     return Buffer.from(pdfBytes);
   }
 
-  async uploadToCloudinary(pdfBuffer: Buffer, filename: string): Promise<string> {
+  async uploadToCloudinary(pdfBuffer: Buffer, filename: string, folder: string, format: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', folder: 'invoices', public_id: `${filename}`, format: 'pdf'},
+        { resource_type: 'raw', folder, public_id: `${filename}`, format},
         (err, result) => {
           if (err) return reject(err);
           resolve(result!.secure_url);

@@ -1,4 +1,4 @@
-import Fastify, { FastifyRequest, FastifyError, FastifyReply } from 'fastify'
+import Fastify, { FastifyRequest, FastifyReply } from 'fastify'
 import { logger } from '../utils/logger'
 
 function errorHandler(err: any, req: FastifyRequest, reply: FastifyReply) {
@@ -26,6 +26,10 @@ function errorHandler(err: any, req: FastifyRequest, reply: FastifyReply) {
       statusCode = 400;
       status = 'error'
       message = err.message;
+    } else if (err.statusCode === 413) {
+      status = 'error'
+      message = 'File size exceeds the allowed limit of 1MB'
+      statusCode = 413
     } else {
       logger.error(err);
   }

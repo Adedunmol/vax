@@ -1,7 +1,6 @@
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify'
 import { registerPlugins } from './utils/register-plugins'
 import { errorSchemas } from './errors/schema-base'
-import userRoutes from './modules/user/user.route'
 import { userSchemas } from './modules/user/user.schema'
 import { settingsSchemas } from './modules/settings/settings.schema'
 import { reminderSchemas } from './modules/reminder/reminder.schema'

@@ -37,7 +37,7 @@ const invoiceWorker = new Worker('invoices', async job => {
             items: reminderData.invoices.items
         }
         const pdfBuffer = await PDFInvoice.generateInvoicePDF(data)
-        const result = await PDFInvoice.uploadToCloudinary(pdfBuffer, `invoice_${invoiceId}`);
+        const result = await PDFInvoice.uploadToCloudinary(pdfBuffer, `invoice_${invoiceId}`, 'invoices', 'pdf');
     
         const emailData = {
             template: 'reminder',
