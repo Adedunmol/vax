@@ -37,8 +37,8 @@ export async function registerPlugins(server: FastifyInstance) {
   server.register(fastifyMultipart, {
     limits: {
       fileSize: 1 * 1024 * 1024, // 1MB
-      
-    }
+    },
+    attachFieldsToBody: 'keyValues'
   })
   // await server.register(fastifyGracefulShutdown);
   
