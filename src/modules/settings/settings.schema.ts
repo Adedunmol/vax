@@ -23,7 +23,7 @@ const settingsResponse = z.object({
         id: z.number(),
         userId: z.number(),
         currency: z.string(),
-        customLogo: z.string(),
+        custom_logo: z.string(),
         notify_before: z.number(),
         recurrentReminders: z.boolean(),
         recurrentInterval: z.number()

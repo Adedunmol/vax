@@ -2,10 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import SettingsService from './settings.service'
 import { UpdateSettingsInput } from './settings.schema'
 import PDFInvoice from '../../utils/generate-invoice'
+import { logger } from '../../utils/logger'
 
-interface Body {
-    upload: string
-}
 
 export async function updateSettingsHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -26,14 +24,17 @@ export async function updateSettingsHandler(request: FastifyRequest, reply: Fast
                 const buffer = await part.toBuffer();
 
                 if (buffer.length > 1 * 1024 * 1024) {
-                return reply.code(400).send({
-                    status: 'error',
-                    message: 'Logo must be under 1MB'
-                });
+                    return reply.code(400).send({
+                        status: 'error',
+                        message: 'Logo must be under 1MB'
+                    });
                 }
 
                 const filename = `user-${userId}-logo`;
                 customLogoUrl = await PDFInvoice.uploadToCloudinary(buffer, filename, 'logos', 'png');
+
+                logger.info(`custom logo url: ${customLogoUrl}`)
+
                 updateData.custom_logo = customLogoUrl;
             } else if (part.type === 'field') {
                 const key = part.fieldname as keyof UpdateSettingsInput;
@@ -47,6 +48,9 @@ export async function updateSettingsHandler(request: FastifyRequest, reply: Fast
                 }
             }
         }
+
+        logger.info(`updateData:`)
+        logger.info(updateData)
 
         const settings = await SettingsService.update(userId, updateData);
 

@@ -38,7 +38,7 @@ export async function registerPlugins(server: FastifyInstance) {
     limits: {
       fileSize: 1 * 1024 * 1024, // 1MB
     },
-    attachFieldsToBody: 'keyValues'
+    attachFieldsToBody: false // 'keyValues'
   })
   // await server.register(fastifyGracefulShutdown);
   
