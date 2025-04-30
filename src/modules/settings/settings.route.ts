@@ -21,19 +21,46 @@ async function settingsRoutes(server: FastifyInstance) {
     
     server.patch(
         '/update',
-        { 
-            schema: { 
-                body: $ref('updateSettingsSchema'), 
-                response: {
-                    200: $ref('settingsResponse'),
-                    400: $errorRef('errorSchema')
-                },
-                tags: ['settings']
+        {
+          schema: {
+            consumes: ['multipart/form-data'],
+            // body: {
+            //   type: 'object',
+            //   properties: {
+            //     custom_logo: {
+            //       type: 'string',
+            //       format: 'binary',
+            //       description: 'The custom logo image (PNG, max 1MB)'
+            //     },
+            //     currency: {
+            //       type: 'string',
+            //       minLength: 3,
+            //       maxLength: 3,
+            //       description: '3-letter currency code (e.g., USD)'
+            //     },
+            //     notify_before: {
+            //       type: 'integer',
+            //       minimum: 0
+            //     },
+            //     recurrent_reminders: {
+            //       type: 'boolean'
+            //     },
+            //     recurrent_interval: {
+            //       type: 'integer',
+            //       minimum: 0
+            //     }
+            //   }
+            // },
+            response: {
+              200: $ref('settingsResponse'),
+              400: $errorRef('errorSchema')
             },
-            preHandler: [server.authenticate]
-        }, 
-    updateSettingsHandler
-    )
+            tags: ['settings']
+          },
+          preHandler: [server.authenticate]
+        },
+        updateSettingsHandler
+      );
 }
 
 export default settingsRoutes

@@ -12,7 +12,7 @@ const settings = pgTable('settings', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').references(() => users.id).unique(),
     currency: varchar('currency', { length: 3 }),
-    customLogo: varchar('custom_logo', { length: 255 }),
+    custom_logo: varchar('custom_logo', { length: 255 }),
     notify_before: integer('notify_before').default(0),
     recurrentReminders: boolean('recurrent_reminders').default(true),
     recurrentInterval: integer('recurrent_interval').default(7),

@@ -24,7 +24,7 @@ const invoiceWorker = new Worker('invoices', async job => {
 
         // Generate the invoice
         const data = {
-            logoUrl: reminderData.settings?.customLogo || "",
+            logoUrl: reminderData.settings?.custom_logo || "",
             businessName: reminderData.users.username,
             invoiceId: reminderData.invoices.id,
             invoiceDate: (new Date()).toDateString(),
