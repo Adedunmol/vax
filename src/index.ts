@@ -37,8 +37,8 @@ async function main() {
         })
     
     } catch (err) {
-        server.log.error('error starting server')
-        server.log.error(err)
+        logger.error('error starting server')
+        logger.error(err)
         process.exit(1)
     }
 

@@ -105,7 +105,7 @@ export async function registerPlugins(server: FastifyInstance) {
   server.register(settingsRoutes, { prefix: 'api/v1/settings' })
 
   server.register(fastifyCookie, {
-    secret: 'your-secret-key',
+    secret: env.SECRET_KEY,
     // hook: 'onRequest',
   })
 
