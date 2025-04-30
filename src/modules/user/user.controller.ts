@@ -54,12 +54,12 @@ export async function loginUserHandler(request: FastifyRequest<{ Body: LoginUser
         // update user's last login
         await UserService.updateSettings({ userId: user.users.id, lastLogin: new Date() })
 
-        const refreshToken = request.jwt.sign({ id: user.users.id, email: user.users.email })
+        const refreshToken = request.jwt.sign({ id: user.users.id, email: user.users.email }, { expiresIn: '1d' })
 
         await UserService.update(user.users.id, { refreshToken })
 
         reply.setCookie('jwt', refreshToken, { httpOnly: true, maxAge: 15 * 60 * 1000, sameSite: 'none' })
-        return reply.code(200).send({ status: 'success', message: 'User logged in succesfully', data: { access_token: request.jwt.sign({ id: user.users.id, email: user.users.email }) } })
+        return reply.code(200).send({ status: 'success', message: 'User logged in succesfully', data: { access_token: request.jwt.sign({ id: user.users.id, email: user.users.email }, { expiresIn: '1h' }) } })
     } catch (err) {
         // server.log.error(err)
 
@@ -138,8 +138,8 @@ export async function refreshTokenHandler(request: FastifyRequest, reply: Fastif
             return reply.code(403).send({ status: 'error', message: 'Bad token' });
         }
     
-        const accessToken = request.jwt.sign({ id: user.id, email: user.email });
-        const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email });
+        const accessToken = request.jwt.sign({ id: user.id, email: user.email }, { expiresIn: '1h' });
+        const newRefreshToken = request.jwt.sign({ id: user.id, email: user.email }, { expiresIn: '1d' });
     
         await UserService.update(user.id, { refreshToken: newRefreshToken });
 
