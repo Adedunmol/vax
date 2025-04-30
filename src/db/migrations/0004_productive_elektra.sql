@@ -1,0 +1,1 @@
+ALTER TABLE "settings" ALTER COLUMN "recurrent_interval" SET DEFAULT 7;
