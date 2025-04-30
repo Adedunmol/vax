@@ -15,7 +15,7 @@ const settings = pgTable('settings', {
     customLogo: varchar('custom_logo', { length: 255 }),
     notify_before: integer('notify_before').default(0),
     recurrentReminders: boolean('recurrent_reminders').default(true),
-    recurrentInterval: integer('recurrent_interval').default(0),
+    recurrentInterval: integer('recurrent_interval').default(7),
     lastLogin: timestamp('last_login').defaultNow(),
     ...timestamps
 })
