@@ -13,4 +13,4 @@ const reminderTask = new AsyncTask(
         logger.error(err)
     }
 )
-export const reminderJob = new SimpleIntervalJob({ days: 1, }, reminderTask)
+export const reminderJob = new SimpleIntervalJob({ seconds: 20, }, reminderTask)

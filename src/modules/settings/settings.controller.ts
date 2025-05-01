@@ -31,7 +31,7 @@ export async function updateSettingsHandler(request: FastifyRequest, reply: Fast
                 }
 
                 const filename = `user-${userId}-logo`;
-                customLogoUrl = await PDFInvoice.uploadToCloudinary(buffer, filename, 'logos', 'png');
+                customLogoUrl = await PDFInvoice.uploadToCloudinary(buffer, filename, 'logos', 'png', 'png');
 
                 logger.info(`custom logo url: ${customLogoUrl}`)
 

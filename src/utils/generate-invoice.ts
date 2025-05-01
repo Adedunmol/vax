@@ -50,19 +50,19 @@ class PDFInvoice {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   
     // Load logo from Cloudinary
-    if (data.logoUrl) {
-      const logoImageBytes = (await fetch(data.logoUrl).then(res => res.arrayBuffer()));
-      const logoImage = await pdfDoc.embedPng(logoImageBytes);
-      const logoDims = logoImage.scale(0.15);
+    // if (data.logoUrl) {
+    //   const logoImageBytes = (await fetch(data.logoUrl).then(res => res.arrayBuffer()));
+    //   const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    //   const logoDims = logoImage.scale(0.15);
 
-      // Draw logo
-      page.drawImage(logoImage, {
-        x: 50,
-        y: height - 80,
-        width: logoDims.width,
-        height: logoDims.height,
-      });
-    }
+    //   // Draw logo
+    //   page.drawImage(logoImage, {
+    //     x: 50,
+    //     y: height - 80,
+    //     width: logoDims.width,
+    //     height: logoDims.height,
+    //   });
+    // }
   
     // Business name
     page.drawText(data.businessName, {
@@ -125,10 +125,13 @@ class PDFInvoice {
     return Buffer.from(pdfBytes);
   }
 
-  async uploadToCloudinary(pdfBuffer: Buffer, filename: string, folder: string, format: string): Promise<string> {
+  async uploadToCloudinary(pdfBuffer: Buffer, filename: string, folder: string, format: string, type: 'png' | 'jpg' | 'jpeg' | 'pdf'): Promise<string> {
     return new Promise((resolve, reject) => {
+      const isImage = ['png', 'jpg', 'jpeg'].includes(format);
+      const resourceType = isImage ? 'image' : 'raw';
+
       const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', folder, public_id: `${filename}`, format},
+        { resource_type: resourceType, folder, public_id: `${filename}`, format, type: 'upload', access_mode: 'public'},
         (err, result) => {
           if (err) return reject(err);
           resolve(result!.secure_url);

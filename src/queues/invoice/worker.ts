@@ -37,7 +37,7 @@ const invoiceWorker = new Worker('invoices', async job => {
             items: reminderData.invoices.items
         }
         const pdfBuffer = await PDFInvoice.generateInvoicePDF(data)
-        const result = await PDFInvoice.uploadToCloudinary(pdfBuffer, `invoice_${invoiceId}`, 'invoices', 'pdf');
+        const result = await PDFInvoice.uploadToCloudinary(pdfBuffer, `invoice_${invoiceId}`, 'invoices', 'pdf', 'pdf');
     
         const emailData = {
             template: 'reminder',
@@ -47,7 +47,7 @@ const invoiceWorker = new Worker('invoices', async job => {
                 dueDate: (Number(reminderData.invoices.totalAmount || 0)) - (Number(reminderData.invoices.amountPaid || 0)),
                 userEmail: reminderData.users.email,
                 invoice: result,
-                currency: reminderData.settings?.currency || '$'
+                currency: reminderData.settings?.currency || 'USD'
             },
             to: reminderData.clients.email,
             invoiceId, 
