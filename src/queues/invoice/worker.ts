@@ -44,10 +44,11 @@ const invoiceWorker = new Worker('invoices', async job => {
             locals: {
                 username: reminderData.users.firstName,
                 clientName: (reminderData.clients.firstName || '') + (reminderData.clients.lastName || ''),
-                dueDate: (Number(reminderData.invoices.totalAmount || 0)) - (Number(reminderData.invoices.amountPaid || 0)),
+                dueDate: reminderData.invoices.dueDate,
                 userEmail: reminderData.users.email,
                 invoice: result,
-                currency: reminderData.settings?.currency || 'USD'
+                currency: reminderData.settings?.currency || 'USD',
+                amountDue: (Number(reminderData.invoices.totalAmount || 0)) - (Number(reminderData.invoices.amountPaid || 0)),
             },
             to: reminderData.clients.email,
             invoiceId, 
